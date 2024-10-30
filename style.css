@@ -1,32 +1,42 @@
+/* Reset styles */
 * {
-  box-sizing: border-box;
   margin: 0;
   padding: 0;
+  box-sizing: border-box;
 }
 
 body {
-  font-family: Arial, sans-serif;
-  background-color: transparent;
+  font-family: 'Poppins', sans-serif;
+  background-color: #f4f4f4;
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh; /* Ensure full height without extra space */
-  margin: 0; 
+  height: 100vh;
+  padding: 20px;
 }
 
 .tool-container {
-  max-width: 600px;
+  max-width: 500px;
   width: 100%;
-  padding: 20px;
-  border-radius: 8px;
   background-color: white;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  animation: fadeIn 0.8s ease-out;
 }
 
 h1 {
-  font-size: 24px;
+  font-size: 28px;
   text-align: center;
-  margin-bottom: 15px;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.intro-text {
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 16px;
+  color: #666;
 }
 
 .input-group {
@@ -35,17 +45,24 @@ h1 {
 
 label {
   font-size: 16px;
-  display: block;
   margin-bottom: 5px;
+  display: block;
+  color: #333;
 }
 
 input {
   width: 100%;
   padding: 10px;
   font-size: 16px;
-  margin-bottom: 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  margin-top: 5px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  transition: border-color 0.3s;
+}
+
+input:focus {
+  border-color: #007bff;
+  outline: none;
 }
 
 .radio-group {
@@ -61,7 +78,7 @@ button {
   background-color: #007bff;
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: 8px;
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
@@ -72,6 +89,19 @@ button:hover {
 
 #result {
   margin-top: 20px;
-  font-size: 16px;
   text-align: center;
+  font-size: 18px;
+  color: #333;
+}
+
+/* Keyframe animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
