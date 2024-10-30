@@ -9,6 +9,7 @@
 <body>
   <div class="tool-container">
     <h1>Fine Art Aspect Ratio Calculator</h1>
+    <p class="intro-text">Easily calculate your artwork’s dimensions to avoid cropping or distortion. Try different sizes and discover common frame options that fit your design perfectly.</p>
 
     <form id="aspectRatioForm">
       <div class="input-group">
@@ -26,10 +27,10 @@
         <label for="resizeMode">Resize to New Size</label>
 
         <input type="radio" id="suggestMode" name="mode" value="suggest">
-        <label for="suggestMode">Suggest Common Frame Sizes</label>
+        <label for="suggestMode">Suggest Frame Sizes</label>
       </div>
 
-      <div class="input-group">
+      <div class="input-group hidden" id="newSizeFields">
         <label for="newWidth">New Width (optional):</label>
         <input type="number" id="newWidth" step="0.01" min="0">
 
