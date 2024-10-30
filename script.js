@@ -77,4 +77,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
     return matches.map(frame => frame.size).join(", ");
   }
+
+  // iFrame Resizing Logic
+  window.addEventListener('message', function (event) {
+    if (event.origin !== 'https://monochromecanvas.github.io') return; // Validate the origin
+    const iframe = document.querySelector('iframe');
+    if (event.data.height && iframe) {
+      iframe.style.height = `${event.data.height}px`;
+    }
+  });
 });
