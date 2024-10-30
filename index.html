@@ -3,41 +3,44 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Aspect Ratio Calculator</title>
+  <title>Fine Art Aspect Ratio Calculator</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-
-  <div class="container">
-    <h1>Artwork Resizing & Aspect Ratio Calculator</h1>
+  <div class="tool-container">
+    <h1>Fine Art Aspect Ratio Calculator</h1>
 
     <form id="aspectRatioForm">
-      <div>
-        <label>Original Width:</label>
-        <input type="number" id="originalWidth" placeholder="e.g., 8.5" step="0.01" min="0" required>
-      </div>
-      <div>
-        <label>Original Height:</label>
-        <input type="number" id="originalHeight" placeholder="e.g., 11" step="0.01" min="0" required>
+      <div class="input-group">
+        <label for="originalWidth">Original Width (inches):</label>
+        <input type="number" id="originalWidth" step="0.01" min="0" placeholder="e.g., 8.5" required>
       </div>
 
-      <div>
-        <input type="radio" name="mode" value="resize" checked> Resize to Desired Size
-        <input type="radio" name="mode" value="suggest"> Suggest Common Frame Sizes
+      <div class="input-group">
+        <label for="originalHeight">Original Height (inches):</label>
+        <input type="number" id="originalHeight" step="0.01" min="0" placeholder="e.g., 11" required>
       </div>
 
-      <div class="desired-size">
-        <label>New Width:</label>
-        <input type="number" id="newWidth" placeholder="Optional" step="0.01" min="0">
-        <label>New Height:</label>
-        <input type="number" id="newHeight" placeholder="Optional" step="0.01" min="0">
+      <div class="radio-group">
+        <input type="radio" id="resizeMode" name="mode" value="resize" checked>
+        <label for="resizeMode">Resize to New Size</label>
+
+        <input type="radio" id="suggestMode" name="mode" value="suggest">
+        <label for="suggestMode">Suggest Common Frame Sizes</label>
       </div>
 
-      <button type="submit">Generate</button>
+      <div class="input-group">
+        <label for="newWidth">New Width (optional):</label>
+        <input type="number" id="newWidth" step="0.01" min="0">
+
+        <label for="newHeight">New Height (optional):</label>
+        <input type="number" id="newHeight" step="0.01" min="0">
+      </div>
+
+      <button type="submit">Calculate</button>
     </form>
 
     <div id="result"></div>
-
   </div>
 
   <script src="script.js"></script>
