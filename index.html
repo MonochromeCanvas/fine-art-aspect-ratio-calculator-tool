@@ -3,171 +3,48 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Fine Art Aspect Ratio Calculator</title>
-  <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-  <div class="container">
-    <h1>Artwork Resizing & Aspect Ratio Calculator</h1>
-
-    <form id="aspectRatioForm">
-      <div>
-        <label>Original Width:</label>
-        <input type="number" id="originalWidth" placeholder="e.g., 8.5" step="0.01" min="0" required>
-      </div>
-      <div>
-        <label>Original Height:</label>
-        <input type="number" id="originalHeight" placeholder="e.g., 11" step="0.01" min="0" required>
-      </div>
-
-      <div>
-        <input type="radio" name="mode" value="resize" checked> Resize to Desired Size
-        <input type="radio" name="mode" value="suggest"> Suggest Common Frame Sizes
-      </div>
-
-      <div id="newSizeFields" style="display: block;">
-        <label>New Width:</label>
-        <input type="number" id="newWidth" placeholder="Optional" step="0.01" min="0">
-        <label>New Height:</label>
-        <input type="number" id="newHeight" placeholder="Optional" step="0.01" min="0">
-      </div>
-
-      <button type="submit">Generate</button>
-    </form>
-
-    <div id="result"></div>
-
-  </div>
-
-  <!-- Monochrome Canvas call-to-action link -->
-  <p style="text-align: center; font-size: 14px; margin-top: 20px;">
-    Created by <a href="https://monochromecanvas.com" target="_blank">Monochrome Canvas</a> — Ready to print your resized artwork? <a href="https://monochromecanvas.com/collections/order-giclee-prints" target="_blank">Order custom prints here.</a>
-  </p>
-
-  <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      const modeRadios = document.getElementsByName('mode');
-      const newSizeFields = document.getElementById('newSizeFields');
-      const resultDiv = document.getElementById('result');
-
-      // Toggle new size fields based on selected mode
-      modeRadios.forEach(radio => {
-        radio.addEventListener('change', function () {
-          const isResizeMode = this.value === 'resize';
-          newSizeFields.style.display = isResizeMode ? 'block' : 'none';
-          resultDiv.innerHTML = '';
-        });
-      });
-
-      document.getElementById('aspectRatioForm').addEventListener('submit', function (e) {
-        e.preventDefault();
-
-        const mode = document.querySelector('input[name="mode"]:checked').value;
-        const originalWidth = parseFloat(document.getElementById('originalWidth').value);
-        const originalHeight = parseFloat(document.getElementById('originalHeight').value);
-
-        if (isNaN(originalWidth) || isNaN(originalHeight) || originalWidth <= 0 || originalHeight <= 0) {
-          resultDiv.innerHTML = '<strong>Please enter valid dimensions.</strong>';
-          return;
-        }
-
-        const originalAspectRatio = (originalWidth / originalHeight).toFixed(2);
-        let message = `<strong>Aspect Ratio:</strong> ${originalWidth} : ${originalHeight} (${originalAspectRatio} : 1)<br>`;
-
-        if (mode === 'suggest') {
-          const suggestedFrames = getSuggestedFrames(originalAspectRatio);
-
-          if (suggestedFrames.length === 0) {
-            message += `<strong>No exact match found.</strong> Consider custom framing options.`;
-          } else {
-            message += `<strong>Suggested Frame Sizes:</strong> ${suggestedFrames.join(", ")}`;
-          }
-        } else if (mode === 'resize') {
-          const newWidth = parseFloat(document.getElementById('newWidth').value);
-          const newHeight = parseFloat(document.getElementById('newHeight').value);
-
-          if (newWidth && !newHeight) {
-            const calculatedHeight = (newWidth / originalAspectRatio).toFixed(2);
-            message += `<strong>New Dimensions:</strong> ${newWidth}" (W) x ${calculatedHeight}" (H)`;
-          } else if (!newWidth && newHeight) {
-            const calculatedWidth = (newHeight * originalAspectRatio).toFixed(2);
-            message += `<strong>New Dimensions:</strong> ${calculatedWidth}" (W) x ${newHeight}" (H)`;
-          } else {
-            message += `<strong>Please enter either a new width or a new height.</strong>`;
-          }
-        }
-
-        resultDiv.innerHTML = message;
-      });
-
-      function getSuggestedFrames(aspectRatio) {
-        const standardFrames = [
-          { size: "4x6 inches", ratio: (4 / 6).toFixed(2) },
-          { size: "5x7 inches", ratio: (5 / 7).toFixed(2) },
-          { size: "8x10 inches", ratio: (8 / 10).toFixed(2) },
-          { size: "8.5x11 inches", ratio: (8.5 / 11).toFixed(2) },
-          { size: "10x13 inches", ratio: (10 / 13).toFixed(2) },
-          { size: "10x20 inches", ratio: (10 / 20).toFixed(2) },
-          { size: "11x14 inches", ratio: (11 / 14).toFixed(2) },
-          { size: "11x17 inches", ratio: (11 / 17).toFixed(2) },
-          { size: "12x12 inches", ratio: (12 / 12).toFixed(2) },
-          { size: "12x16 inches", ratio: (12 / 16).toFixed(2) },
-          { size: "12x36 inches", ratio: (12 / 36).toFixed(2) },
-          { size: "16x20 inches", ratio: (16 / 20).toFixed(2) },
-          { size: "18x24 inches", ratio: (18 / 24).toFixed(2) },
-          { size: "24x36 inches", ratio: (24 / 36).toFixed(2) },
-          { size: "27x40 inches", ratio: (27 / 40).toFixed(2) }
-        ];
-
-        const tolerance = 0.01;
-        return standardFrames
-          .filter(frame => Math.abs(frame.ratio - aspectRatio) < tolerance)
-          .map(frame => frame.size);
-      }
-    });
-  </script>
-
+  <title>Fine Art Aspect Ratio Calculator for Custom Prints | Monochrome Canvas</title>
+  <meta name="description" content="Use Monochrome Canvas's Fine Art Aspect Ratio Calculator to resize artwork, calculate frame sizes, and prepare images for custom, high-quality prints. Ideal for artists and photographers needing custom framing and giclée printing solutions.">
+  <meta name="keywords" content="aspect ratio calculator, artwork resizing, frame size calculator, custom prints, giclée printing, fine art prints, photography prints, archival printing, custom framing, Akron Ohio, Cleveland Ohio, Ohio print shop, digital art resizing, Monochrome Canvas">
   <style>
-    /* Basic styling */
+    /* Brand styles */
     body {
       font-family: Arial, sans-serif;
-      background-color: #f4f4f4;
-      padding: 20px;
+      background-color: #F4F5F7;
+      color: #333;
       text-align: center;
+      padding: 20px;
     }
-
-    .container {
+    .tool-container {
       max-width: 600px;
       margin: 0 auto;
       padding: 20px;
       background: #fff;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
       border-radius: 8px;
+      border-left: 5px solid #A1A08F;
     }
-
     h1 {
       font-size: 24px;
-      margin-bottom: 10px;
-      color: #333;
+      color: #3F725C;
     }
-
     label {
       font-weight: bold;
       display: block;
       margin-top: 15px;
-      color: #333;
+      color: #3F725C;
     }
-
     input[type="number"] {
       padding: 8px;
       width: 100%;
       max-width: 200px;
       margin: 5px auto;
+      border: 1px solid #A1A08F;
+      border-radius: 4px;
     }
-
     button {
-      background-color: #007bff;
-      color: white;
+      background-color: #A1A08F;
+      color: #fff;
       padding: 10px 20px;
       border: none;
       border-radius: 5px;
@@ -176,17 +53,81 @@
       transition: background-color 0.3s ease;
       margin-top: 15px;
     }
-
     button:hover {
-      background-color: #0056b3;
+      background-color: #3F725C;
     }
-
     #result {
       margin-top: 20px;
       font-size: 16px;
       color: #333;
     }
+    .cta {
+      font-size: 14px;
+      margin-top: 20px;
+      color: #3F725C;
+    }
+    .cta a {
+      color: #A1A08F;
+      text-decoration: none;
+    }
+    .cta a:hover {
+      color: #3F725C;
+      text-decoration: underline;
+    }
+    .logo-container {
+      margin-top: 30px;
+      text-align: center;
+    }
+    .logo-container img {
+      max-width: 150px;
+      height: auto;
+    }
   </style>
+</head>
+<body>
+  <div class="tool-container">
+    <h1>Fine Art Aspect Ratio Calculator</h1>
+    <p class="intro">Easily resize your artwork for prints and find matching frame sizes with Monochrome Canvas's aspect ratio calculator. Ideal for artists, photographers, and creators preparing art for custom giclée printing and gallery framing.</p>
 
+    <form id="aspectRatioForm">
+      <div class="input-group">
+        <label for="originalWidth">Original Width (inches):</label>
+        <input type="number" id="originalWidth" step="0.01" min="0" placeholder="e.g., 8.5" required>
+      </div>
+      <div class="input-group">
+        <label for="originalHeight">Original Height (inches):</label>
+        <input type="number" id="originalHeight" step="0.01" min="0" placeholder="e.g., 11" required>
+      </div>
+
+      <div class="radio-group">
+        <input type="radio" id="resizeMode" name="mode" value="resize" checked>
+        <label for="resizeMode">Resize to New Size</label>
+        <input type="radio" id="suggestMode" name="mode" value="suggest">
+        <label for="suggestMode">Suggest Common Frame Sizes</label>
+      </div>
+
+      <div id="newSizeFields">
+        <label for="newWidth">New Width (optional):</label>
+        <input type="number" id="newWidth" step="0.01" min="0">
+        <label for="newHeight">New Height (optional):</label>
+        <input type="number" id="newHeight" step="0.01" min="0">
+      </div>
+
+      <button type="submit">Generate</button>
+    </form>
+
+    <div id="result"></div>
+
+    <p class="cta">
+      Created by <a href="https://monochromecanvas.com" target="_blank">Monochrome Canvas</a> — Your destination for <a href="https://monochromecanvas.com/collections/order-giclee-prints" target="_blank">high-quality giclée prints</a>, fine art reproduction, and custom framing solutions.
+    </p>
+  </div>
+
+  <!-- Logo at the bottom -->
+  <div class="logo-container">
+    <img src="path/to/Logo+flowers.png" alt="Monochrome Canvas Logo">
+  </div>
+
+  <script src="script.js"></script>
 </body>
 </html>
