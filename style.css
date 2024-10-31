@@ -1,107 +1,121 @@
-/* Reset styles */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
+/* Body and container styling */
 body {
-  font-family: 'Poppins', sans-serif;
-  background-color: #f4f4f4;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  padding: 20px;
+    font-family: 'Libertinus Serif', serif;
+    background-color: #F4F5F7;
+    color: #333;
+    text-align: center;
+    padding: 20px;
 }
 
-.tool-container {
-  max-width: 500px;
-  width: 100%;
-  background-color: white;
-  padding: 30px;
-  border-radius: 15px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-  animation: fadeIn 0.8s ease-out;
+.container, .tool-container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    background: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    border-left: 5px solid #A1A08F;
 }
 
+/* Header and label styling */
 h1 {
-  font-size: 28px;
-  text-align: center;
-  margin-bottom: 10px;
-  color: #333;
-}
-
-.intro-text {
-  text-align: center;
-  margin-bottom: 20px;
-  font-size: 16px;
-  color: #666;
-}
-
-.input-group {
-  margin-bottom: 15px;
+    font-size: 24px;
+    color: #3F725C;
+    margin-bottom: 10px;
 }
 
 label {
-  font-size: 16px;
-  margin-bottom: 5px;
-  display: block;
-  color: #333;
+    font-weight: bold;
+    display: block;
+    margin-top: 15px;
+    color: #3F725C;
 }
 
-input {
-  width: 100%;
-  padding: 10px;
-  font-size: 16px;
-  margin-top: 5px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  transition: border-color 0.3s;
+/* Input fields styling */
+input[type="number"] {
+    padding: 8px;
+    width: 100%;
+    max-width: 200px;
+    margin: 5px auto;
+    border: 1px solid #A1A08F;
+    border-radius: 4px;
+    font-family: Arial, sans-serif;
 }
 
-input:focus {
-  border-color: #007bff;
-  outline: none;
-}
-
-.radio-group {
-  display: flex;
-  justify-content: space-around;
-  margin-bottom: 20px;
-}
-
+/* Button styling */
 button {
-  width: 100%;
-  padding: 12px;
-  font-size: 18px;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
+    background-color: #A1A08F;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-top: 15px;
+    font-family: Arial, sans-serif;
 }
 
 button:hover {
-  background-color: #0056b3;
+    background-color: #3F725C;
 }
 
+/* Result and call-to-action text styling */
 #result {
-  margin-top: 20px;
-  text-align: center;
-  font-size: 18px;
-  color: #333;
+    margin-top: 20px;
+    font-size: 16px;
+    color: #333;
 }
 
-/* Keyframe animation */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
+.cta {
+    font-size: 14px;
+    margin-top: 20px;
+    color: #3F725C;
+}
+
+.cta a {
+    color: #A1A08F;
+    text-decoration: none;
+}
+
+.cta a:hover {
+    color: #3F725C;
+    text-decoration: underline;
+}
+
+/* Logo styling */
+.logo-container {
+    margin-top: 30px;
+    text-align: center;
+}
+
+.logo-container img {
+    max-width: 150px;
+    height: auto;
+    opacity: 0.85;
+    transition: opacity 0.3s ease;
+}
+
+.logo-container img:hover {
     opacity: 1;
-    transform: translateY(0);
-  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+    .tool-container, .logo-container {
+        padding: 15px;
+    }
+    
+    h1 {
+        font-size: 20px;
+    }
+    
+    button {
+        padding: 8px 16px;
+        font-size: 14px;
+    }
+    
+    #result, .cta {
+        font-size: 14px;
+    }
 }
