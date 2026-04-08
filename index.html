@@ -3,16 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Fine Art Aspect Ratio Calculator for Custom Prints | Monochrome Canvas</title>
+  <title>Aspect Ratio & Frame Size Helper | Monochrome Canvas</title>
   <meta
     name="description"
-    content="Use Monochrome Canvas's Fine Art Aspect Ratio Calculator to compare common frame sizes, preview white borders, upload artwork, and download bordered files for print."
+    content="Use Monochrome Canvas's aspect ratio helper to enter your artwork size, find the ratio, compare common frame sizes, and check uploaded files at 300 PPI."
   >
   <meta name="theme-color" content="#3f725c">
-  <meta property="og:title" content="Fine Art Aspect Ratio Calculator | Monochrome Canvas">
+  <meta property="og:title" content="Aspect Ratio & Frame Size Helper | Monochrome Canvas">
   <meta
     property="og:description"
-    content="Preview white borders, compare frame sizes, and export bordered artwork for print."
+    content="Measure your artwork, find your aspect ratio, and see what common frame sizes fit best."
   >
   <meta property="og:type" content="website">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -24,94 +24,40 @@
   <main class="app-shell">
     <section class="hero-card">
       <p class="eyebrow">Monochrome Canvas Tool</p>
-      <h1>Fine Art Aspect Ratio Calculator</h1>
+      <h1>Aspect Ratio &amp; Frame Size Helper</h1>
       <p class="hero-copy">
-        Use this tool to compare aspect ratios, find likely frame fits, preview a white border, and export a bordered PNG from your uploaded artwork.
+        Measure your artwork, enter the width and height, and this tool will help you understand the aspect ratio, whether it matches a common frame size, and what to do next if it does not.
       </p>
-      <div class="hero-points" aria-label="Calculator benefits">
-        <div class="hero-point">Compare custom and standard sizes</div>
-        <div class="hero-point">See how a white border changes frame fit</div>
-        <div class="hero-point">Download a bordered file for print prep</div>
+      <div class="hero-points" aria-label="Tool benefits">
+        <div class="hero-point">Find your aspect ratio from the artwork size itself</div>
+        <div class="hero-point">See whether the piece already fits a common frame size</div>
+        <div class="hero-point">Get next-step guidance when a border or custom sizing would help</div>
       </div>
     </section>
 
-    <section class="tool-card">
-      <div class="section-heading">
-        <p class="section-label">Step 1</p>
-        <h2>Enter your artwork details</h2>
-        <p>
-          Start with the size of your artwork itself. If you want, upload your file to preview how it will look with a white border.
-        </p>
+    <section class="guide-card">
+      <p class="section-label">Start Here</p>
+      <h2>Measure your artwork</h2>
+      <p>
+        Measure the width and height of the artwork you want to print or frame, then enter those dimensions in inches below.
+      </p>
+
+      <div class="field-grid">
+        <label class="field">
+          <span class="field-label">Artwork width</span>
+          <input type="number" id="originalWidth" min="0" step="0.01" placeholder="e.g. 12">
+          <span class="field-help">Inches</span>
+        </label>
+
+        <label class="field">
+          <span class="field-label">Artwork height</span>
+          <input type="number" id="originalHeight" min="0" step="0.01" placeholder="e.g. 16">
+          <span class="field-help">Inches</span>
+        </label>
       </div>
 
-      <form id="ratioTool" class="tool-form" novalidate>
-        <div class="field-grid">
-          <label class="field">
-            <span class="field-label">Artwork width</span>
-            <input type="number" id="originalWidth" min="0" step="0.01" placeholder="e.g. 12">
-            <span class="field-help">Inches</span>
-          </label>
-
-          <label class="field">
-            <span class="field-label">Artwork height</span>
-            <input type="number" id="originalHeight" min="0" step="0.01" placeholder="e.g. 16">
-            <span class="field-help">Inches</span>
-          </label>
-
-          <label class="field">
-            <span class="field-label">White border</span>
-            <select id="borderSize">
-              <option value="0">No border</option>
-              <option value="0.25">0.25 in</option>
-              <option value="0.5">0.5 in</option>
-              <option value="1">1 in</option>
-            </select>
-            <span class="field-help">Added to all four sides</span>
-          </label>
-
-          <label class="field">
-            <span class="field-label">Upload artwork</span>
-            <input type="file" id="artworkUpload" accept="image/*">
-            <span class="field-help">Optional, for preview and PNG export</span>
-          </label>
-        </div>
-
-        <div class="section-heading section-heading--compact">
-          <p class="section-label">Optional</p>
-          <h2>Resize proportionally</h2>
-          <p>Enter either a target width or a target height and the calculator will keep the proportions intact.</p>
-        </div>
-
-        <div class="field-grid field-grid--secondary">
-          <label class="field">
-            <span class="field-label">Target width</span>
-            <input type="number" id="targetWidth" min="0" step="0.01" placeholder="e.g. 18">
-            <span class="field-help">Leave blank if using height instead</span>
-          </label>
-
-          <label class="field">
-            <span class="field-label">Target height</span>
-            <input type="number" id="targetHeight" min="0" step="0.01" placeholder="e.g. 24">
-            <span class="field-help">Leave blank if using width instead</span>
-          </label>
-
-          <label class="field">
-            <span class="field-label">Download output</span>
-            <select id="exportFormat">
-              <option value="png">PNG download</option>
-            </select>
-            <span class="field-help">Keeps the uploaded resolution</span>
-          </label>
-
-          <div class="field field--actions">
-            <button type="button" id="clearButton" class="button button--secondary">Clear</button>
-            <button type="button" id="downloadButton" class="button" disabled>Download bordered PNG</button>
-          </div>
-        </div>
-      </form>
-
       <p id="liveStatus" class="live-status" aria-live="polite">
-        Enter your artwork size to see live frame-fit guidance.
+        Enter your artwork size to see your aspect ratio and frame guidance.
       </p>
     </section>
 
@@ -123,68 +69,71 @@
       </article>
 
       <article class="result-card">
-        <p class="section-label">Frame Fit</p>
-        <h2 id="frameHeading">No frame calculation yet</h2>
-        <p id="frameBody">Add a border to see whether the outer size lines up with common frame dimensions.</p>
+        <p class="section-label">Common Fits</p>
+        <h2 id="fitHeading">No frame match yet</h2>
+        <p id="fitBody">We will check whether your artwork already matches a common frame size.</p>
       </article>
 
       <article class="result-card">
-        <p class="section-label">Resize Output</p>
-        <h2 id="resizeHeading">No resize target yet</h2>
-        <p id="resizeBody">Use one target field to calculate a proportional size.</p>
+        <p class="section-label">Next Steps</p>
+        <h2 id="nextHeading">No recommendation yet</h2>
+        <p id="nextBody">If your artwork does not match a common frame size, we will suggest the cleanest next step.</p>
       </article>
 
       <article class="result-card">
-        <p class="section-label">File Quality</p>
-        <h2 id="qualityHeading">Upload optional</h2>
-        <p id="qualityBody">Upload a file to preview border placement and estimate print quality.</p>
+        <p class="section-label">Related Sizes</p>
+        <h2>Common sizes to compare</h2>
+        <div id="ratioMatches" class="chip-list">
+          <span class="chip chip--muted">Common size suggestions will appear here.</span>
+        </div>
       </article>
     </section>
 
-    <section class="preview-layout">
-      <article class="preview-card">
-        <div class="section-heading section-heading--compact">
-          <p class="section-label">Step 2</p>
-          <h2>Preview the border</h2>
-          <p>When you upload artwork, this preview updates live so you can see how the white border changes the final presentation.</p>
-        </div>
-
-        <div class="preview-stage">
-          <div id="previewPaper" class="preview-paper">
-            <div id="previewArt" class="preview-art" hidden></div>
-            <div id="previewEmpty" class="preview-empty">
-              Upload artwork to preview your white border and export a bordered file.
-            </div>
-          </div>
-        </div>
-
-        <p id="downloadNote" class="download-note">
-          Download is enabled after you upload artwork and enter valid artwork dimensions.
+    <section class="upload-card">
+      <div class="section-heading section-heading--compact">
+        <p class="section-label">Optional</p>
+        <h2>Upload a file to check size at 300 PPI</h2>
+        <p>
+          You do not need to upload artwork to use this tool. This upload section is only for checking how large a file can print at 300 PPI, which is a strong standard for giclee printing.
         </p>
+      </div>
+
+      <div class="field-grid">
+        <label class="field">
+          <span class="field-label">Upload artwork</span>
+          <input type="file" id="artworkUpload" accept="image/*">
+          <span class="field-help">Optional, for file-size and resolution checking only</span>
+        </label>
+
+        <div class="field field--actions">
+          <button type="button" id="useUploadSizeButton" class="button button--secondary" disabled>Use 300 PPI size in calculator</button>
+          <button type="button" id="clearButton" class="button">Reset tool</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="results-grid results-grid--secondary" aria-label="Upload results">
+      <article class="result-card">
+        <p class="section-label">Uploaded File</p>
+        <h2 id="uploadHeading">No file uploaded</h2>
+        <p id="uploadBody">Upload a file to see its pixel dimensions and max recommended print size at 300 PPI.</p>
       </article>
 
-      <article class="result-card result-card--tall">
-        <p class="section-label">Helpful Matches</p>
-        <h2>Common sizes to compare</h2>
-        <ul id="matchesList" class="match-list">
-          <li>Enter artwork dimensions to see matching frame sizes.</li>
-        </ul>
-        <div class="note-box">
-          Use these suggestions as a starting point. If your bordered size lands between standards, a custom frame or mat can often preserve the composition more gracefully than cropping.
-        </div>
+      <article class="result-card">
+        <p class="section-label">Resolution Check</p>
+        <h2 id="qualityHeading">No resolution check yet</h2>
+        <p id="qualityBody">If your uploaded file is too small for the size you want, we will warn you here.</p>
       </article>
     </section>
 
     <footer class="footer-card">
       <p>
         Created by <a href="https://monochromecanvas.com" target="_blank" rel="noreferrer">Monochrome Canvas</a>.
-        Need help choosing the right print size, border, or framing approach?
-        <a href="https://monochromecanvas.com/pages/contact" target="_blank" rel="noreferrer">Message us here</a>.
+        This helper is for planning only. We do not receive your file unless you upload it as part of an actual order on the website.
       </p>
     </footer>
   </main>
 
-  <canvas id="exportCanvas" hidden></canvas>
   <script src="script.js"></script>
 </body>
 </html>

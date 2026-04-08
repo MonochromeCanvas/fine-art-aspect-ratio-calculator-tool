@@ -2,13 +2,12 @@
   --mc-ink: #1c3635;
   --mc-ink-soft: rgba(28, 54, 53, 0.74);
   --mc-paper: #ffffff;
-  --mc-mist: #f4f5f7;
   --mc-sage: #97b5a9;
   --mc-green: #3f725c;
   --mc-warm: #a1a08f;
   --mc-blush: #e5d1cc;
-  --mc-shadow: 0 22px 48px rgba(28, 54, 53, 0.12);
   --mc-border: 1px solid rgba(28, 54, 53, 0.1);
+  --mc-shadow: 0 22px 48px rgba(28, 54, 53, 0.12);
 }
 
 * {
@@ -30,10 +29,6 @@ body {
     linear-gradient(180deg, #fffdf9 0%, #f5f1ea 58%, #efe7dc 100%);
 }
 
-img {
-  max-width: 100%;
-}
-
 a {
   color: var(--mc-green);
 }
@@ -45,9 +40,9 @@ a {
 }
 
 .hero-card,
-.tool-card,
+.guide-card,
+.upload-card,
 .result-card,
-.preview-card,
 .footer-card {
   background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(10px);
@@ -58,7 +53,19 @@ a {
 
 .hero-card {
   padding: 30px 30px 26px;
-  margin-bottom: 22px;
+}
+
+.guide-card,
+.upload-card,
+.result-card,
+.footer-card {
+  padding: 24px;
+}
+
+.guide-card,
+.upload-card,
+.footer-card {
+  margin-top: 20px;
 }
 
 .eyebrow,
@@ -97,15 +104,16 @@ label,
 input,
 select,
 button {
-  font-size: 1.16rem;
+  font-size: 1.14rem;
 }
 
 .hero-copy,
-.section-heading p,
+.guide-card p,
+.upload-card p,
 .result-card p,
-.download-note,
-.live-status,
-.footer-card p {
+.footer-card p,
+.field-help,
+.live-status {
   margin: 0;
   color: var(--mc-ink-soft);
   line-height: 1.65;
@@ -124,35 +132,27 @@ button {
   border: var(--mc-border);
   background: linear-gradient(135deg, rgba(151, 181, 169, 0.16), rgba(229, 209, 204, 0.15));
   color: var(--mc-ink);
+  line-height: 1.5;
 }
 
-.tool-card,
-.preview-card,
-.result-card,
-.footer-card {
-  padding: 24px;
-}
-
-.section-heading {
-  margin-bottom: 18px;
-}
-
-.section-heading--compact {
-  margin-top: 8px;
-}
-
-.tool-form {
-  display: block;
+.field-grid,
+.results-grid {
+  display: grid;
+  gap: 16px;
 }
 
 .field-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 14px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 18px;
 }
 
-.field-grid--secondary {
-  margin-top: 16px;
+.results-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 22px;
+}
+
+.results-grid--secondary {
+  margin-top: 18px;
 }
 
 .field {
@@ -161,13 +161,17 @@ button {
   gap: 8px;
 }
 
+.field--actions {
+  justify-content: flex-end;
+  gap: 12px;
+}
+
 .field-label {
   font-weight: 700;
   color: var(--mc-ink);
 }
 
 .field-help {
-  color: rgba(28, 54, 53, 0.56);
   font-size: 0.95rem;
 }
 
@@ -180,7 +184,7 @@ select {
   background: rgba(255, 255, 255, 0.92);
   color: var(--mc-ink);
   font-family: "Arapey", Georgia, serif;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 input:focus,
@@ -188,10 +192,6 @@ select:focus {
   outline: none;
   border-color: rgba(63, 114, 92, 0.65);
   box-shadow: 0 0 0 4px rgba(151, 181, 169, 0.18);
-}
-
-.field--actions {
-  justify-content: flex-end;
 }
 
 .button {
@@ -236,108 +236,35 @@ select:focus {
   border: var(--mc-border);
 }
 
-.results-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px;
-  margin-top: 22px;
-}
-
 .result-card {
-  min-height: 190px;
+  min-height: 210px;
 }
 
-.result-card--tall {
-  min-height: 100%;
-}
-
-.preview-layout {
-  display: grid;
-  grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
-  gap: 18px;
-  margin-top: 22px;
-}
-
-.preview-stage {
-  padding: 14px 0 8px;
-}
-
-.preview-paper {
-  --preview-top: 10%;
-  --preview-side: 10%;
-  position: relative;
-  width: 100%;
-  aspect-ratio: 4 / 5;
-  margin: 0 auto;
-  max-width: 620px;
-  border-radius: 26px;
-  background:
-    linear-gradient(150deg, rgba(20, 18, 17, 0.96), rgba(82, 72, 61, 0.92) 44%, rgba(28, 24, 21, 0.96));
-  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.08), 0 24px 48px rgba(28, 54, 53, 0.18);
-}
-
-.preview-paper::before {
-  content: "";
-  position: absolute;
-  inset: 18px;
-  border-radius: 18px;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 245, 238, 0.98));
-  box-shadow: inset 0 0 0 1px rgba(28, 54, 53, 0.08);
-}
-
-.preview-art {
-  position: absolute;
-  z-index: 1;
-  top: var(--preview-top);
-  right: var(--preview-side);
-  bottom: var(--preview-top);
-  left: var(--preview-side);
-  border-radius: 10px;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: cover;
-  box-shadow: 0 18px 34px rgba(28, 54, 53, 0.2);
-}
-
-.preview-empty {
-  position: absolute;
-  inset: 26% 14%;
-  z-index: 1;
+.chip-list {
   display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.chip {
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: 18px;
-  border-radius: 18px;
-  color: rgba(28, 54, 53, 0.6);
-  background: rgba(255, 255, 255, 0.72);
-  border: 1px dashed rgba(28, 54, 53, 0.22);
-}
-
-.download-note {
-  margin-top: 14px;
-}
-
-.match-list {
-  margin: 16px 0 0;
-  padding-left: 1.2rem;
+  padding: 0.48rem 0.82rem;
+  border-radius: 999px;
+  background: rgba(151, 181, 169, 0.16);
   color: var(--mc-ink);
+  border: 1px solid rgba(28, 54, 53, 0.08);
+  line-height: 1;
 }
 
-.match-list li + li {
-  margin-top: 0.7rem;
+.chip--muted {
+  background: rgba(161, 160, 143, 0.14);
+  color: rgba(28, 54, 53, 0.72);
 }
 
-.note-box {
-  margin-top: 18px;
-  padding: 15px 16px;
-  border-radius: 18px;
-  background: linear-gradient(135deg, rgba(229, 209, 204, 0.22), rgba(151, 181, 169, 0.12));
-  color: var(--mc-ink-soft);
-}
-
-.footer-card {
-  margin-top: 20px;
+.section-heading--compact {
+  margin-bottom: 12px;
 }
 
 .footer-card a {
@@ -345,15 +272,10 @@ select:focus {
 }
 
 @media (max-width: 940px) {
+  .hero-points,
   .field-grid,
-  .results-grid,
-  .preview-layout,
-  .hero-points {
+  .results-grid {
     grid-template-columns: 1fr;
-  }
-
-  .field--actions {
-    gap: 10px;
   }
 }
 
@@ -363,9 +285,9 @@ select:focus {
   }
 
   .hero-card,
-  .tool-card,
+  .guide-card,
+  .upload-card,
   .result-card,
-  .preview-card,
   .footer-card {
     border-radius: 22px;
     padding: 18px;
