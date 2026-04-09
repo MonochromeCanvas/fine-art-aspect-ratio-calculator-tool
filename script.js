@@ -23,52 +23,52 @@ document.addEventListener("DOMContentLoaded", function () {
   ];
 
   const KNOWN_RATIOS = [
-    { label: "1:1", ratio: 1, note: "Square artwork and gallery walls." },
-    { label: "4:5", ratio: 4 / 5, note: "Popular for standard wall art sizes like 8 x 10 and 16 x 20." },
-    { label: "2:3", ratio: 2 / 3, note: "Common for photography and poster-style prints." },
-    { label: "3:4", ratio: 3 / 4, note: "A balanced format for illustration and traditional print sizes." },
-    { label: "5:7", ratio: 5 / 7, note: "A classic gift-print and tabletop frame ratio." },
-    { label: "11:14", ratio: 11 / 14, note: "A standard frame size with its own distinct proportions." },
-    { label: "16:9", ratio: 16 / 9, note: "A wide ratio for panoramic or cinematic work." }
+    { label: "1:1", ratio: 1, note: "a square artwork shape" },
+    { label: "4:5", ratio: 4 / 5, note: "a common wall art ratio" },
+    { label: "2:3", ratio: 2 / 3, note: "a classic photo and poster ratio" },
+    { label: "3:4", ratio: 3 / 4, note: "a balanced illustration and print ratio" },
+    { label: "5:7", ratio: 5 / 7, note: "a standard gift-print ratio" },
+    { label: "11:14", ratio: 11 / 14, note: "a common frame size family" },
+    { label: "16:9", ratio: 16 / 9, note: "a wide panoramic ratio" }
   ];
 
   const TARGET_PPI = 300;
+  const EXACT_RATIO_THRESHOLD = 0.012;
 
   const elements = {
+    chooserCard: document.getElementById("chooserCard"),
+    workspaceCard: document.getElementById("workspaceCard"),
     taskCards: Array.from(document.querySelectorAll(".task-card")),
-    emptyState: document.getElementById("emptyState"),
+    resetButtons: Array.from(document.querySelectorAll("[data-reset-view='true']")),
     taskRatio: document.getElementById("task-ratio"),
     taskResize: document.getElementById("task-resize"),
     taskQuality: document.getElementById("task-quality"),
     ratioWidth: document.getElementById("ratioWidth"),
     ratioHeight: document.getElementById("ratioHeight"),
-    ratioStatus: document.getElementById("ratioStatus"),
-    ratioHeading: document.getElementById("ratioHeading"),
-    ratioBody: document.getElementById("ratioBody"),
-    fitHeading: document.getElementById("fitHeading"),
-    fitBody: document.getElementById("fitBody"),
-    nextHeading: document.getElementById("nextHeading"),
-    nextBody: document.getElementById("nextBody"),
+    ratioResult: document.getElementById("ratioResult"),
+    ratioResultTitle: document.getElementById("ratioResultTitle"),
+    ratioResultIntro: document.getElementById("ratioResultIntro"),
+    ratioResultFit: document.getElementById("ratioResultFit"),
+    ratioResultNext: document.getElementById("ratioResultNext"),
+    ratioMatchesWrap: document.getElementById("ratioMatchesWrap"),
     ratioMatches: document.getElementById("ratioMatches"),
     resizeWidth: document.getElementById("resizeWidth"),
     resizeHeight: document.getElementById("resizeHeight"),
     targetWidth: document.getElementById("targetWidth"),
     targetHeight: document.getElementById("targetHeight"),
-    resizeStatus: document.getElementById("resizeStatus"),
-    resizeHeading: document.getElementById("resizeHeading"),
-    resizeBody: document.getElementById("resizeBody"),
-    resizeNoteHeading: document.getElementById("resizeNoteHeading"),
-    resizeNoteBody: document.getElementById("resizeNoteBody"),
+    resizeResult: document.getElementById("resizeResult"),
+    resizeResultTitle: document.getElementById("resizeResultTitle"),
+    resizeResultBody: document.getElementById("resizeResultBody"),
+    resizeResultNote: document.getElementById("resizeResultNote"),
     artworkUpload: document.getElementById("artworkUpload"),
+    qualityExtras: document.getElementById("qualityExtras"),
     qualityWidth: document.getElementById("qualityWidth"),
     qualityHeight: document.getElementById("qualityHeight"),
     useUploadSizeButton: document.getElementById("useUploadSizeButton"),
-    clearButton: document.getElementById("clearButton"),
-    qualityStatus: document.getElementById("qualityStatus"),
-    uploadHeading: document.getElementById("uploadHeading"),
-    uploadBody: document.getElementById("uploadBody"),
-    qualityHeading: document.getElementById("qualityHeading"),
-    qualityBody: document.getElementById("qualityBody")
+    qualityResult: document.getElementById("qualityResult"),
+    qualityResultTitle: document.getElementById("qualityResultTitle"),
+    qualityResultMeta: document.getElementById("qualityResultMeta"),
+    qualityResultBody: document.getElementById("qualityResultBody")
   };
 
   const state = {
@@ -80,11 +80,16 @@ document.addEventListener("DOMContentLoaded", function () {
   };
 
   function formatNumber(value) {
-    if (!Number.isFinite(value)) return "0";
+    if (!Number.isFinite(value)) {
+      return "0";
+    }
+
     const rounded = Math.round(value * 100) / 100;
+
     if (Math.abs(rounded - Math.round(rounded)) < 0.001) {
       return String(Math.round(rounded));
     }
+
     return rounded.toFixed(2).replace(/\.?0+$/, "");
   }
 
@@ -93,8 +98,8 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function getNumericValue(input) {
-    const parsed = parseFloat(input.value);
-    return Number.isFinite(parsed) && parsed > 0 ? parsed : 0;
+    const value = parseFloat(input.value);
+    return Number.isFinite(value) && value > 0 ? value : 0;
   }
 
   function ratioDifference(a, b) {
@@ -109,16 +114,15 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function getClosestRatio(ratio) {
-    const ranked = KNOWN_RATIOS.slice().sort(function (left, right) {
+    return KNOWN_RATIOS.slice().sort(function (left, right) {
       return ratioDifference(ratio, left.ratio) - ratioDifference(ratio, right.ratio);
-    });
-    return ranked[0];
+    })[0];
   }
 
   function getExactMatches(width, height) {
     return STANDARD_SIZES.filter(function (size) {
       const direct = Math.abs(size.width - width) < 0.02 && Math.abs(size.height - height) < 0.02;
-      const rotated = Math.abs(size.height - width) < 0.02 && Math.abs(size.width - height) < 0.02;
+      const rotated = Math.abs(size.width - height) < 0.02 && Math.abs(size.height - width) < 0.02;
       return direct || rotated;
     });
   }
@@ -130,60 +134,62 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function getBestContainingFrame(width, height) {
-    const normalizedArtwork = normalizedSize(width, height);
+    const artwork = normalizedSize(width, height);
     let best = null;
 
     STANDARD_SIZES.forEach(function (size) {
-      const directFits = size.width >= width && size.height >= height;
-      const rotatedFits = size.height >= width && size.width >= height;
+      const orientations = [
+        { width: size.width, height: size.height, label: size.label },
+        { width: size.height, height: size.width, label: size.label }
+      ];
 
-      if (!directFits && !rotatedFits) {
-        return;
-      }
+      orientations.forEach(function (frame) {
+        if (frame.width < width || frame.height < height) {
+          return;
+        }
 
-      const orientedWidth = directFits ? size.width : size.height;
-      const orientedHeight = directFits ? size.height : size.width;
-      const borderX = (orientedWidth - width) / 2;
-      const borderY = (orientedHeight - height) / 2;
-      const areaDelta = (orientedWidth * orientedHeight) - (width * height);
-      const borderBalance = Math.abs(borderX - borderY);
-      const normalizedFrame = normalizedSize(size.width, size.height);
-      const ratioGap = ratioDifference(
-        normalizedArtwork.width / normalizedArtwork.height,
-        normalizedFrame.width / normalizedFrame.height
-      );
+        const borderX = (frame.width - width) / 2;
+        const borderY = (frame.height - height) / 2;
+        const areaDelta = frame.width * frame.height - width * height;
+        const borderBalance = Math.abs(borderX - borderY);
+        const frameNormalized = normalizedSize(frame.width, frame.height);
+        const ratioGap = ratioDifference(
+          artwork.width / artwork.height,
+          frameNormalized.width / frameNormalized.height
+        );
 
-      const candidate = {
-        size: size,
-        borderX: borderX,
-        borderY: borderY,
-        areaDelta: areaDelta,
-        borderBalance: borderBalance,
-        ratioGap: ratioGap
-      };
+        const candidate = {
+          size: size,
+          borderX: borderX,
+          borderY: borderY,
+          areaDelta: areaDelta,
+          borderBalance: borderBalance,
+          ratioGap: ratioGap
+        };
 
-      if (!best) {
-        best = candidate;
-        return;
-      }
+        if (!best) {
+          best = candidate;
+          return;
+        }
 
-      if (candidate.areaDelta < best.areaDelta - 0.01) {
-        best = candidate;
-        return;
-      }
+        if (candidate.areaDelta < best.areaDelta - 0.01) {
+          best = candidate;
+          return;
+        }
 
-      if (Math.abs(candidate.areaDelta - best.areaDelta) < 0.01 && candidate.borderBalance < best.borderBalance - 0.01) {
-        best = candidate;
-        return;
-      }
+        if (Math.abs(candidate.areaDelta - best.areaDelta) < 0.01 && candidate.borderBalance < best.borderBalance - 0.01) {
+          best = candidate;
+          return;
+        }
 
-      if (
-        Math.abs(candidate.areaDelta - best.areaDelta) < 0.01 &&
-        Math.abs(candidate.borderBalance - best.borderBalance) < 0.01 &&
-        candidate.ratioGap < best.ratioGap
-      ) {
-        best = candidate;
-      }
+        if (
+          Math.abs(candidate.areaDelta - best.areaDelta) < 0.01 &&
+          Math.abs(candidate.borderBalance - best.borderBalance) < 0.01 &&
+          candidate.ratioGap < best.ratioGap
+        ) {
+          best = candidate;
+        }
+      });
     });
 
     return best;
@@ -194,24 +200,37 @@ document.addEventListener("DOMContentLoaded", function () {
       return "about " + formatNumber(borderX) + '" on all sides';
     }
 
-    return formatNumber(borderX) + '" left and right, and ' + formatNumber(borderY) + '" top and bottom';
+    return formatNumber(borderX) + '" on the left and right, and ' + formatNumber(borderY) + '" on the top and bottom';
+  }
+
+  function renderChips(container, items) {
+    container.innerHTML = items.map(function (item) {
+      return '<span class="chip">' + item + "</span>";
+    }).join("");
   }
 
   function setActiveTask(task) {
-    state.activeTask = task;
+    state.activeTask = task || null;
+    const hasTask = Boolean(state.activeTask);
+
+    elements.chooserCard.hidden = hasTask;
+    elements.workspaceCard.hidden = !hasTask;
+    elements.taskRatio.hidden = state.activeTask !== "ratio";
+    elements.taskResize.hidden = state.activeTask !== "resize";
+    elements.taskQuality.hidden = state.activeTask !== "quality";
 
     elements.taskCards.forEach(function (button) {
-      const isActive = button.dataset.task === task;
-      button.classList.toggle("is-active", isActive);
+      const isActive = button.dataset.task === state.activeTask;
       button.setAttribute("aria-pressed", isActive ? "true" : "false");
     });
 
-    elements.emptyState.hidden = Boolean(task);
-    elements.taskRatio.hidden = task !== "ratio";
-    elements.taskResize.hidden = task !== "resize";
-    elements.taskQuality.hidden = task !== "quality";
+    renderAll();
+  }
 
-    postHeight();
+  function hideRatioResult() {
+    elements.ratioResult.hidden = true;
+    elements.ratioMatchesWrap.hidden = true;
+    elements.ratioMatches.innerHTML = "";
   }
 
   function renderRatioTask() {
@@ -219,68 +238,66 @@ document.addEventListener("DOMContentLoaded", function () {
     const height = getNumericValue(elements.ratioHeight);
 
     if (!(width > 0) || !(height > 0)) {
-      elements.ratioStatus.textContent = "Enter your artwork size to see the ratio and the closest frame guidance.";
-      elements.ratioHeading.textContent = "Waiting for dimensions";
-      elements.ratioBody.textContent = "Your artwork ratio and closest common ratio family will appear here.";
-      elements.fitHeading.textContent = "No frame match yet";
-      elements.fitBody.textContent = "We will check whether your artwork already matches a common frame size.";
-      elements.nextHeading.textContent = "No recommendation yet";
-      elements.nextBody.textContent = "If it does not match a common frame size, we will suggest a simple next step.";
-      elements.ratioMatches.innerHTML = '<span class="chip chip--muted">Common size suggestions will appear here.</span>';
+      hideRatioResult();
       return;
     }
 
     const ratio = width / height;
     const closest = getClosestRatio(ratio);
+    const closestGap = ratioDifference(ratio, closest.ratio);
     const exactMatches = getExactMatches(width, height);
     const familyMatches = getFamilyMatches(closest.label).map(function (size) {
       return size.label;
     });
 
-    elements.ratioHeading.textContent = formatNumber(width) + ":" + formatNumber(height) + " artwork";
-    elements.ratioBody.textContent =
-      "Closest common family: " + closest.label + ". " + closest.note +
-      (exactMatches.length ? " Your dimensions already match " + exactMatches[0].label + "." : "");
+    elements.ratioResult.hidden = false;
+    elements.ratioResultTitle.textContent =
+      closestGap < EXACT_RATIO_THRESHOLD
+        ? "Your artwork is in the " + closest.label + " ratio family."
+        : "Your artwork is closest to the " + closest.label + " ratio family.";
+
+    elements.ratioResultIntro.textContent =
+      "Using " + formatSize(width, height) + ' inches, that shape lines up with ' + closest.note + ".";
 
     if (exactMatches.length > 0) {
-      elements.fitHeading.textContent = exactMatches[0].label + " is a direct fit";
-      elements.fitBody.textContent =
-        "Your artwork already matches a common frame size, so you can usually move forward without adding white space just to make it fit.";
-      elements.nextHeading.textContent = "You are in a good spot";
-      elements.nextBody.textContent =
-        "Because your artwork already matches a common frame size, your next step is mostly choosing the print size you want. Other sizes in this same ratio family include " +
-        familyMatches.slice(0, 4).filter(function (label) { return label !== exactMatches[0].label; }).join(", ") +
-        ".";
-      elements.ratioStatus.textContent =
-        "Your artwork measures " + formatSize(width, height) + " and already matches " + exactMatches[0].label + ".";
+      const directFit = exactMatches[0].label;
+      const additionalMatches = familyMatches.filter(function (item) {
+        return item !== directFit;
+      }).slice(0, 5);
+
+      elements.ratioResultFit.textContent =
+        "It already matches " + directFit + ", which is a common ready-made frame size.";
+
+      elements.ratioResultNext.textContent =
+        additionalMatches.length > 0
+          ? "If you want to print the same shape at other sizes, this ratio also works well in " + additionalMatches.join(", ") + "."
+          : "You can move forward with that frame size without needing extra white space just to make it fit.";
     } else {
       const bestFrame = getBestContainingFrame(width, height);
-      elements.fitHeading.textContent = "Not a direct common frame size";
-      elements.fitBody.textContent =
-        "Your artwork does not match one of the most common ready-made frame sizes exactly. That does not mean anything is wrong, just that you may want a border, mat, or custom sizing plan.";
 
-      if (bestFrame) {
-        elements.nextHeading.textContent = "Closest ready-made frame: " + bestFrame.size.label;
-        elements.nextBody.textContent =
-          "If you want to keep the full artwork without cropping, it would fit inside a " +
+      elements.ratioResultFit.textContent =
+        "It does not match one of the most common ready-made frame sizes exactly.";
+
+      elements.ratioResultNext.textContent = bestFrame
+        ? "If you want to keep the full artwork, it would sit nicely inside a " +
           bestFrame.size.label +
           " frame with " +
           describeBorders(bestFrame.borderX, bestFrame.borderY) +
-          " of white space. If that feels like more border than you want, a custom frame or custom print size may look cleaner.";
-        elements.ratioStatus.textContent =
-          "Your artwork measures " + formatSize(width, height) + ". It is not a direct common frame size, but it would fit inside " + bestFrame.size.label + " with added white space.";
-      } else {
-        elements.nextHeading.textContent = "Custom sizing may be best";
-        elements.nextBody.textContent =
-          "Your artwork sits outside the common size list used here, so a custom frame or custom print size is likely the cleanest next step.";
-        elements.ratioStatus.textContent =
-          "Your artwork measures " + formatSize(width, height) + ". A custom frame or custom print size may be the cleanest option.";
-      }
+          " of white border. If that feels too wide, a custom print size or custom frame may be a better choice."
+        : "This sits outside the common frame list used here, so a custom print size or custom frame may be the cleanest next step.";
     }
 
-    elements.ratioMatches.innerHTML = familyMatches.slice(0, 6).map(function (item) {
-      return '<span class="chip">' + item + "</span>";
-    }).join("");
+    if (familyMatches.length > 0) {
+      elements.ratioMatchesWrap.hidden = false;
+      renderChips(elements.ratioMatches, familyMatches.slice(0, 6));
+    } else {
+      elements.ratioMatchesWrap.hidden = true;
+      elements.ratioMatches.innerHTML = "";
+    }
+  }
+
+  function hideResizeResult() {
+    elements.resizeResult.hidden = true;
   }
 
   function renderResizeTask() {
@@ -290,108 +307,126 @@ document.addEventListener("DOMContentLoaded", function () {
     const targetHeight = getNumericValue(elements.targetHeight);
 
     if (!(width > 0) || !(height > 0)) {
-      elements.resizeStatus.textContent = "Enter the current size first, then one new dimension.";
-      elements.resizeHeading.textContent = "No resize result yet";
-      elements.resizeBody.textContent = "Your matching proportional size will appear here.";
-      elements.resizeNoteHeading.textContent = "No note yet";
-      elements.resizeNoteBody.textContent = "We will let you know if your inputs change the original shape instead of keeping the same ratio.";
+      hideResizeResult();
       return;
     }
 
     if (!(targetWidth > 0) && !(targetHeight > 0)) {
-      elements.resizeStatus.textContent = "Now enter either a new width or a new height.";
-      elements.resizeHeading.textContent = "No resize result yet";
-      elements.resizeBody.textContent = "Enter one target dimension to calculate the matching side.";
-      elements.resizeNoteHeading.textContent = "Keep it simple";
-      elements.resizeNoteBody.textContent = "Using one target field is the easiest way to keep the artwork proportional.";
+      hideResizeResult();
       return;
     }
 
+    elements.resizeResult.hidden = false;
+
     if (targetWidth > 0 && targetHeight > 0) {
       const originalRatio = width / height;
-      const targetRatio = targetWidth / targetHeight;
-      const difference = Math.abs(originalRatio - targetRatio) / originalRatio;
+      const newRatio = targetWidth / targetHeight;
+      const isClose = ratioDifference(originalRatio, newRatio) < EXACT_RATIO_THRESHOLD;
 
-      elements.resizeHeading.textContent = formatSize(targetWidth, targetHeight);
-      elements.resizeBody.textContent = "These are the exact dimensions you entered.";
-      elements.resizeNoteHeading.textContent = difference < 0.015 ? "Very close to the original ratio" : "This changes the original shape";
-      elements.resizeNoteBody.textContent =
-        difference < 0.015
-          ? "These dimensions stay very close to the original ratio, so the resize should feel natural."
-          : "These dimensions do not keep the same proportions. If you want a true proportional resize, enter only one target field.";
-      elements.resizeStatus.textContent = "You entered both new dimensions. Review the note below to see whether they stay proportional.";
+      elements.resizeResultTitle.textContent = "Your new size would be " + formatSize(targetWidth, targetHeight) + ".";
+      elements.resizeResultBody.textContent = isClose
+        ? "Those dimensions stay very close to the original shape."
+        : "Those dimensions change the original shape of the artwork.";
+      elements.resizeResultNote.textContent = isClose
+        ? "That resize should feel natural if you are keeping the same composition."
+        : "If you want a proportional resize instead, clear one of the new size fields and keep only the width or only the height.";
       return;
     }
 
     if (targetWidth > 0) {
       const newHeight = targetWidth * (height / width);
-      elements.resizeHeading.textContent = formatSize(targetWidth, newHeight);
-      elements.resizeBody.textContent = "Based on a target width of " + formatNumber(targetWidth) + " inches.";
-      elements.resizeNoteHeading.textContent = "Proportional resize";
-      elements.resizeNoteBody.textContent = "This keeps the original aspect ratio intact.";
-      elements.resizeStatus.textContent = "A new width of " + formatNumber(targetWidth) + '" gives you a proportional size of ' + formatSize(targetWidth, newHeight) + ".";
+      elements.resizeResultTitle.textContent = "A proportional resize would be " + formatSize(targetWidth, newHeight) + ".";
+      elements.resizeResultBody.textContent = "That keeps the same aspect ratio while setting the width to " + formatNumber(targetWidth) + ' inches.';
+      elements.resizeResultNote.textContent = "If you need a standard frame after resizing, you can run that new size through the frame check above.";
       return;
     }
 
     const newWidth = targetHeight * (width / height);
-    elements.resizeHeading.textContent = formatSize(newWidth, targetHeight);
-    elements.resizeBody.textContent = "Based on a target height of " + formatNumber(targetHeight) + " inches.";
-    elements.resizeNoteHeading.textContent = "Proportional resize";
-    elements.resizeNoteBody.textContent = "This keeps the original aspect ratio intact.";
-    elements.resizeStatus.textContent = "A new height of " + formatNumber(targetHeight) + '" gives you a proportional size of ' + formatSize(newWidth, targetHeight) + ".";
+    elements.resizeResultTitle.textContent = "A proportional resize would be " + formatSize(newWidth, targetHeight) + ".";
+    elements.resizeResultBody.textContent = "That keeps the same aspect ratio while setting the height to " + formatNumber(targetHeight) + ' inches.';
+    elements.resizeResultNote.textContent = "If you need a standard frame after resizing, you can run that new size through the frame check above.";
+  }
+
+  function hideQualityResult() {
+    elements.qualityExtras.hidden = true;
+    elements.qualityResult.hidden = true;
+    elements.useUploadSizeButton.disabled = true;
   }
 
   function renderQualityTask() {
-    const desiredWidth = getNumericValue(elements.qualityWidth);
-    const desiredHeight = getNumericValue(elements.qualityHeight);
+    const desiredWidthInput = getNumericValue(elements.qualityWidth);
+    const desiredHeightInput = getNumericValue(elements.qualityHeight);
 
     if (!state.image) {
-      elements.qualityStatus.textContent = "Upload a file to check how large it can print at 300 PPI.";
-      elements.uploadHeading.textContent = "No file uploaded";
-      elements.uploadBody.textContent = "Upload a file to see its pixel dimensions and max recommended print size at 300 PPI.";
-      elements.qualityHeading.textContent = "No resolution check yet";
-      elements.qualityBody.textContent = "If your uploaded file is too small for the size you want, we will warn you here.";
-      elements.useUploadSizeButton.disabled = true;
+      hideQualityResult();
       return;
     }
 
+    elements.qualityExtras.hidden = false;
+    elements.qualityResult.hidden = false;
     elements.useUploadSizeButton.disabled = false;
-    elements.uploadHeading.textContent = state.image.width + " x " + state.image.height + " px";
-    elements.uploadBody.textContent =
-      "At 300 PPI, this file prints up to about " + formatSize(state.uploadWidthInches, state.uploadHeightInches) + " inches.";
+
+    const ratio = state.image.width / state.image.height;
+    let desiredWidth = desiredWidthInput;
+    let desiredHeight = desiredHeightInput;
+    let sizeNote = "";
+
+    if (desiredWidth > 0 && !(desiredHeight > 0)) {
+      desiredHeight = desiredWidth / ratio;
+      sizeNote = "Using that width, the matching proportional height would be " + formatNumber(desiredHeight) + ' inches.';
+    } else if (desiredHeight > 0 && !(desiredWidth > 0)) {
+      desiredWidth = desiredHeight * ratio;
+      sizeNote = "Using that height, the matching proportional width would be " + formatNumber(desiredWidth) + ' inches.';
+    }
+
+    elements.qualityResultMeta.textContent =
+      "File size: " +
+      state.image.width +
+      " x " +
+      state.image.height +
+      " px. At 300 PPI, that is about " +
+      formatSize(state.uploadWidthInches, state.uploadHeightInches) +
+      " inches.";
 
     if (!(desiredWidth > 0) || !(desiredHeight > 0)) {
-      elements.qualityStatus.textContent = "Your file is uploaded. Add a desired print width and height if you want a more specific quality check.";
-      elements.qualityHeading.textContent = "300 PPI reference ready";
-      elements.qualityBody.textContent =
-        "This file can print up to " + formatSize(state.uploadWidthInches, state.uploadHeightInches) + " at 300 PPI, which is a strong target for giclee printing.";
+      elements.qualityResultTitle.textContent =
+        "This file can print up to about " + formatSize(state.uploadWidthInches, state.uploadHeightInches) + " at 300 PPI.";
+      elements.qualityResultBody.textContent =
+        "That is a strong reference point for giclee printing. Add a desired print size below if you want a more specific quality check.";
       return;
     }
 
     const effectivePpiX = state.image.width / desiredWidth;
     const effectivePpiY = state.image.height / desiredHeight;
     const effectivePpi = Math.floor(Math.min(effectivePpiX, effectivePpiY));
+    const ratioChange = ratioDifference(ratio, desiredWidth / desiredHeight);
+    const cropNote = ratioChange >= EXACT_RATIO_THRESHOLD
+      ? " These proportions are different from the uploaded file, so this would involve cropping or extra white space."
+      : "";
 
-    elements.qualityStatus.textContent =
-      "Checking " + formatSize(desiredWidth, desiredHeight) + " against the uploaded file.";
+    elements.qualityResultTitle.textContent =
+      effectivePpi + " PPI at " + formatSize(desiredWidth, desiredHeight);
 
     if (effectivePpi >= TARGET_PPI) {
-      elements.qualityHeading.textContent = effectivePpi + " PPI at your desired size";
-      elements.qualityBody.textContent =
-        "This is strong for giclee printing. Your uploaded file has enough resolution for " + formatSize(desiredWidth, desiredHeight) + ".";
+      elements.qualityResultBody.textContent =
+        "This is strong for giclee printing." +
+        (sizeNote ? " " + sizeNote : "") +
+        cropNote;
       return;
     }
 
     if (effectivePpi >= 240) {
-      elements.qualityHeading.textContent = effectivePpi + " PPI at your desired size";
-      elements.qualityBody.textContent =
-        "This is workable, but a little softer than the ideal 300 PPI target for giclee printing.";
+      elements.qualityResultBody.textContent =
+        "This should still be workable, though a little softer than the ideal 300 PPI target." +
+        (sizeNote ? " " + sizeNote : "") +
+        cropNote;
       return;
     }
 
-    elements.qualityHeading.textContent = effectivePpi + " PPI at your desired size";
-    elements.qualityBody.textContent =
-      "Warning: this file is low resolution for " + formatSize(desiredWidth, desiredHeight) + ". For stronger giclee print quality, reduce the print size or use a higher-resolution file.";
+    elements.qualityResultBody.textContent =
+      "This file is low resolution for that print size. For stronger print quality, reduce the size or use a higher-resolution file." +
+      (sizeNote ? " " + sizeNote : "") +
+      cropNote;
   }
 
   function renderAll() {
@@ -401,34 +436,12 @@ document.addEventListener("DOMContentLoaded", function () {
     postHeight();
   }
 
-  function clearTool() {
-    elements.ratioWidth.value = "";
-    elements.ratioHeight.value = "";
-    elements.resizeWidth.value = "";
-    elements.resizeHeight.value = "";
-    elements.targetWidth.value = "";
-    elements.targetHeight.value = "";
-    elements.artworkUpload.value = "";
-    elements.qualityWidth.value = "";
-    elements.qualityHeight.value = "";
-
-    if (state.imageUrl) {
-      URL.revokeObjectURL(state.imageUrl);
-    }
-
-    state.image = null;
-    state.imageUrl = "";
-    state.uploadWidthInches = 0;
-    state.uploadHeightInches = 0;
-
-    renderAll();
-  }
-
   function loadArtwork(file) {
     if (!file) {
       if (state.imageUrl) {
         URL.revokeObjectURL(state.imageUrl);
       }
+
       state.image = null;
       state.imageUrl = "";
       state.uploadWidthInches = 0;
@@ -438,7 +451,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     if (!file.type || file.type.indexOf("image/") !== 0) {
-      elements.qualityStatus.textContent = "Please upload a valid image file.";
+      hideQualityResult();
       return;
     }
 
@@ -459,7 +472,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     image.onerror = function () {
       URL.revokeObjectURL(imageUrl);
-      elements.qualityStatus.textContent = "The uploaded file could not be read. Please try another image.";
+      hideQualityResult();
     };
 
     image.src = imageUrl;
@@ -470,10 +483,9 @@ document.addEventListener("DOMContentLoaded", function () {
       return;
     }
 
-    setActiveTask("ratio");
     elements.ratioWidth.value = formatNumber(state.uploadWidthInches);
     elements.ratioHeight.value = formatNumber(state.uploadHeightInches);
-    renderAll();
+    setActiveTask("ratio");
   }
 
   function postHeight() {
@@ -501,6 +513,12 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 
+  elements.resetButtons.forEach(function (button) {
+    button.addEventListener("click", function () {
+      setActiveTask(null);
+    });
+  });
+
   [
     elements.ratioWidth,
     elements.ratioHeight,
@@ -510,23 +528,26 @@ document.addEventListener("DOMContentLoaded", function () {
     elements.targetHeight,
     elements.qualityWidth,
     elements.qualityHeight
-  ].forEach(function (element) {
-    element.addEventListener("input", renderAll);
-    element.addEventListener("change", renderAll);
+  ].forEach(function (input) {
+    input.addEventListener("input", renderAll);
+    input.addEventListener("change", renderAll);
   });
 
   elements.artworkUpload.addEventListener("change", function (event) {
     loadArtwork(event.target.files[0]);
   });
 
-  elements.useUploadSizeButton.addEventListener("click", useUploadDimensions);
-  elements.clearButton.addEventListener("click", clearTool);
+  elements.useUploadSizeButton.addEventListener("click", function () {
+    useUploadDimensions();
+  });
 
   window.addEventListener("message", function (event) {
     if (event.data && event.data.action === "getHeight") {
       postHeight();
     }
   });
+
+  window.addEventListener("resize", postHeight);
 
   if (window.ResizeObserver) {
     const observer = new ResizeObserver(function () {
@@ -535,5 +556,8 @@ document.addEventListener("DOMContentLoaded", function () {
     observer.observe(document.body);
   }
 
-  renderAll();
+  hideRatioResult();
+  hideResizeResult();
+  hideQualityResult();
+  setActiveTask(null);
 });

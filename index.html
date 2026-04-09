@@ -3,28 +3,26 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Aspect Ratio & Print Helper | Monochrome Canvas</title>
+  <title>Aspect Ratio & Print Size Helper | Monochrome Canvas</title>
   <meta
     name="description"
-    content="Use Monochrome Canvas's aspect ratio and print helper to find artwork ratios, compare common frame sizes, resize proportionally, and check print quality at 300 PPI."
+    content="Use Monochrome Canvas's aspect ratio and print size helper to find your artwork ratio, compare common frame sizes, resize proportionally, and check file quality at 300 PPI."
   >
   <link rel="canonical" href="https://monochromecanvas.github.io/fine-art-aspect-ratio-calculator-tool/">
   <meta name="theme-color" content="#3f725c">
-  <meta property="og:title" content="Aspect Ratio & Print Helper for Artists | Monochrome Canvas">
+  <meta property="og:title" content="Aspect Ratio & Print Size Helper | Monochrome Canvas">
   <meta
     property="og:description"
-    content="Find your artwork's aspect ratio, compare common frame sizes, resize proportionally, and check file quality for giclee printing."
+    content="A simple Monochrome Canvas tool for artwork ratios, print sizing, and file-quality checks."
   >
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://monochromecanvas.github.io/fine-art-aspect-ratio-calculator-tool/">
-  <meta property="og:image" content="https://monochromecanvas.github.io/fine-art-aspect-ratio-calculator-tool/logo-flowers-web.png">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Aspect Ratio & Print Helper for Artists | Monochrome Canvas">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Aspect Ratio & Print Size Helper | Monochrome Canvas">
   <meta
     name="twitter:description"
-    content="A Monochrome Canvas planning tool for artwork ratios, frame sizes, proportional resizing, and print-quality checks."
+    content="Find your artwork ratio, compare common frame sizes, resize proportionally, and check file quality."
   >
-  <meta name="twitter:image" content="https://monochromecanvas.github.io/fine-art-aspect-ratio-calculator-tool/logo-flowers-web.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Arapey:ital@0;1&family=Gloock&display=swap" rel="stylesheet">
@@ -33,15 +31,14 @@
     {
       "@context": "https://schema.org",
       "@type": "WebApplication",
-      "name": "Monochrome Canvas Aspect Ratio & Print Helper",
+      "name": "Monochrome Canvas Aspect Ratio & Print Size Helper",
       "applicationCategory": "DesignApplication",
       "url": "https://monochromecanvas.github.io/fine-art-aspect-ratio-calculator-tool/",
       "description": "A Monochrome Canvas planning tool for finding artwork aspect ratios, checking common frame fits, resizing proportionally, and checking print quality at 300 PPI.",
       "creator": {
         "@type": "Organization",
         "name": "Monochrome Canvas",
-        "url": "https://monochromecanvas.com",
-        "logo": "https://monochromecanvas.github.io/fine-art-aspect-ratio-calculator-tool/logo-flowers-web.png"
+        "url": "https://monochromecanvas.com"
       }
     }
   </script>
@@ -50,86 +47,52 @@
   <main class="app-shell">
     <section class="hero-card">
       <a class="brand-mark" href="https://monochromecanvas.com" target="_blank" rel="noreferrer" aria-label="Visit Monochrome Canvas">
-        <img
-          src="logo-flowers-web.png"
-          alt="Monochrome Canvas black and white floral logo"
-        >
+        <img src="logo-flowers-web.png" alt="Monochrome Canvas black and white floral logo">
+        <span class="brand-name">Monochrome Canvas</span>
       </a>
-      <p class="eyebrow">Monochrome Canvas Tool</p>
-      <h1>Aspect Ratio &amp; Print Helper</h1>
-      <p class="hero-copy">
-        A simple planning tool for artists. Start with the question you have right now, then take one small step at a time.
-      </p>
-      <p class="hero-copy hero-copy--tight">
-        Built for artists preparing work for giclee printing, framing, and clearer file planning.
-      </p>
+      <p class="eyebrow">Artist Print Planning Tool</p>
+      <h1>Aspect Ratio &amp; Print Size Helper</h1>
+      <p class="hero-copy">Choose one question to start. The tool will only show the steps that fit that choice.</p>
     </section>
 
-    <section class="chooser-card">
-      <p class="section-label">Choose One</p>
-      <h2>What are you trying to do?</h2>
-      <p class="chooser-copy">
-        Pick the option that matches what you need right now. You can switch at any time.
-      </p>
-
-      <div class="answer-strip" aria-label="Quick answers">
-        <div class="answer-chip">
-          <strong>You do not need to upload a file to use this</strong>
-          <span>The upload option is only there if you want help checking print size and quality.</span>
-        </div>
-        <div class="answer-chip">
-          <strong>Use the size of the artwork itself</strong>
-          <span>Do not use the outer frame size or mat opening when entering dimensions.</span>
-        </div>
-        <div class="answer-chip">
-          <strong>This is just a planning tool</strong>
-          <span>We do not receive your file unless you upload it as part of a real order on the website.</span>
-        </div>
-      </div>
+    <section id="chooserCard" class="chooser-card">
+      <h2>What do you need help with?</h2>
+      <p class="chooser-copy">You only need to upload a file if you want to check print quality.</p>
 
       <div class="task-grid" aria-label="Tool options">
         <button type="button" class="task-card" data-task="ratio">
           <span class="task-card__step">1</span>
-          <span class="task-card__title">Will my artwork fit a standard frame?</span>
-          <span class="task-card__body">Enter the width and height to find the aspect ratio, see the closest common frame sizes, and get a simple next step if it is an uncommon size.</span>
+          <span class="task-card__copy">
+            <span class="task-card__title">Find the aspect ratio of my artwork</span>
+            <span class="task-card__body">See whether it already fits a common frame size.</span>
+          </span>
         </button>
 
         <button type="button" class="task-card" data-task="resize">
           <span class="task-card__step">2</span>
-          <span class="task-card__title">What size can I print without changing the shape?</span>
-          <span class="task-card__body">Enter your current size and one new dimension to calculate the matching width or height.</span>
+          <span class="task-card__copy">
+            <span class="task-card__title">Resize my artwork without changing the shape</span>
+            <span class="task-card__body">Enter one new dimension and get the matching side automatically.</span>
+          </span>
         </button>
 
         <button type="button" class="task-card" data-task="quality">
           <span class="task-card__step">3</span>
-          <span class="task-card__title">Is my file large enough to print well?</span>
-          <span class="task-card__body">Upload a file to see how large it can print at 300 PPI and whether it is strong enough for your target size.</span>
+          <span class="task-card__copy">
+            <span class="task-card__title">Check if my file is large enough to print</span>
+            <span class="task-card__body">Upload a file to see its recommended print size at 300 PPI.</span>
+          </span>
         </button>
       </div>
     </section>
 
-    <section class="workspace-card" aria-live="polite">
-      <div id="emptyState" class="empty-state">
-        <p class="section-label">Helpful Start</p>
-        <h2>Pick one task to begin</h2>
-        <p>
-          You will only see the fields that match the question you choose, so the tool stays focused and easier to use.
-        </p>
-      </div>
-
+    <section id="workspaceCard" class="workspace-card" aria-live="polite" hidden>
       <section id="task-ratio" class="task-panel" hidden>
-        <div class="task-header">
-          <p class="section-label">Task 1</p>
-          <h2>Will my artwork fit a standard frame?</h2>
-          <p>
-            Measure the artwork itself in inches, then enter the width and height below. We will show the aspect ratio and the closest common frame options.
-          </p>
+        <div class="task-top">
+          <button type="button" class="ghost-button" data-reset-view="true">Choose a different question</button>
         </div>
-
-        <div class="helper-note">
-          <strong>Helpful note</strong>
-          <span>Use the size of the artwork itself, not the outside dimensions of the frame.</span>
-        </div>
+        <h2>Find the aspect ratio of my artwork</h2>
+        <p class="task-copy">Measure the artwork itself and enter the width and height in inches.</p>
 
         <div class="field-grid">
           <label class="field">
@@ -145,52 +108,28 @@
           </label>
         </div>
 
-        <p id="ratioStatus" class="live-status">
-          Enter your artwork size to see your aspect ratio and frame guidance.
-        </p>
+        <p class="subtle-note">Use the size of the artwork itself, not the outside frame size.</p>
 
-        <div class="results-grid">
-          <article class="result-card">
-            <p class="section-label">Aspect Ratio</p>
-            <h2 id="ratioHeading">Waiting for dimensions</h2>
-            <p id="ratioBody">Your artwork ratio and closest common ratio family will appear here.</p>
-          </article>
+        <article id="ratioResult" class="result-panel" hidden>
+          <p class="result-kicker">Result</p>
+          <h3 id="ratioResultTitle">Waiting for dimensions</h3>
+          <p id="ratioResultIntro"></p>
+          <p id="ratioResultFit"></p>
+          <p id="ratioResultNext"></p>
 
-          <article class="result-card">
-            <p class="section-label">Common Fits</p>
-            <h2 id="fitHeading">No frame match yet</h2>
-            <p id="fitBody">We will check whether your artwork already matches a common frame size.</p>
-          </article>
-
-          <article class="result-card">
-            <p class="section-label">Next Step</p>
-            <h2 id="nextHeading">No recommendation yet</h2>
-            <p id="nextBody">If it does not match a common frame size, we will suggest a simple next step.</p>
-          </article>
-
-          <article class="result-card">
-            <p class="section-label">Related Sizes</p>
-            <h2>Common sizes to compare</h2>
-            <div id="ratioMatches" class="chip-list">
-              <span class="chip chip--muted">Common size suggestions will appear here.</span>
-            </div>
-          </article>
-        </div>
+          <div id="ratioMatchesWrap" class="matches-wrap" hidden>
+            <p class="result-kicker">Common sizes in this ratio</p>
+            <div id="ratioMatches" class="chip-list"></div>
+          </div>
+        </article>
       </section>
 
       <section id="task-resize" class="task-panel" hidden>
-        <div class="task-header">
-          <p class="section-label">Task 2</p>
-          <h2>What size can I print without changing the shape?</h2>
-          <p>
-            Enter your current artwork size, then add either a new width or a new height. The tool will calculate the matching dimension for you.
-          </p>
+        <div class="task-top">
+          <button type="button" class="ghost-button" data-reset-view="true">Choose a different question</button>
         </div>
-
-        <div class="helper-note">
-          <strong>Helpful note</strong>
-          <span>If you want the artwork to keep the same shape, enter only one new dimension and let the tool calculate the other one.</span>
-        </div>
+        <h2>Resize my artwork without changing the shape</h2>
+        <p class="task-copy">Enter your current size, then add one new width or one new height.</p>
 
         <div class="field-grid">
           <label class="field">
@@ -206,112 +145,73 @@
           </label>
 
           <label class="field">
-            <span class="field-label">Target width</span>
+            <span class="field-label">New width</span>
             <input type="number" id="targetWidth" min="0" step="0.01" placeholder="e.g. 18">
-            <span class="field-help">Leave blank if you are using height instead</span>
+            <span class="field-help">Optional if you are using height instead</span>
           </label>
 
           <label class="field">
-            <span class="field-label">Target height</span>
+            <span class="field-label">New height</span>
             <input type="number" id="targetHeight" min="0" step="0.01" placeholder="e.g. 24">
-            <span class="field-help">Leave blank if you are using width instead</span>
+            <span class="field-help">Optional if you are using width instead</span>
           </label>
         </div>
 
-        <p id="resizeStatus" class="live-status">
-          Enter the current size first, then one new dimension.
-        </p>
+        <p class="subtle-note">To keep the same proportions, use just one of the new size fields.</p>
 
-        <div class="results-grid results-grid--compact">
-          <article class="result-card">
-            <p class="section-label">Resize Result</p>
-            <h2 id="resizeHeading">No resize result yet</h2>
-            <p id="resizeBody">Your matching proportional size will appear here.</p>
-          </article>
-
-          <article class="result-card">
-            <p class="section-label">Helpful Note</p>
-            <h2 id="resizeNoteHeading">No note yet</h2>
-            <p id="resizeNoteBody">We will let you know if your inputs change the original shape instead of keeping the same ratio.</p>
-          </article>
-        </div>
+        <article id="resizeResult" class="result-panel" hidden>
+          <p class="result-kicker">Result</p>
+          <h3 id="resizeResultTitle">No resize result yet</h3>
+          <p id="resizeResultBody"></p>
+          <p id="resizeResultNote"></p>
+        </article>
       </section>
 
       <section id="task-quality" class="task-panel" hidden>
-        <div class="task-header">
-          <p class="section-label">Task 3</p>
-          <h2>Is my file large enough to print well?</h2>
-          <p>
-            Upload a file to see how large it can print at 300 PPI. If you already know the print size you want, enter that too and we will let you know if the file may be too low resolution.
-          </p>
+        <div class="task-top">
+          <button type="button" class="ghost-button" data-reset-view="true">Choose a different question</button>
         </div>
+        <h2>Check if my file is large enough to print</h2>
+        <p class="task-copy">Upload a file to see how large it can print at 300 PPI.</p>
 
-        <div class="helper-note">
-          <strong>Helpful note</strong>
-          <span>Upload is optional here, and this tool does not send the file to Monochrome Canvas.</span>
-        </div>
+        <label class="field">
+          <span class="field-label">Upload artwork</span>
+          <input type="file" id="artworkUpload" accept="image/*">
+          <span class="field-help">Only used here for file size and resolution checking</span>
+        </label>
 
-        <div class="field-grid">
-          <label class="field">
-            <span class="field-label">Upload artwork</span>
-            <input type="file" id="artworkUpload" accept="image/*">
-            <span class="field-help">Optional, for print-size and quality checking only</span>
-          </label>
+        <p class="subtle-note">
+          Files are not sent to Monochrome Canvas through this tool. We only receive files when you upload them as part of an actual order on the website.
+        </p>
 
+        <div id="qualityExtras" class="field-grid" hidden>
           <label class="field">
             <span class="field-label">Desired print width</span>
             <input type="number" id="qualityWidth" min="0" step="0.01" placeholder="e.g. 16">
-            <span class="field-help">Optional, only if you already know your target size</span>
+            <span class="field-help">Optional</span>
           </label>
 
           <label class="field">
             <span class="field-label">Desired print height</span>
             <input type="number" id="qualityHeight" min="0" step="0.01" placeholder="e.g. 20">
-            <span class="field-help">Optional, only if you already know your target size</span>
+            <span class="field-help">Optional</span>
           </label>
 
-          <div class="field field--actions">
-            <button type="button" id="useUploadSizeButton" class="button button--secondary" disabled>Use 300 PPI size in aspect ratio checker</button>
-            <button type="button" id="clearButton" class="button">Reset tool</button>
+          <div class="field field--button-row">
+            <button type="button" id="useUploadSizeButton" class="button button--secondary">Use the 300 PPI size in the frame check</button>
           </div>
         </div>
 
-        <p id="qualityStatus" class="live-status">
-          Upload a file to check its print size at 300 PPI.
-        </p>
-
-        <div class="results-grid results-grid--compact">
-          <article class="result-card">
-            <p class="section-label">Uploaded File</p>
-            <h2 id="uploadHeading">No file uploaded</h2>
-            <p id="uploadBody">Upload a file to see its pixel dimensions and max recommended print size at 300 PPI.</p>
-          </article>
-
-          <article class="result-card">
-            <p class="section-label">Resolution Check</p>
-            <h2 id="qualityHeading">No resolution check yet</h2>
-            <p id="qualityBody">If your uploaded file is too small for the size you want, we will warn you here.</p>
-          </article>
-        </div>
+        <article id="qualityResult" class="result-panel" hidden>
+          <p class="result-kicker">Result</p>
+          <h3 id="qualityResultTitle">No file uploaded</h3>
+          <p id="qualityResultMeta"></p>
+          <p id="qualityResultBody"></p>
+        </article>
       </section>
     </section>
 
-    <footer class="footer-card">
-      <div class="footer-brand">
-        <img
-          src="logo-flowers-web.png"
-          alt="Monochrome Canvas black and white floral logo"
-        >
-        <div>
-          <strong>Monochrome Canvas</strong>
-          <span>Fine art printing and artist support in Akron, Ohio.</span>
-        </div>
-      </div>
-      <p>
-        Created by <a href="https://monochromecanvas.com" target="_blank" rel="noreferrer">Monochrome Canvas</a>.
-        This helper is for planning only. We do not receive your file unless you upload it as part of an actual order on the website.
-      </p>
-    </footer>
+    <p class="footer-note"><strong>Monochrome Canvas</strong> fine art printing and artist support in Akron, Ohio. This helper is for planning only.</p>
   </main>
 
   <script src="script.js"></script>
