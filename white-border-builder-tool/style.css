@@ -648,23 +648,143 @@ h3 {
     padding: 20px 16px 28px;
   }
 
-  .workspace {
-    padding: 20px;
-    border-radius: 24px;
+  .hero {
+    padding: 8px 0 20px;
   }
 
-  .field-grid,
+  .eyebrow {
+    margin-top: 18px;
+  }
+
+  h1 {
+    max-width: none;
+    font-size: clamp(34px, 10vw, 46px);
+    line-height: 1.02;
+  }
+
+  h2 {
+    font-size: 29px;
+  }
+
+  h3 {
+    font-size: 22px;
+  }
+
+  .hero-copy,
+  .privacy-copy,
+  .support-copy,
+  .field-note,
+  .summary-empty,
+  .warning-panel,
+  .meta-panel,
+  .summary-item dd {
+    font-size: 16px;
+    line-height: 1.55;
+  }
+
+  .hero-copy {
+    margin-top: 12px;
+    font-size: 18px;
+  }
+
+  .section-heading,
+  .workspace-header {
+    gap: 12px;
+  }
+
   .mode-grid {
+    grid-template-columns: none;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(260px, 84vw);
+    overflow-x: auto;
+    gap: 12px;
+    margin-top: 18px;
+    padding-bottom: 4px;
+    scroll-snap-type: x proximity;
+    scrollbar-width: none;
+  }
+
+  .mode-grid::-webkit-scrollbar {
+    display: none;
+  }
+
+  .mode-card {
+    gap: 8px;
+    padding: 16px;
+    border-radius: 20px;
+    scroll-snap-align: start;
+  }
+
+  .mode-card strong {
+    font-size: 20px;
+  }
+
+  .mode-card span:last-child {
+    font-size: 15px;
+    line-height: 1.45;
+  }
+
+  .workspace {
+    padding: 18px 16px;
+    border-radius: 22px;
+  }
+
+  .field-grid {
     grid-template-columns: 1fr;
   }
 
+  .stack-block + .stack-block {
+    margin-top: 22px;
+    padding-top: 20px;
+  }
+
+  .upload-drop {
+    padding: 18px;
+    border-radius: 20px;
+  }
+
+  .upload-title {
+    font-size: 20px;
+  }
+
+  .upload-copy,
+  .field span,
+  .toggle,
+  .warning-panel {
+    font-size: 15px;
+  }
+
+  .field input,
+  .field select {
+    padding: 13px 14px;
+    font-size: 16px;
+  }
+
+  .swap-button,
+  .download-button {
+    width: 100%;
+  }
+
+  .preview-card,
+  .summary-card {
+    padding: 16px;
+    border-radius: 22px;
+  }
+
   .preview-stage {
-    min-height: 320px;
-    padding: 14px;
+    min-height: 280px;
+    padding: 12px;
   }
 
   #previewCanvas {
-    max-height: 360px;
+    max-height: 300px;
+  }
+
+  .preview-placeholder {
+    inset: auto 14px 14px;
+    padding: 12px 14px;
+    border-radius: 14px;
+    font-size: 14px;
   }
 
   .summary-header {
@@ -677,5 +797,19 @@ h3 {
     left: 16px;
     bottom: 16px;
     max-width: none;
+    padding: 16px;
+    border-radius: 18px;
+  }
+
+  .download-toast__content strong {
+    font-size: 18px;
+  }
+
+  .download-toast__content p {
+    font-size: 14px;
+  }
+
+  .app-footer {
+    padding: 18px 0 4px;
   }
 }
