@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>White Border Builder | Monochrome Canvas</title>
+    <meta
+      name="description"
+      content="Upload artwork, add white borders for matting or frame sizing, and download a print-ready file from Monochrome Canvas."
+    >
+    <link rel="stylesheet" href="./style.css">
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="hero">
+        <a class="brand-pill" href="https://monochromecanvas.com" target="_blank" rel="noreferrer">
+          Monochrome Canvas
+        </a>
+        <p class="eyebrow">Print Prep Tool</p>
+        <h1>White Border Builder</h1>
+        <p class="hero-copy">
+          Upload your artwork, choose the kind of border setup you need, and download a high-quality JPEG you can use when ordering.
+        </p>
+        <div class="hero-notes">
+          <span>Built for 300 PPI print prep</span>
+        </div>
+      </header>
+
+      <section class="mode-picker" aria-labelledby="mode-title">
+        <div class="section-heading">
+          <p class="section-label">Choose Your Setup</p>
+          <h2 id="mode-title">What do you want this file to do?</h2>
+        </div>
+
+        <div class="mode-grid" role="tablist" aria-label="White border workflows">
+          <button class="mode-card is-active" type="button" data-mode="matting" aria-pressed="true">
+            <span class="mode-step">Option 1</span>
+            <strong>Add white border for matting</strong>
+            <span>Add extra paper around the artwork without changing the image.</span>
+          </button>
+          <button class="mode-card" type="button" data-mode="fit-frame" aria-pressed="false">
+            <span class="mode-step">Option 2</span>
+            <strong>Fit into a common frame size</strong>
+            <span>Keep the full artwork visible and let the border adjust around it.</span>
+          </button>
+          <button class="mode-card" type="button" data-mode="even-border" aria-pressed="false">
+            <span class="mode-step">Option 3</span>
+            <strong>Fit a frame with an even border</strong>
+            <span>Crop as little as possible so the border stays even on every side.</span>
+          </button>
+        </div>
+      </section>
+
+      <section class="workspace" aria-labelledby="workspace-title">
+        <div class="workspace-header">
+          <div>
+            <p class="section-label">Build Your File</p>
+            <h2 id="workspace-title">Upload your artwork and set the output</h2>
+          </div>
+          <p class="privacy-copy">
+            Your file stays in your browser while you use this tool. Monochrome Canvas does not receive it here.
+          </p>
+        </div>
+
+        <div class="workspace-grid">
+          <section class="controls-pane" aria-label="Builder controls">
+            <div class="stack-block">
+              <h3>1. Upload artwork</h3>
+              <label class="upload-drop" for="fileInput">
+                <input id="fileInput" type="file" accept="image/png,image/jpeg,image/webp">
+                <span class="upload-title">Choose a PNG, JPG, or WebP file</span>
+                <span class="upload-copy">High-resolution files work best for print. We will size the final download around 300 PPI.</span>
+              </label>
+              <div id="fileMeta" class="meta-panel is-muted">
+                Upload a file to see its pixel size and recommended print size at 300 PPI.
+              </div>
+            </div>
+
+            <div class="stack-block" id="selectedModeCopy" aria-live="polite"></div>
+
+            <div class="mode-form" data-mode-panel="matting">
+              <div class="stack-block">
+                <h3>2. Set the artwork size</h3>
+                <p class="support-copy">
+                  These fields describe the artwork itself before the white border is added.
+                </p>
+                <div class="field-grid">
+                  <label class="field">
+                    <span>Artwork width (inches)</span>
+                    <input id="artWidth" type="number" min="0.25" step="0.01" inputmode="decimal">
+                  </label>
+                  <label class="field">
+                    <span>Artwork height (inches)</span>
+                    <input id="artHeight" type="number" min="0.25" step="0.01" inputmode="decimal">
+                  </label>
+                </div>
+                <p class="field-note">
+                  These stay linked to the original file ratio so the artwork does not stretch. You can enter a smaller width or height if you plan to print smaller.
+                </p>
+              </div>
+
+              <div class="stack-block">
+                <h3>3. Add the white border</h3>
+                <label class="toggle">
+                  <input id="sameBorderToggle" type="checkbox" checked>
+                  <span>Use the same border on all sides</span>
+                </label>
+
+                <div id="evenBorderFields" class="field-grid field-grid--single">
+                  <label class="field">
+                    <span>Border on all sides (0-10 inches)</span>
+                    <input id="borderAll" type="number" min="0" max="10" step="0.01" value="1" inputmode="decimal">
+                  </label>
+                </div>
+
+                <div id="customBorderFields" class="field-grid is-hidden">
+                  <label class="field">
+                    <span>Top border</span>
+                    <input id="borderTop" type="number" min="0" max="10" step="0.01" value="1" inputmode="decimal">
+                  </label>
+                  <label class="field">
+                    <span>Right border</span>
+                    <input id="borderRight" type="number" min="0" max="10" step="0.01" value="1" inputmode="decimal">
+                  </label>
+                  <label class="field">
+                    <span>Bottom border</span>
+                    <input id="borderBottom" type="number" min="0" max="10" step="0.01" value="1" inputmode="decimal">
+                  </label>
+                  <label class="field">
+                    <span>Left border</span>
+                    <input id="borderLeft" type="number" min="0" max="10" step="0.01" value="1" inputmode="decimal">
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <div class="mode-form is-hidden" data-mode-panel="fit-frame">
+              <div class="stack-block">
+                <h3>2. Choose the final frame size</h3>
+                <p class="support-copy">
+                  The full artwork stays visible. Choose the smallest white border you want, and the tool will keep at least that much space on every side.
+                </p>
+                <div class="field-grid">
+                  <label class="field field--wide">
+                    <span>Common frame size</span>
+                    <select id="fitFramePreset"></select>
+                  </label>
+                  <button id="fitSwap" class="swap-button" type="button">Swap orientation</button>
+                </div>
+                <div class="field-grid">
+                  <label class="field">
+                    <span>Final width (inches)</span>
+                    <input id="fitFrameWidth" type="number" min="1" step="0.01" inputmode="decimal">
+                  </label>
+                  <label class="field">
+                    <span>Final height (inches)</span>
+                    <input id="fitFrameHeight" type="number" min="1" step="0.01" inputmode="decimal">
+                  </label>
+                  <label class="field">
+                    <span>Minimum white border on all sides (0-10 inches)</span>
+                    <input id="fitMinBorder" type="number" min="0" max="10" step="0.01" value="1" inputmode="decimal">
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <div class="mode-form is-hidden" data-mode-panel="even-border">
+              <div class="stack-block">
+                <h3>2. Choose the final frame size</h3>
+                <p class="support-copy">
+                  This option keeps the border even on every side. If the opening ratio does not match the artwork, the image will be cropped as gently as possible.
+                </p>
+                <div class="field-grid">
+                  <label class="field field--wide">
+                    <span>Common frame size</span>
+                    <select id="evenFramePreset"></select>
+                  </label>
+                  <button id="evenSwap" class="swap-button" type="button">Swap orientation</button>
+                </div>
+                <div class="field-grid">
+                  <label class="field">
+                    <span>Final width (inches)</span>
+                    <input id="evenFrameWidth" type="number" min="1" step="0.01" inputmode="decimal">
+                  </label>
+                  <label class="field">
+                    <span>Final height (inches)</span>
+                    <input id="evenFrameHeight" type="number" min="1" step="0.01" inputmode="decimal">
+                  </label>
+                </div>
+              </div>
+
+              <div class="stack-block">
+                <h3>3. Set the even border</h3>
+                <div class="field-grid field-grid--single">
+                  <label class="field">
+                    <span>Even border on all sides (0-10 inches)</span>
+                    <input id="evenBorder" type="number" min="0" max="10" step="0.01" value="1" inputmode="decimal">
+                  </label>
+                </div>
+              </div>
+
+            </div>
+
+            <div class="stack-block">
+              <h3>Download</h3>
+              <p class="support-copy">
+                The exported file is a high-quality JPEG sized to your chosen print dimensions at 300 PPI. Download it here, then upload that new file during ordering.
+              </p>
+              <button id="downloadButton" class="download-button" type="button" disabled>
+                Download print-ready JPEG
+              </button>
+            </div>
+          </section>
+
+          <section class="preview-pane" aria-label="Preview and output details">
+            <div class="preview-card">
+              <div class="preview-stage">
+                <canvas id="previewCanvas" width="1200" height="900"></canvas>
+                <div id="previewPlaceholder" class="preview-placeholder">
+                  Upload a file to preview your bordered print layout.
+                </div>
+              </div>
+            </div>
+
+            <div id="cropAdjustBlock" class="summary-card crop-adjust-card is-hidden">
+              <h3>Adjust the crop position</h3>
+              <p class="support-copy">
+                Move the artwork within the opening and watch the preview update as you go.
+              </p>
+              <div id="cropHorizontalGroup" class="field is-hidden">
+                <span>Horizontal crop position</span>
+                <input id="cropX" type="range" min="0" max="100" step="1" value="50">
+                <div class="range-labels">
+                  <span>Left</span>
+                  <span>Center</span>
+                  <span>Right</span>
+                </div>
+              </div>
+              <div id="cropVerticalGroup" class="field is-hidden">
+                <span>Vertical crop position</span>
+                <input id="cropY" type="range" min="0" max="100" step="1" value="50">
+                <div class="range-labels">
+                  <span>Top</span>
+                  <span>Center</span>
+                  <span>Bottom</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="summary-card">
+              <div class="summary-header">
+                <h3>Output summary</h3>
+                <span id="qualityBadge" class="quality-badge">Waiting for file</span>
+              </div>
+              <div id="summaryContent" class="summary-list">
+                <p class="summary-empty">
+                  Once a file is loaded, this area will show the final paper size, border sizes, crop notes, and quality guidance.
+                </p>
+              </div>
+              <div id="warningPanel" class="warning-panel is-hidden" role="status" aria-live="polite"></div>
+            </div>
+          </section>
+        </div>
+      </section>
+
+      <footer class="app-footer">
+        <a href="https://monochromecanvas.com" target="_blank" rel="noreferrer">Visit Monochrome Canvas</a>
+      </footer>
+
+      <div id="downloadToast" class="download-toast is-hidden" role="status" aria-live="polite">
+        <div class="download-toast__content">
+          <strong>Your new file is downloading.</strong>
+          <p>Save that JPEG, then upload the downloaded file during the Monochrome Canvas ordering process when you are ready.</p>
+        </div>
+        <button id="dismissToast" class="download-toast__close" type="button" aria-label="Close download message">Close</button>
+      </div>
+    </main>
+
+    <script src="./script.js"></script>
+  </body>
+</html>
