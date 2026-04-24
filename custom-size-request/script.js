@@ -113,6 +113,7 @@
     qualityBadge: document.getElementById("qualityBadge"),
     estimateTotal: document.getElementById("estimateTotal"),
     estimateRange: document.getElementById("estimateRange"),
+    previewFrame: document.querySelector(".wall-frame"),
     previewImage: document.getElementById("previewImage"),
     previewPlaceholder: document.getElementById("previewPlaceholder"),
     summaryContent: document.getElementById("summaryContent"),
@@ -263,6 +264,17 @@
 
   function formatDimensions(width, height) {
     return formatDimension(width) + " x " + formatDimension(height) + " in";
+  }
+
+  function getScaledPreviewSize(width, height) {
+    const maxWidth = 340;
+    const maxHeight = 280;
+    const scale = Math.min(maxWidth / width, maxHeight / height);
+
+    return {
+      width: Math.round(width * scale),
+      height: Math.round(height * scale)
+    };
   }
 
   function formatMaxSize(material) {
@@ -509,6 +521,7 @@
     elements.materialLink.href = selectedMaterial.url;
     updateSizeInputLimits(selectedMaterial);
     renderCanvasOptions(estimate);
+    renderPreviewShape(estimate);
     elements.estimateTotal.textContent =
       estimate.width > 0 && estimate.height > 0 ? formatMoney(estimate.total) : "$0.00";
 
@@ -639,6 +652,22 @@
     elements.borderDepthField.classList.toggle("is-hidden", !showStretchingFields);
     elements.edgeStyleField.classList.toggle("is-hidden", !showStretchingFields);
     elements.edgeColorField.classList.toggle("is-hidden", !showColorField);
+  }
+
+  function renderPreviewShape(estimate) {
+    const hasRequestedSize = estimate.width > 0 && estimate.height > 0;
+    const previewWidth = hasRequestedSize ? estimate.width : state.imageWidth || 16;
+    const previewHeight = hasRequestedSize ? estimate.height : state.imageHeight || 20;
+    const scaledSize = getScaledPreviewSize(previewWidth, previewHeight);
+
+    elements.previewFrame.style.setProperty("--preview-frame-width", scaledSize.width + "px");
+    elements.previewFrame.style.setProperty("--preview-frame-ratio", previewWidth + " / " + previewHeight);
+    elements.previewFrame.setAttribute(
+      "aria-label",
+      hasRequestedSize
+        ? "Preview shown in the requested print ratio: " + formatDimensions(previewWidth, previewHeight)
+        : "Preview shown in the uploaded artwork ratio"
+    );
   }
 
   function renderGuidanceCard(options) {
