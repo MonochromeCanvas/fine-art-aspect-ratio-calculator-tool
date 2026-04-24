@@ -46,7 +46,7 @@
                 <input id="fileInput" type="file" accept="image/png,image/jpeg,image/webp">
                 <span class="upload-title">Choose a JPG, PNG, or WebP file</span>
                 <span class="upload-copy">
-                  Upload the artwork you want quoted. We will compare the pixel dimensions to the finished size you enter below.
+                  Upload the artwork you want quoted. We will auto-fill the 300 PPI print size, then you can adjust it if you want a different finished size.
                 </span>
               </label>
               <div id="fileMeta" class="meta-panel is-muted">
@@ -63,16 +63,39 @@
                 </label>
                 <label class="field">
                   <span>Width (inches)</span>
-                  <input id="widthInput" type="number" min="1" step="0.25" value="16" inputmode="decimal">
+                  <input id="widthInput" type="number" min="1" step="0.01" value="16" inputmode="decimal">
                 </label>
                 <label class="field">
                   <span>Height (inches)</span>
-                  <input id="heightInput" type="number" min="1" step="0.25" value="20" inputmode="decimal">
+                  <input id="heightInput" type="number" min="1" step="0.01" value="20" inputmode="decimal">
                 </label>
                 <label class="field">
                   <span>Quantity</span>
                   <input id="quantityInput" type="number" min="1" step="1" value="1" inputmode="numeric">
                 </label>
+              </div>
+              <label id="ratioToggleCard" class="toggle toggle--block ratio-toggle">
+                <input id="ratioLockToggle" type="checkbox" checked>
+                <span>
+                  <strong>Link width + height</strong>
+                  Keep the uploaded artwork proportions when resizing. Unlink to enter a custom crop size.
+                </span>
+              </label>
+              <p id="ratioModeNote" class="field-note"></p>
+              <div id="cropControls" class="crop-controls is-hidden">
+                <p id="cropControlsNote" class="field-note">
+                  Crop position controls appear when the size is unlinked and the artwork needs to be cropped to fill the requested shape.
+                </p>
+                <div class="field-grid">
+                  <label class="field range-field">
+                    <span>Left / right crop</span>
+                    <input id="cropXInput" type="range" min="0" max="100" step="1" value="50">
+                  </label>
+                  <label class="field range-field">
+                    <span>Top / bottom crop</span>
+                    <input id="cropYInput" type="range" min="0" max="100" step="1" value="50">
+                  </label>
+                </div>
               </div>
               <div id="canvasOptions" class="canvas-options is-hidden">
                 <p class="field-note">
