@@ -464,8 +464,10 @@ h3 {
 
 .wall-preview {
   position: relative;
+  display: grid;
+  place-items: center;
   min-height: 390px;
-  padding: 18px;
+  padding: 30px 24px;
   border-radius: 22px;
   background:
     radial-gradient(circle at top, rgba(255, 255, 255, 0.7), transparent 34%),
@@ -479,18 +481,21 @@ h3 {
   content: "";
   position: absolute;
   inset: 16px;
+  z-index: 0;
   border-radius: 18px;
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.08), transparent),
     linear-gradient(180deg, rgba(255, 255, 255, 0.84), rgba(232, 226, 217, 0.64));
+  pointer-events: none;
 }
 
 .wall-frame {
-  position: absolute;
-  inset: 58px;
+  position: relative;
   z-index: 1;
   display: grid;
   place-items: center;
+  width: min(var(--preview-frame-width, 260px), calc(100% - 28px));
+  aspect-ratio: var(--preview-frame-ratio, 4 / 5);
   border-radius: 16px;
   background:
     linear-gradient(145deg, #1f1b18, #4b4038 52%, #1b1816);
@@ -498,6 +503,7 @@ h3 {
     inset 0 0 0 1px rgba(255, 255, 255, 0.06),
     0 22px 44px rgba(26, 20, 16, 0.18);
   overflow: hidden;
+  transition: width 180ms ease, aspect-ratio 180ms ease;
 }
 
 #previewImage {
@@ -742,7 +748,8 @@ h3 {
     text-align: left;
   }
 
-  .wall-frame {
-    inset: 44px 24px;
+  .wall-preview {
+    min-height: 320px;
+    padding: 24px 18px;
   }
 }
