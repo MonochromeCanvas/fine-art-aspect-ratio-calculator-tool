@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Custom Size Request | Monochrome Canvas</title>
+    <meta
+      name="description"
+      content="Upload artwork, enter a custom print size, estimate pricing, and prepare a custom size request for Monochrome Canvas."
+    >
+    <link rel="stylesheet" href="./style.css">
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="hero">
+        <a class="brand-pill" href="https://monochromecanvas.com" target="_blank" rel="noreferrer">
+          Monochrome Canvas
+        </a>
+        <p class="eyebrow">Print Tool</p>
+        <h1>Custom Size Request</h1>
+        <p class="hero-copy">
+          Upload your artwork, enter the finished size and quantity, and create a clear quote request for Monochrome Canvas.
+        </p>
+        <div class="hero-notes">
+          <span>Estimate first, invoice after studio review</span>
+          <span>Request addressed to joelle@monochromecanvas.com</span>
+        </div>
+      </header>
+
+      <section class="workspace" aria-labelledby="workspace-title">
+        <div class="workspace-header">
+          <div>
+            <p class="section-label">Request A Quote</p>
+            <h2 id="workspace-title">Build your custom print request</h2>
+          </div>
+          <p class="privacy-copy">
+            Your file stays in your browser while you prepare the request. Final pricing is confirmed after the studio reviews the file.
+          </p>
+        </div>
+
+        <div class="workspace-grid">
+          <section class="controls-pane" aria-label="Custom quote request form">
+            <div class="stack-block">
+              <h3>1. Upload artwork</h3>
+              <label class="upload-drop" for="fileInput">
+                <input id="fileInput" type="file" accept="image/png,image/jpeg,image/webp">
+                <span class="upload-title">Choose a JPG, PNG, or WebP file</span>
+                <span class="upload-copy">
+                  Upload the artwork you want quoted. We will compare the pixel dimensions to the finished size you enter below.
+                </span>
+              </label>
+              <div id="fileMeta" class="meta-panel is-muted">
+                Upload a file to see its pixel dimensions and recommended maximum print size at 300 PPI.
+              </div>
+            </div>
+
+            <div class="stack-block">
+              <h3>2. Enter the print details</h3>
+              <div class="field-grid">
+                <label class="field field--wide">
+                  <span>Material</span>
+                  <select id="materialSelect"></select>
+                </label>
+                <label class="field">
+                  <span>Width (inches)</span>
+                  <input id="widthInput" type="number" min="1" step="0.25" value="16" inputmode="decimal">
+                </label>
+                <label class="field">
+                  <span>Height (inches)</span>
+                  <input id="heightInput" type="number" min="1" step="0.25" value="20" inputmode="decimal">
+                </label>
+                <label class="field">
+                  <span>Quantity</span>
+                  <input id="quantityInput" type="number" min="1" step="1" value="1" inputmode="numeric">
+                </label>
+              </div>
+              <div id="canvasOptions" class="canvas-options is-hidden">
+                <p class="field-note">
+                  For canvas requests, enter the finished face size above. If you need canvas for stretching, add the extra border below.
+                </p>
+                <div class="field-grid">
+                  <label class="field field--wide">
+                    <span>Canvas stretching border</span>
+                    <select id="canvasBorderSelect">
+                      <option value="none">No stretching border</option>
+                      <option value="stretch">Add stretching border</option>
+                    </select>
+                  </label>
+                  <label id="borderDepthField" class="field is-hidden">
+                    <span>Border depth per side</span>
+                    <input id="borderDepthInput" type="number" min="0.5" step="0.25" value="2" inputmode="decimal">
+                  </label>
+                  <label id="edgeStyleField" class="field is-hidden">
+                    <span>Edge style</span>
+                    <select id="edgeStyleSelect">
+                      <option value="white">White edge</option>
+                      <option value="color">Color edge</option>
+                      <option value="mirror">Mirrored edge</option>
+                    </select>
+                  </label>
+                  <label id="edgeColorField" class="field field--wide is-hidden">
+                    <span>Edge color request</span>
+                    <input id="edgeColorInput" type="text" placeholder="Black, warm white, match background, etc.">
+                  </label>
+                </div>
+              </div>
+              <p id="materialDescription" class="field-note"></p>
+              <a id="materialLink" class="text-link" href="#" target="_blank" rel="noreferrer">
+                View the standard sizes for this material
+              </a>
+            </div>
+
+            <div class="stack-block">
+              <h3>3. Add your details</h3>
+              <div class="field-grid">
+                <label class="field">
+                  <span>Name</span>
+                  <input id="nameInput" type="text" autocomplete="name" placeholder="Your name">
+                </label>
+                <label class="field">
+                  <span>Email</span>
+                  <input id="emailInput" type="email" autocomplete="email" placeholder="you@example.com">
+                </label>
+                <label class="field field--wide">
+                  <span>What are you printing? (optional)</span>
+                  <select id="projectTypeSelect">
+                    <option value="">No preference selected</option>
+                  </select>
+                </label>
+                <label class="field field--wide">
+                  <span>Anything you want us to know? (optional)</span>
+                  <textarea id="notesInput" rows="4" placeholder="Rush timing, framing plans, special handling, or anything else helpful."></textarea>
+                </label>
+              </div>
+              <label class="toggle toggle--block">
+                <input id="artistToggle" type="checkbox">
+                <span>I am an artist, photographer, or creative ordering my own work and would like artist pricing reviewed if this request qualifies.</span>
+              </label>
+            </div>
+
+            <div class="stack-block">
+              <h3>4. Prepare the request</h3>
+              <p class="support-copy">
+                We will prepare an email addressed to joelle@monochromecanvas.com with your quote details filled in.
+              </p>
+              <p class="field-note">
+                The artwork file still needs to be attached before sending.
+              </p>
+              <button id="prepareButton" class="download-button" type="button">
+                Create Quote Request
+              </button>
+              <p id="formMessage" class="warning-panel is-hidden" role="status" aria-live="polite"></p>
+            </div>
+          </section>
+
+          <section class="preview-pane" aria-label="Quote summary and artwork preview">
+            <div class="preview-card">
+              <div class="summary-header">
+                <h3>Quote estimate</h3>
+                <span id="qualityBadge" class="quality-badge">Waiting for file</span>
+              </div>
+
+              <div class="estimate-panel">
+                <div>
+                  <p class="estimate-label">Estimated quote</p>
+                  <strong id="estimateTotal">$0.00</strong>
+                </div>
+                <p id="estimateRange" class="estimate-copy">
+                  Enter the size and quantity to see a custom quote estimate.
+                </p>
+              </div>
+
+              <div class="preview-stage">
+                <div class="wall-preview">
+                  <div class="wall-frame">
+                    <img id="previewImage" alt="Artwork preview on a wall" hidden>
+                    <div id="previewPlaceholder" class="preview-placeholder">
+                      Upload a file to preview it on the wall.
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div id="summaryContent" class="summary-list">
+                <p class="summary-empty">
+                  The requested size, quantity, material, and file quality will appear here as you fill out the form.
+                </p>
+              </div>
+
+              <div id="guidanceContent" class="guidance-list" aria-live="polite"></div>
+            </div>
+          </section>
+        </div>
+      </section>
+
+      <footer class="app-footer">
+        <a href="https://monochromecanvas.com" target="_blank" rel="noreferrer">Back to Monochrome Canvas</a>
+      </footer>
+    </main>
+
+    <div id="emailDialog" class="dialog-backdrop is-hidden" role="presentation">
+      <div class="dialog-card" role="dialog" aria-modal="true" aria-labelledby="dialogTitle">
+        <p class="section-label">Quote Request Ready</p>
+        <h2 id="dialogTitle">Your studio email is ready.</h2>
+        <p class="support-copy">
+          Review the request below, then open your email draft or copy the summary. This draft is addressed to joelle@monochromecanvas.com.
+        </p>
+        <p class="field-note">Attach the artwork file before sending.</p>
+
+        <div class="summary-card dialog-summary">
+          <div class="summary-header">
+            <h3>Email preview</h3>
+          </div>
+          <p class="dialog-recipient">To: joelle@monochromecanvas.com</p>
+          <p id="emailSubject" class="dialog-subject"></p>
+          <pre id="emailBody" class="dialog-body"></pre>
+        </div>
+
+        <div class="dialog-actions">
+          <button id="copyButton" class="swap-button" type="button">Copy summary</button>
+          <a id="emailLink" class="download-button dialog-email-link" href="#">Open email to studio</a>
+          <button id="closeDialogButton" class="swap-button" type="button">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="./script.js"></script>
+  </body>
+</html>
