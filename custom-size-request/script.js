@@ -85,7 +85,11 @@
     file: null,
     objectUrl: null,
     imageWidth: null,
-    imageHeight: null
+    imageHeight: null,
+    dimensionsAutoFilled: false,
+    isSyncingDimensions: false,
+    lockedRatio: null,
+    sizeFieldsEdited: false
   };
 
   const elements = {
@@ -105,6 +109,13 @@
     widthInput: document.getElementById("widthInput"),
     heightInput: document.getElementById("heightInput"),
     quantityInput: document.getElementById("quantityInput"),
+    ratioToggleCard: document.getElementById("ratioToggleCard"),
+    ratioLockToggle: document.getElementById("ratioLockToggle"),
+    ratioModeNote: document.getElementById("ratioModeNote"),
+    cropControls: document.getElementById("cropControls"),
+    cropControlsNote: document.getElementById("cropControlsNote"),
+    cropXInput: document.getElementById("cropXInput"),
+    cropYInput: document.getElementById("cropYInput"),
     projectTypeSelect: document.getElementById("projectTypeSelect"),
     notesInput: document.getElementById("notesInput"),
     artistToggle: document.getElementById("artistToggle"),
@@ -133,6 +144,7 @@
   function init() {
     populateMaterials();
     populateProjectTypes();
+    state.lockedRatio = getCurrentSizeRatio();
     bindEvents();
     render();
   }
@@ -158,14 +170,19 @@
 
   function bindEvents() {
     elements.fileInput.addEventListener("change", handleFileChange);
+    [elements.widthInput, elements.heightInput].forEach((input) => {
+      input.addEventListener("input", handleSizeInput);
+      input.addEventListener("change", handleSizeInput);
+    });
+    elements.ratioLockToggle.addEventListener("change", handleRatioLockChange);
     [
       elements.materialSelect,
       elements.canvasBorderSelect,
       elements.borderDepthInput,
       elements.edgeStyleSelect,
       elements.edgeColorInput,
-      elements.widthInput,
-      elements.heightInput,
+      elements.cropXInput,
+      elements.cropYInput,
       elements.quantityInput,
       elements.projectTypeSelect,
       elements.notesInput,
@@ -187,6 +204,30 @@
     elements.copyButton.addEventListener("click", copySummary);
   }
 
+  function markSizeFieldsEdited() {
+    state.sizeFieldsEdited = true;
+    state.dimensionsAutoFilled = false;
+  }
+
+  function handleSizeInput(event) {
+    if (state.isSyncingDimensions) {
+      return;
+    }
+
+    markSizeFieldsEdited();
+    syncLinkedDimension(event.target);
+    render();
+  }
+
+  function handleRatioLockChange() {
+    if (elements.ratioLockToggle.checked) {
+      state.lockedRatio = getPreferredArtworkRatio();
+      syncLinkedDimension(elements.widthInput);
+    }
+
+    render();
+  }
+
   function handleFileChange(event) {
     const file = event.target.files && event.target.files[0];
     clearFile();
@@ -204,9 +245,11 @@
     image.onload = function () {
       state.imageWidth = image.naturalWidth;
       state.imageHeight = image.naturalHeight;
+      state.lockedRatio = getPreferredArtworkRatio();
       elements.previewImage.src = objectUrl;
       elements.previewImage.hidden = false;
       elements.previewPlaceholder.classList.add("is-hidden");
+      autoFillDimensionsAt300Ppi();
       render();
     };
     image.onerror = function () {
@@ -228,6 +271,7 @@
     elements.previewImage.hidden = true;
     elements.previewImage.removeAttribute("src");
     elements.previewPlaceholder.classList.remove("is-hidden");
+    state.dimensionsAutoFilled = false;
   }
 
   function getSelectedMaterial() {
@@ -237,6 +281,73 @@
   function getNumericValue(input) {
     const parsed = parseFloat(input.value);
     return isFinite(parsed) ? parsed : 0;
+  }
+
+  function getRangeValue(input) {
+    const parsed = parseInt(input.value, 10);
+    return isFinite(parsed) ? parsed : 50;
+  }
+
+  function isRatioLocked() {
+    return elements.ratioLockToggle.checked;
+  }
+
+  function getCurrentSizeRatio() {
+    const width = getNumericValue(elements.widthInput);
+    const height = getNumericValue(elements.heightInput);
+    return width > 0 && height > 0 ? width / height : null;
+  }
+
+  function getPreferredArtworkRatio() {
+    if (state.imageWidth && state.imageHeight) {
+      return state.imageWidth / state.imageHeight;
+    }
+
+    return state.lockedRatio || getCurrentSizeRatio() || 1;
+  }
+
+  function syncLinkedDimension(changedInput) {
+    if (!isRatioLocked()) {
+      return;
+    }
+
+    const ratio = getPreferredArtworkRatio();
+    const width = getNumericValue(elements.widthInput);
+    const height = getNumericValue(elements.heightInput);
+
+    state.isSyncingDimensions = true;
+    if (changedInput === elements.heightInput && height > 0) {
+      elements.widthInput.value = formatDimensionInput(height * ratio);
+    } else if (width > 0) {
+      elements.heightInput.value = formatDimensionInput(width / ratio);
+    }
+    state.isSyncingDimensions = false;
+  }
+
+  function getAspectDifference(width, height) {
+    if (!(width > 0) || !(height > 0) || !state.imageWidth || !state.imageHeight) {
+      return 0;
+    }
+
+    const artworkRatio = state.imageWidth / state.imageHeight;
+    const requestedRatio = width / height;
+    return Math.abs(artworkRatio - requestedRatio) / requestedRatio;
+  }
+
+  function isCropPreviewActive(width, height) {
+    return !isRatioLocked() && getAspectDifference(width, height) > 0.025;
+  }
+
+  function getCropPositionText() {
+    return "X " + getRangeValue(elements.cropXInput) + "%, Y " + getRangeValue(elements.cropYInput) + "%";
+  }
+
+  function getSizingModeLabel(width, height) {
+    if (isRatioLocked()) {
+      return "Linked proportions";
+    }
+
+    return isCropPreviewActive(width, height) ? "Unlinked custom crop" : "Unlinked custom size";
   }
 
   function roundMoney(value) {
@@ -264,6 +375,21 @@
 
   function formatDimensions(width, height) {
     return formatDimension(width) + " x " + formatDimension(height) + " in";
+  }
+
+  function formatDimensionInput(value) {
+    return (Math.round(value * 100) / 100).toFixed(2).replace(/\.?0+$/, "");
+  }
+
+  function autoFillDimensionsAt300Ppi() {
+    if (state.sizeFieldsEdited || !state.imageWidth || !state.imageHeight) {
+      state.dimensionsAutoFilled = false;
+      return;
+    }
+
+    elements.widthInput.value = formatDimensionInput(state.imageWidth / 300);
+    elements.heightInput.value = formatDimensionInput(state.imageHeight / 300);
+    state.dimensionsAutoFilled = true;
   }
 
   function getScaledPreviewSize(width, height) {
@@ -475,24 +601,36 @@
     if (!(width > 0) || !(height > 0) || !state.imageWidth || !state.imageHeight) {
       return {
         needsPrep: false,
+        cropPreview: false,
         message: ""
       };
     }
 
     const artworkRatio = state.imageWidth / state.imageHeight;
     const requestedRatio = width / height;
-    const difference = Math.abs(artworkRatio - requestedRatio) / requestedRatio;
+    const difference = getAspectDifference(width, height);
 
     if (difference <= 0.025) {
       return {
         needsPrep: false,
+        cropPreview: false,
         message: "The artwork shape is close to the requested print size."
+      };
+    }
+
+    if (!isRatioLocked()) {
+      return {
+        needsPrep: false,
+        cropPreview: true,
+        message:
+          "The preview is cropping the uploaded artwork to fill this custom size. Use the crop sliders to choose the focus area, or link the size to keep the full image."
       };
     }
 
     const direction = artworkRatio > requestedRatio ? "wider" : "taller";
     return {
       needsPrep: true,
+      cropPreview: false,
       message:
         "The artwork is " +
         direction +
@@ -522,6 +660,7 @@
     updateSizeInputLimits(selectedMaterial);
     renderCanvasOptions(estimate);
     renderPreviewShape(estimate);
+    renderRatioControls(estimate, sizingFeedback);
     elements.estimateTotal.textContent =
       estimate.width > 0 && estimate.height > 0 ? formatMoney(estimate.total) : "$0.00";
 
@@ -549,7 +688,8 @@
         state.imageHeight.toLocaleString() +
         " px · best up to " +
         formatDimensions(maxWidthAt300, maxHeightAt300) +
-        " at 300 PPI";
+        " at 300 PPI" +
+        (state.dimensionsAutoFilled ? " · size fields filled from this file" : "");
     } else {
       elements.fileMeta.classList.add("is-muted");
       elements.fileMeta.textContent =
@@ -570,12 +710,24 @@
     const summaryItems = [
       ["Material", estimate.material.label],
       ["Requested size", formatDimensions(estimate.width, estimate.height)],
+      ["Sizing mode", getSizingModeLabel(estimate.width, estimate.height)],
       ["Quantity", String(estimate.quantity)],
       ["Unit estimate", formatMoney(estimate.unitPrice)],
       ["Artwork file", state.file ? state.file.name : "Upload needed"],
       ["File quality", qualityValue],
-      ["Artwork fit", sizingFeedback.needsPrep ? "Sizing prep recommended" : sizingFeedback.message || "Upload needed"]
+      [
+        "Artwork fit",
+        sizingFeedback.cropPreview
+          ? "Crop preview active"
+          : sizingFeedback.needsPrep
+            ? "Sizing prep recommended"
+            : sizingFeedback.message || "Upload needed"
+      ]
     ];
+
+    if (sizingFeedback.cropPreview) {
+      summaryItems.push(["Crop position", getCropPositionText()]);
+    }
 
     if (estimate.discountRate) {
       summaryItems.push(["Quantity pricing", Math.round(estimate.discountRate * 100) + "% applied"]);
@@ -604,7 +756,14 @@
       elements.summaryContent.appendChild(wrap);
     });
 
-    if (sizingFeedback.needsPrep) {
+    if (sizingFeedback.cropPreview) {
+      renderGuidanceCard({
+        title: "Crop preview active",
+        message: sizingFeedback.message,
+        linkHref: WHITE_BORDER_BUILDER_URL,
+        linkText: "Use borders instead"
+      });
+    } else if (sizingFeedback.needsPrep) {
       renderGuidanceCard({
         title: "Sizing prep recommended",
         message: sizingFeedback.message,
@@ -654,17 +813,56 @@
     elements.edgeColorField.classList.toggle("is-hidden", !showColorField);
   }
 
+  function renderRatioControls(estimate, sizingFeedback) {
+    const locked = isRatioLocked();
+    const cropPreviewActive = Boolean(sizingFeedback.cropPreview);
+    const cropControlsVisible = !locked;
+
+    elements.ratioToggleCard.classList.toggle("is-linked", locked);
+    elements.ratioToggleCard.classList.toggle("is-unlinked", !locked);
+    elements.ratioModeNote.textContent = locked
+      ? "Linked: changing width or height keeps the uploaded artwork proportions."
+      : "Unlinked: width and height can differ. If the shape changes, the preview will crop to fill the requested size.";
+    elements.cropControls.classList.toggle("is-hidden", !cropControlsVisible);
+    elements.cropControls.classList.toggle("is-ready", cropPreviewActive);
+    elements.cropControls.classList.toggle("is-waiting", cropControlsVisible && !cropPreviewActive);
+    elements.cropXInput.disabled = !cropPreviewActive;
+    elements.cropYInput.disabled = !cropPreviewActive;
+
+    if (!cropControlsVisible) {
+      elements.cropControlsNote.textContent =
+        "Unlink the size if you want to enter a custom crop instead of preserving the uploaded artwork proportions.";
+    } else if (!state.file) {
+      elements.cropControlsNote.textContent =
+        "Upload artwork to preview the crop. The sliders will activate when the requested shape differs from the file.";
+    } else if (cropPreviewActive) {
+      elements.cropControlsNote.textContent =
+        "Use the sliders to choose which part of the artwork stays centered in this custom crop.";
+    } else {
+      elements.cropControlsNote.textContent =
+        "This size is still close to the uploaded artwork shape, so no crop adjustment is needed yet.";
+    }
+  }
+
   function renderPreviewShape(estimate) {
     const hasRequestedSize = estimate.width > 0 && estimate.height > 0;
     const previewWidth = hasRequestedSize ? estimate.width : state.imageWidth || 16;
     const previewHeight = hasRequestedSize ? estimate.height : state.imageHeight || 20;
     const scaledSize = getScaledPreviewSize(previewWidth, previewHeight);
+    const cropPreviewActive = isCropPreviewActive(estimate.width, estimate.height);
+    const cropX = getRangeValue(elements.cropXInput) + "%";
+    const cropY = getRangeValue(elements.cropYInput) + "%";
 
     elements.previewFrame.style.setProperty("--preview-frame-width", scaledSize.width + "px");
     elements.previewFrame.style.setProperty("--preview-frame-ratio", previewWidth + " / " + previewHeight);
+    elements.previewFrame.style.setProperty("--crop-position-x", cropX);
+    elements.previewFrame.style.setProperty("--crop-position-y", cropY);
+    elements.previewFrame.classList.toggle("is-crop-preview", cropPreviewActive);
     elements.previewFrame.setAttribute(
       "aria-label",
-      hasRequestedSize
+      cropPreviewActive
+        ? "Crop preview shown in the requested print ratio: " + formatDimensions(previewWidth, previewHeight)
+        : hasRequestedSize
         ? "Preview shown in the requested print ratio: " + formatDimensions(previewWidth, previewHeight)
         : "Preview shown in the uploaded artwork ratio"
     );
@@ -747,15 +945,22 @@
       "Material: " + estimate.material.label,
       "Requested size: " + formatDimensions(estimate.width, estimate.height),
       "Production size: " + formatDimensions(estimate.productionWidth, estimate.productionHeight),
+      "Sizing mode: " + getSizingModeLabel(estimate.width, estimate.height),
       "Quantity: " + estimate.quantity,
       "Unit estimate: " + formatMoney(estimate.unitPrice),
       "Quote estimate: " + formatMoney(estimate.total),
       "Resolution check: " + formatQualityValue(feedback),
       "Artwork fit: " +
-        (sizingFeedback.needsPrep
+        (sizingFeedback.cropPreview
+          ? "Crop preview active."
+          : sizingFeedback.needsPrep
           ? "Sizing prep recommended in the White Border Builder before printing."
           : sizingFeedback.message || "Not checked")
     ];
+
+    if (sizingFeedback.cropPreview) {
+      bodyLines.push("Crop position: " + getCropPositionText());
+    }
 
     if (estimate.canvasOptions.canAddBorder) {
       bodyLines.push("Canvas stretching border: " + formatEdgeStyle(estimate.canvasOptions));
