@@ -95,8 +95,13 @@
                     <span>Top / bottom crop</span>
                     <input id="cropYInput" type="range" min="0" max="100" step="1" value="50">
                   </label>
+                  <label class="field range-field field--wide">
+                    <span>Zoom crop</span>
+                    <input id="cropZoomInput" type="range" min="1" max="3" step="0.01" value="1">
+                  </label>
                 </div>
               </div>
+              <div id="mobilePreviewMount" class="mobile-preview-mount"></div>
               <div id="canvasOptions" class="canvas-options is-hidden">
                 <p class="field-note">
                   For canvas requests, enter the finished face size above. If you need canvas for stretching, add the extra border below.
@@ -135,6 +140,9 @@
 
             <div class="stack-block">
               <h3>3. Add your details</h3>
+              <p class="field-note">
+                These details go into the email request so the studio can reply and prepare the invoice after reviewing your file.
+              </p>
               <div class="field-grid">
                 <label class="field">
                   <span>Name</span>
@@ -164,14 +172,28 @@
             <div class="stack-block">
               <h3>4. Prepare the request</h3>
               <p class="support-copy">
-                We will prepare an email addressed to joelle@monochromecanvas.com with your quote details filled in.
+                We will open an email draft addressed to joelle@monochromecanvas.com with your quote details filled in.
               </p>
               <p class="field-note">
-                The artwork file still needs to be attached before sending.
+                Attach the artwork file before sending so the studio can review it. If your email app does not open, copy the summary and use the contact page as a backup.
               </p>
-              <button id="prepareButton" class="download-button" type="button">
-                Create Quote Request
-              </button>
+              <div class="action-row">
+                <button id="downloadButton" class="swap-button swap-button--strong" type="button">
+                  Download Print JPEG
+                </button>
+                <button id="prepareButton" class="download-button" type="button">
+                  Create Email Request
+                </button>
+              </div>
+              <p id="downloadNote" class="field-note">
+                Export a cropped JPEG that matches the requested proportions, ready to attach to your email request.
+              </p>
+              <p id="prepFlowNote" class="field-note is-hidden"></p>
+              <div>
+                <a class="text-link" href="https://monochromecanvas.com/pages/contact" target="_blank" rel="noreferrer">
+                  Contact page backup
+                </a>
+              </div>
               <p id="formMessage" class="warning-panel is-hidden" role="status" aria-live="polite"></p>
             </div>
           </section>
@@ -193,12 +215,14 @@
                 </p>
               </div>
 
-              <div class="preview-stage">
-                <div class="wall-preview">
-                  <div class="wall-frame">
-                    <img id="previewImage" alt="Artwork preview on a wall" hidden>
-                    <div id="previewPlaceholder" class="preview-placeholder">
-                      Upload a file to preview it on the wall.
+              <div id="desktopPreviewMount" class="desktop-preview-mount">
+                <div id="previewStage" class="preview-stage">
+                  <div class="wall-preview">
+                    <div class="wall-frame">
+                      <img id="previewImage" alt="Artwork preview on a wall" hidden>
+                      <div id="previewPlaceholder" class="preview-placeholder">
+                        Upload a file to preview it on the wall.
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -226,9 +250,11 @@
         <p class="section-label">Quote Request Ready</p>
         <h2 id="dialogTitle">Your studio email is ready.</h2>
         <p class="support-copy">
-          Review the request below, then open your email draft or copy the summary. This draft is addressed to joelle@monochromecanvas.com.
+          Review the request below, then open your email draft and attach the artwork file before sending. This draft is addressed to joelle@monochromecanvas.com.
         </p>
-        <p class="field-note">Attach the artwork file before sending.</p>
+        <p class="field-note">
+          If your email app does not open, copy the summary and send it through the Monochrome Canvas contact page.
+        </p>
 
         <div class="summary-card dialog-summary">
           <div class="summary-header">
@@ -241,7 +267,10 @@
 
         <div class="dialog-actions">
           <button id="copyButton" class="swap-button" type="button">Copy summary</button>
-          <a id="emailLink" class="download-button dialog-email-link" href="#">Open email to studio</a>
+          <a id="emailLink" class="download-button dialog-email-link" href="#">Open email app</a>
+          <a class="swap-button" href="https://monochromecanvas.com/pages/contact" target="_blank" rel="noreferrer">
+            Contact page backup
+          </a>
           <button id="closeDialogButton" class="swap-button" type="button">Close</button>
         </div>
       </div>
