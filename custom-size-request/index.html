@@ -13,17 +13,60 @@
   <body>
     <main class="app-shell">
       <header class="hero">
-        <a class="brand-pill" href="https://monochromecanvas.com" target="_blank" rel="noreferrer">
-          Monochrome Canvas
-        </a>
-        <p class="eyebrow">Print Tool</p>
-        <h1>Custom Size Request</h1>
-        <p class="hero-copy">
-          Upload your artwork, enter the finished size and quantity, and create a clear quote request for Monochrome Canvas.
-        </p>
-        <div class="hero-notes">
-          <span>Estimate first, invoice after studio review</span>
-          <span>Request addressed to joelle@monochromecanvas.com</span>
+        <div class="hero-layout">
+          <div class="hero-copy-block">
+            <a class="brand-pill" href="https://monochromecanvas.com" target="_blank" rel="noreferrer">
+              Monochrome Canvas
+            </a>
+            <p class="eyebrow">Print Tool</p>
+            <h1>Custom Size Request</h1>
+            <p class="hero-copy">
+              Upload your artwork, enter the finished size and quantity, and create a clear quote request for Monochrome Canvas.
+            </p>
+            <div class="hero-notes">
+              <span>Estimate first, invoice after studio review</span>
+              <span>Request addressed to joelle@monochromecanvas.com</span>
+            </div>
+          </div>
+
+          <div class="hero-visual hero-visual--quote" aria-hidden="true">
+            <svg viewBox="0 0 420 300" role="presentation">
+              <defs>
+                <linearGradient id="quoteGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#f8f3eb" />
+                  <stop offset="100%" stop-color="#e4dbcd" />
+                </linearGradient>
+                <linearGradient id="quoteArt" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#7c9a8f" />
+                  <stop offset="100%" stop-color="#355248" />
+                </linearGradient>
+              </defs>
+              <rect x="18" y="20" width="384" height="260" rx="34" fill="url(#quoteGlow)" />
+              <circle cx="355" cy="72" r="54" fill="#efe6d9" opacity="0.75" />
+              <circle cx="73" cy="242" r="38" fill="#f6efe4" opacity="0.8" />
+
+              <g transform="translate(52 48) rotate(-6 95 103)">
+                <rect x="0" y="18" width="180" height="206" rx="24" fill="#d9d2c5" opacity="0.9" />
+                <rect x="16" y="0" width="180" height="206" rx="24" fill="#fffdfa" stroke="#d6cabb" />
+                <rect x="42" y="34" width="128" height="132" rx="18" fill="#ebdfcf" />
+                <rect x="56" y="48" width="100" height="104" rx="14" fill="url(#quoteArt)" />
+                <rect x="56" y="166" width="100" height="12" rx="6" fill="#e9dfd2" />
+              </g>
+
+              <g transform="translate(238 60)">
+                <rect x="0" y="0" width="136" height="176" rx="24" fill="#fffdfa" stroke="#d8cebf" />
+                <rect x="16" y="18" width="104" height="24" rx="12" fill="#e7ddce" />
+                <text x="68" y="35" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="11" letter-spacing="2" fill="#324f47">CUSTOM SIZE</text>
+                <text x="18" y="66" font-family="Georgia, serif" font-size="24" fill="#213337">Quote</text>
+                <text x="18" y="92" font-family="Arial, Helvetica, sans-serif" font-size="11" letter-spacing="1.8" fill="#6b746f">ARTWORK REVIEW</text>
+                <rect x="18" y="108" width="100" height="10" rx="5" fill="#e8dfd2" />
+                <rect x="18" y="128" width="76" height="10" rx="5" fill="#e8dfd2" />
+                <rect x="18" y="148" width="84" height="10" rx="5" fill="#e8dfd2" />
+                <rect x="88" y="148" width="32" height="32" rx="16" fill="#324f47" />
+                <text x="104" y="168" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" letter-spacing="1.6" fill="#f6f1e8">300</text>
+              </g>
+            </svg>
+          </div>
         </div>
       </header>
 
