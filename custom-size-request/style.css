@@ -53,7 +53,30 @@ a {
 }
 
 .hero {
-  padding: 16px 0 28px;
+  padding: 16px 0 32px;
+}
+
+.hero-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.12fr) minmax(280px, 430px);
+  gap: 28px;
+  align-items: center;
+}
+
+.hero-copy-block {
+  min-width: 0;
+}
+
+.hero-visual {
+  position: relative;
+  min-width: 0;
+}
+
+.hero-visual svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 22px 28px rgba(33, 51, 55, 0.1));
 }
 
 .brand-pill {
@@ -822,6 +845,14 @@ button:disabled,
 }
 
 @media (max-width: 980px) {
+  .hero-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-visual {
+    max-width: 420px;
+  }
+
   .workspace-grid {
     grid-template-columns: 1fr;
   }
@@ -838,6 +869,14 @@ button:disabled,
 @media (max-width: 760px) {
   .app-shell {
     padding: 18px 16px 24px;
+  }
+
+  .hero {
+    padding-bottom: 24px;
+  }
+
+  .hero-layout {
+    gap: 20px;
   }
 
   .workspace {
@@ -883,6 +922,10 @@ button:disabled,
   .wall-preview {
     min-height: 320px;
     padding: 24px 18px;
+  }
+
+  .hero-visual {
+    max-width: none;
   }
 
   .mobile-preview-mount {
