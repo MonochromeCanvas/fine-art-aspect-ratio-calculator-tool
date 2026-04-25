@@ -13,6 +13,7 @@
   const EXPORT_PPI = 300;
   const SAFE_EXPORT_MAX_DIMENSION = 12000;
   const SAFE_EXPORT_MAX_PIXELS = 80000000;
+  const STANDARD_SIZE_TOLERANCE = 0.05;
   const materials = [
     {
       slug: "hot-press-bright-archival",
@@ -82,7 +83,7 @@
     "hot-press-bright-archival": String.raw`4x4 - $5.00  4x6 - $6.00  5x5 - $7.00  5x7 - $8.00  6x6 - $8.00  6x7.5 - $8.00  6x8 - $8.00  6x9 - $8.00  8x8 - $10.50  8x10 - $10.00  8x12 - $12.50  8x24 - $22.00  8.5x11 - $12.00  9x12 - $14.00  10x10 - $14.50  10x15 - $18.00  10x20 - $23.00  10x30 - $34.00  11x14 - $18.00  11x17 - $22.00  12x12 - $17.00  12x15 - $21.00  12x16 - $22.00  12x18 - $25.00  12x24 - $33.00  12x36 - $48.00  13x19 - $28.00  14x14 - $23.00  14x20 - $31.00  14x21 - $33.00  15x20 - $34.00  15x45 - $82.00  16x16 - $29.00  16x20 - $36.00  16x24 - $43.00  16x48 - $92.00  18x22 - $46.00  18x24 - $48.00  18x27 - $54.00  19x19 - $42.00  20x20 - $45.00  20x24 - $55.00  20x30 - $66.00  20x40 - $88.00  21x28 - $65.00  22x33 - $80.00  24x24 - $70.00  24x30 - $86.00  24x32 - $91.00  24x36 - $107.00  24x48 - $153.00  26x39 - $127.00  27x36 - $124.00  28x35 - $125.00  28x42 - $147.00  30x30 - $125.00  30x40 - $155.00  30x45 - $171.00  32x40 - $148.00  33x44 - $183.00  34x51 - $220.00  36x36 - $165.00  36x45 - $208.00  36x48 - $220.00  36x54 - $245.00  40x50 - $255.00`,
     "hot-press-bright-archival-paper-copy": String.raw`4x4 - $6.00  4x6 - $8.00  5x5 - $8.00  5x7 - $8.00  6x6 - $8.00  6x7.5 - $8.00  6x8 - $8.00  6x9 - $8.00  8x8 - $8.00  8x10 - $10.00  8x12 - $12.00  8x24 - $22.00  8.5x11 - $12.00  9x12 - $13.00  10x10 - $12.00  10x15 - $18.00  10x20 - $23.00  10x30 - $34.00  11x14 - $18.00  11x17 - $22.00  12x12 - $17.00  12x15 - $21.00  12x16 - $22.00  12x18 - $25.00  12x24 - $32.00  12x36 - $48.00  13x19 - $28.00  14x14 - $23.00  14x20 - $31.00  14x21 - $33.00  15x20 - $34.00  15x45 - $74.00  16x16 - $29.00  16x20 - $36.00  16x24 - $37.00  16x48 - $84.00  18x22 - $46.00  18x24 - $48.00  18x27 - $54.00  19x19 - $42.00  20x20 - $45.00  20x25 - $55.00  20x30 - $66.00  20x40 - $88.00  21x28 - $65.00  22x33 - $80.00  24x24 - $63.00  24x30 - $79.00  24x32 - $84.00  24x36 - $94.00  24x48 - $125.00  26x39 - $127.00  27x36 - $124.00  28x35 - $125.00  28x42 - $147.00  30x30 - $125.00  30x40 - $155.00  30x45 - $171.00  32x40 - $148.00  33x44 - $183.00  34x51 - $220.00  36x36 - $165.00  36x45 - $208.00  36x48 - $220.00  36x54 - $245.00  40x50 - $255.00`,
     "mould-made-watercolour-paper": String.raw`4x4 - $7.00  4x6 - $8.00  5x5 - $10.00  5x7 - $10.00  6x6 - $10.00  6x7.5 - $10.00  6x8 - $10.00  6x9 - $10.00  8x8 - $10.00  8x10 - $12.00  8x12 - $14.00  8x24 - $26.00  8.5x11 - $14.00  9x12 - $15.00  10x10 - $14.00  10x15 - $21.00  10x20 - $27.00  10x30 - $40.00  11x14 - $21.00  11x17 - $26.00  12x12 - $20.00  12x15 - $25.00  12x16 - $26.00  12x18 - $29.00  12x24 - $38.00  12x36 - $57.00  13x19 - $33.00  14x14 - $27.00  14x20 - $37.00  14x21 - $39.00  15x20 - $40.00  15x45 - $88.00  16x16 - $34.00  16x20 - $43.00  16x24 - $51.00  16x48 - $100.00  18x24 - $57.00  18x27 - $64.00  19x19 - $48.00  20x20 - $53.00  20x24 - $64.00  20x25 - $65.00  20x30 - $80.00  20x40 - $104.00  20x60 - $140.00  21x28 - $77.00  22x33 - $95.00  24x24 - $75.00  24x30 - $87.00  24x32 - $90.00  24x36 - $112.00  24x48 - $145.00  26x39* - $172.00  27x36* - $164.00  28x35* - $164.00  28x42* - $200.00  30x30* - $152.00  30x40* - $203.00  30x45* - $128.00  32x40* - $216.00  32x48* - $300.00  33x44* - $244.00  34x51* - $290.00  36x36* - $218.00  36x45* - $274.00  36x48* - $290.00  36x54* - $326.00  40x50* - $335.00`,
-    "heavyweight-cotton-poly-blend-matte-canvas": String.raw`8x8 / None - $12.00  8x8 / 2" - $13.80  8x10 / None - $15.00  8x10 / 2" - $17.25  8x12 / None - $17.00  8x12 / 2" - $19.55  8x24 / None - $30.00  8x24 / 2" - $34.50  8.5x11 / None - $16.00  8.5x11 / 2" - $18.40  9x12 / None - $18.00  9x12 / 2" - $20.70  10x10 / None - $17.00  10x10 / 2" - $19.55  10x15 / None - $24.00  10x15 / 2" - $27.60  10x20 / None - $31.00  10x20 / 2" - $35.65  10x30 / None - $45.00  10x30 / 2" - $51.75  11x14 / None - $25.00  11x14 / 2" - $28.75  11x17 / None - $29.00  11x17 / 2" - $33.35  12x12 / None - $23.00  12x12 / 2" - $26.45  12x15 / None - $28.00  12x15 / 2" - $32.20  12x16 / None - $30.00  12x16 / 2" - $36.50  12x18 / None - $33.00  12x18 / 2" - $37.95  12x24 / None - $43.00  12x24 / 2" - $49.45  12x36 / None - $63.00  12x36 / 2" - $72.45  13x19 / None - $38.00  13x19 / 2" - $43.70  14x14 / None - $31.00  14x14 / 2" - $35.65  14x20 / None - $44.00  14x20 / 2" - $50.60  15x20 / None - $45.00  15x20 / 2" - $60.75  16x16 / None - $39.00  16x16 / 2" - $44.85  16x20 / None - $48.00  16x20 / 2" - $55.20  16x24 / None - $57.00  16x24 / 2" - $65.55  18x26 / None - $71.00  18x26 / 2" - $81.65  18x30 / None - $80.00  18x30 / 2" - $92.00  20x20 / None - $60.00  20x20 / 2" - $69.00  20x24 / None - $74.00  20x24 / 2" - $85.10  20x30 / None - $87.00  20x30 / 2" - $100.05  20x40 / None - $115.00  20x40 / 2" - $122.25  24x24 / None - $83.00  24x30 / None - $103.00  24x32 / None - $110.00  24x36 / None - $124.00  24x38 / None - $142.00`,
+    "heavyweight-cotton-poly-blend-matte-canvas": String.raw`8x8 / None - $12.00  8x8 / 2" - $13.80  8x10 / None - $15.00  8x10 / 2" - $17.25  8x12 / None - $17.00  8x12 / 2" - $19.55  8x24 / None - $30.00  8x24 / 2" - $34.50  8.5x11 / None - $16.00  8.5x11 / 2" - $18.40  9x12 / None - $18.00  9x12 / 2" - $20.70  10x10 / None - $17.00  10x10 / 2" - $19.55  10x15 / None - $24.00  10x15 / 2" - $27.60  10x20 / None - $31.00  10x20 / 2" - $35.65  10x30 / None - $45.00  10x30 / 2" - $51.75  11x14 / None - $25.00  11x14 / 2" - $28.75  11x17 / None - $29.00  11x17 / 2" - $33.35  12x12 / None - $23.00  12x12 / 2" - $26.45  12x15 / None - $28.00  12x15 / 2" - $32.20  12x16 / None - $30.00  12x16 / 2" - $36.50  12x18 / None - $33.00  12x18 / 2" - $37.95  12x24 / None - $43.00  12x24 / 2" - $49.45  12x36 / None - $63.00  12x36 / 2" - $72.45  13x19 / None - $38.00  13x19 / 2" - $43.70  14x14 / None - $31.00  14x14 / 2" - $35.65  14x20 / None - $44.00  14x20 / 2" - $50.60  15x20 / None - $45.00  15x20 / 2" - $60.75  16x16 / None - $39.00  16x16 / 2" - $44.85  16x20 / None - $48.00  16x20 / 2" - $55.20  16x24 / None - $57.00  16x24 / 2" - $65.55  18x24 / None - $71.00  18x24 / 2" - $81.65  18x30 / None - $80.00  18x30 / 2" - $92.00  20x20 / None - $60.00  20x20 / 2" - $69.00  20x24 / None - $74.00  20x24 / 2" - $85.10  20x30 / None - $87.00  20x30 / 2" - $100.05  20x40 / None - $115.00  20x40 / 2" - $122.25  24x24 / None - $83.00  24x30 / None - $103.00  24x30 / 2" - $118.00  24x32 / None - $110.00  24x36 / None - $124.00  24x36 / 2" - $142.00  24x38 / None - $142.00`,
     "photo-rag-baryta": String.raw`4x6 - $8.00  5x7 - $10.00  6x8 - $10.00  6x9 - $10.00  8x8 - $10.00  8x10 - $12.00  8x12 - $14.00  8x24 - $26.00  8.5x11 - $14.00  9x12 - $15.00  10x10 - $14.00  10x15 - $21.00  10x20 - $27.00  10x30 - $40.00  11x14 - $21.00  11x17 - $26.00  12x12 - $20.00  12x15 - $25.00  12x16 - $26.00  12x18 - $29.00  12x24 - $38.00  12x36 - $57.00  13x19 - $33.00  14x14 - $27.00  14x20 - $37.00  14x21 - $39.00  15x20 - $40.00  15x45 - $88.00  16x16 - $34.00  16x20 - $43.00  16x24 - $51.00  16x48 - $100.00  18x24 - $57.00  18x27 - $64.00  20x20 - $53.00  20x24 - $65.00  20x30 - $80.00  20x40 - $104.00  20x60 - $140.00  21x28 - $77.00  22x33 - $95.00  24x24 - $75.00  24x30 - $87.00  24x32 - $90.00  24x36 - $112.00  24x48 - $145.00  26x39* - $172.00  27x36* - $164.00  28x35* - $164.00  28x42* - $200.00  30x30* - $152.00  30x40* - $203.00  30x45* - $220.00  32x40* - $216.00  32x48* - $300.00  33x44* - $244.00  34x51* - $290.00  36x36* - $218.00  36x45* - $274.00  36x48* - $290.00  36x54* - $326.00  40x50* - $335.00`,
     "pro-luster-photo-paper": String.raw`4x6 - $3.00  5x7 - $5.00  8x10 - $8.00  10x10 - $10.00  12x12 - $12.00  11x14 - $16.00  16x16 - $22.00  16x20 - $31.00  20x20 - $40.00  20x24 - $50.00  18x24 - $43.00  20x30 - $57.00  24x32 - $72.00  24x36 - $78.00`
   };
@@ -610,7 +611,9 @@
         groupedEntries[groupKey].push({
           sizeKey: sizeKey,
           area: area,
-          price: price
+          price: price,
+          shortSide: Math.min.apply(null, sizeLabel.replace(/\*/g, "").split("x").map(parseFloat)),
+          longSide: Math.max.apply(null, sizeLabel.replace(/\*/g, "").split("x").map(parseFloat))
         });
 
         match = pattern.exec(rawTables[slug]);
@@ -630,6 +633,14 @@
 
         tables[slug][groupKey] = {
           sizeMap: sizeMap,
+          entries: groupedEntries[groupKey].map(function (entry) {
+            return {
+              sizeKey: entry.sizeKey,
+              price: entry.price,
+              shortSide: entry.shortSide,
+              longSide: entry.longSide
+            };
+          }),
           points: Object.keys(areaTotals)
             .map(function (area) {
               return {
@@ -810,6 +821,35 @@
     return null;
   }
 
+  function getWebsiteStandardMatch(pricingGroup, width, height) {
+    const sizeKey = normalizeSizeKey(width, height);
+
+    if (Object.prototype.hasOwnProperty.call(pricingGroup.sizeMap, sizeKey)) {
+      return {
+        sizeKey: sizeKey,
+        price: pricingGroup.sizeMap[sizeKey]
+      };
+    }
+
+    const shortSide = Math.min(width, height);
+    const longSide = Math.max(width, height);
+    const tolerantMatch = (pricingGroup.entries || []).find(function (entry) {
+      return (
+        Math.abs(entry.shortSide - shortSide) <= STANDARD_SIZE_TOLERANCE &&
+        Math.abs(entry.longSide - longSide) <= STANDARD_SIZE_TOLERANCE
+      );
+    });
+
+    if (!tolerantMatch) {
+      return null;
+    }
+
+    return {
+      sizeKey: tolerantMatch.sizeKey,
+      price: tolerantMatch.price
+    };
+  }
+
   function getPricingSourceLabel(estimate) {
     if (estimate.pricingSource === "website-standard") {
       return "Listed website size";
@@ -850,13 +890,13 @@
     const productionDimensions = getProductionDimensions(material, width, height);
     const formulaUnitPrice = getFormulaUnitPrice(material, productionDimensions.width, productionDimensions.height);
     const pricingGroup = getWebsitePricingGroup(material, productionDimensions.canvasOptions);
-    const sizeKey = width > 0 && height > 0 ? normalizeSizeKey(width, height) : "";
     const requestArea = width * height;
     let pricingSource = "formula-estimate";
     let unit = formulaUnitPrice;
+    const standardMatch = pricingGroup && width > 0 && height > 0 ? getWebsiteStandardMatch(pricingGroup, width, height) : null;
 
-    if (pricingGroup && sizeKey && Object.prototype.hasOwnProperty.call(pricingGroup.sizeMap, sizeKey)) {
-      unit = pricingGroup.sizeMap[sizeKey];
+    if (standardMatch) {
+      unit = standardMatch.price;
       pricingSource = "website-standard";
     } else if (pricingGroup && requestArea > 0) {
       const interpolatedWebsitePrice = getInterpolatedWebsitePrice(pricingGroup.points, requestArea);
