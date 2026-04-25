@@ -652,10 +652,51 @@
               return a.area - b.area;
             })
         };
+
+        tables[slug][groupKey].smoothedPoints = buildSmoothedWebsitePoints(tables[slug][groupKey].points);
       });
     });
 
     return tables;
+  }
+
+  function buildSmoothedWebsitePoints(points) {
+    const blocks = [];
+
+    (points || []).forEach(function (point) {
+      blocks.push({
+        points: [point],
+        weight: 1,
+        average: point.price
+      });
+
+      while (blocks.length > 1 && blocks[blocks.length - 2].average > blocks[blocks.length - 1].average) {
+        const right = blocks.pop();
+        const left = blocks.pop();
+        const totalWeight = left.weight + right.weight;
+
+        blocks.push({
+          points: left.points.concat(right.points),
+          weight: totalWeight,
+          average: (left.average * left.weight + right.average * right.weight) / totalWeight
+        });
+      }
+    });
+
+    return blocks
+      .reduce(function (collection, block) {
+        return collection.concat(
+          block.points.map(function (point) {
+            return {
+              area: point.area,
+              price: roundMoney(block.average)
+            };
+          })
+        );
+      }, [])
+      .sort(function (a, b) {
+        return a.area - b.area;
+      });
   }
 
   function clamp(value, min, max) {
@@ -899,7 +940,10 @@
       unit = standardMatch.price;
       pricingSource = "website-standard";
     } else if (pricingGroup && requestArea > 0) {
-      const interpolatedWebsitePrice = getInterpolatedWebsitePrice(pricingGroup.points, requestArea);
+      const interpolatedWebsitePrice = getInterpolatedWebsitePrice(
+        pricingGroup.smoothedPoints || pricingGroup.points,
+        requestArea
+      );
 
       if (interpolatedWebsitePrice !== null) {
         unit = roundMoney(roundInterpolatedQuote(interpolatedWebsitePrice));
