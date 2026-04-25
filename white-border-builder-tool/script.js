@@ -3,6 +3,17 @@
   const JPEG_QUALITY = 0.95;
   const MAX_EXPORT_SIDE = 12000;
   const MAX_EXPORT_PIXELS = 100000000;
+  const CUSTOM_SIZE_REQUEST_URL = "../custom-size-request/index.html";
+  const CUSTOM_SIZE_REQUEST_IMPORT_URL = CUSTOM_SIZE_REQUEST_URL + "?import=white-border-builder";
+  const CUSTOM_SIZE_REQUEST_WINDOW_NAME = "monochromeCanvasCustomQuote";
+  const CUSTOM_SIZE_REQUEST_READY_ACTION = "monochrome-custom-size-request-ready";
+  const PREPARED_ARTWORK_TRANSFER_ACTION = "monochrome-transfer-prepared-artwork";
+  const PREPARED_ARTWORK_RECEIVED_ACTION = "monochrome-transfer-received";
+  const PREPARED_ARTWORK_ERROR_ACTION = "monochrome-transfer-error";
+  const CUSTOM_QUOTE_HANDOFF_TIMEOUT_MS = 12000;
+  const PREPARED_FILE_DB_NAME = "monochrome-canvas-prep";
+  const PREPARED_FILE_STORE = "prepared-files";
+  const PREPARED_FILE_KEY = "white-border-builder-to-custom-size-request";
   const FRAME_PRESETS = [
     [4, 6],
     [5, 5],
@@ -97,6 +108,7 @@
     qualityBadge: document.getElementById("qualityBadge"),
     warningPanel: document.getElementById("warningPanel"),
     downloadButton: document.getElementById("downloadButton"),
+    sendToQuoteButton: document.getElementById("sendToQuoteButton"),
     downloadToast: document.getElementById("downloadToast"),
     dismissToast: document.getElementById("dismissToast"),
     modeCards: Array.from(document.querySelectorAll("[data-mode]")),
@@ -208,6 +220,7 @@
 
     elements.dismissToast.addEventListener("click", hideDownloadToast);
     elements.downloadButton.addEventListener("click", downloadOutput);
+    elements.sendToQuoteButton.addEventListener("click", sendOutputToCustomQuote);
     window.addEventListener("message", onParentMessage);
     window.addEventListener("resize", debounce(reportHeight, 80));
   }
@@ -317,6 +330,7 @@
       setQualityBadge("Waiting for file", "");
       hideWarning();
       elements.downloadButton.disabled = true;
+      elements.sendToQuoteButton.disabled = true;
       reportHeight();
       return;
     }
@@ -333,6 +347,7 @@
       setQualityBadge("Needs input", "is-warn");
       showWarning(output.error, "warn");
       elements.downloadButton.disabled = true;
+      elements.sendToQuoteButton.disabled = true;
       reportHeight();
       return;
     }
@@ -342,6 +357,7 @@
     renderSummary(output);
     renderWarnings(output);
     elements.downloadButton.disabled = false;
+    elements.sendToQuoteButton.disabled = false;
     reportHeight();
   }
 
@@ -761,53 +777,202 @@
       return;
     }
 
-    const button = elements.downloadButton;
-    const originalLabel = button.textContent;
-    button.disabled = true;
-    button.textContent = "Preparing file...";
-
     try {
-      const exportCanvas = document.createElement("canvas");
-      exportCanvas.width = state.output.finalPixelWidth;
-      exportCanvas.height = state.output.finalPixelHeight;
-
-      const ctx = exportCanvas.getContext("2d");
-      ctx.fillStyle = "#ffffff";
-      ctx.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
-      ctx.imageSmoothingEnabled = true;
-      ctx.imageSmoothingQuality = "high";
-
-      const drawX = Math.round(state.output.imagePlacement.x * DPI);
-      const drawY = Math.round(state.output.imagePlacement.y * DPI);
-      const drawWidth = Math.round(state.output.imagePlacement.width * DPI);
-      const drawHeight = Math.round(state.output.imagePlacement.height * DPI);
-
-      if (state.output.exportMode === "cover" && state.output.crop) {
-        ctx.drawImage(
-          state.image,
-          state.output.crop.sourceX,
-          state.output.crop.sourceY,
-          state.output.crop.sourceWidth,
-          state.output.crop.sourceHeight,
-          drawX,
-          drawY,
-          drawWidth,
-          drawHeight
-        );
-      } else {
-        ctx.drawImage(state.image, drawX, drawY, drawWidth, drawHeight);
-      }
-
-      const blob = await canvasToJpegBlob(exportCanvas, JPEG_QUALITY);
+      setActionBusy(elements.downloadButton, "Preparing file...");
+      const exportFile = await buildPreparedOutputFile();
+      const blob = exportFile.blob;
       downloadBlob(blob, buildDownloadName());
       showDownloadToast();
     } catch (error) {
       showWarning("The browser could not build that download. Try a slightly smaller final size.", "danger");
     } finally {
-      button.textContent = originalLabel;
-      button.disabled = false;
+      clearActionBusy(elements.downloadButton);
       reportHeight();
     }
+  }
+
+  async function sendOutputToCustomQuote() {
+    if (!state.output || !state.output.ok || !state.image) {
+      return;
+    }
+
+    hideDownloadToast();
+    const quoteWindow = openCustomQuoteWindow();
+    const handoff = quoteWindow ? createCustomQuoteHandoff(quoteWindow) : null;
+
+    try {
+      setActionBusy(elements.sendToQuoteButton, "Opening quote...");
+      const exportFile = await buildPreparedOutputFile();
+      const handoffCompleted = handoff ? await handoff.deliver(exportFile) : false;
+
+      if (!handoffCompleted) {
+        if (quoteWindow && !quoteWindow.closed) {
+          quoteWindow.close();
+        }
+        await savePreparedFileForQuote(exportFile);
+        window.location.href = CUSTOM_SIZE_REQUEST_IMPORT_URL;
+        return;
+      }
+    } catch (error) {
+      if (quoteWindow && !quoteWindow.closed) {
+        quoteWindow.close();
+      }
+      showWarning(
+        "The prepared file could not be handed off automatically. You can still download it here and upload it in the Custom Size Request tool.",
+        "warn"
+      );
+    } finally {
+      clearActionBusy(elements.sendToQuoteButton);
+      reportHeight();
+    }
+  }
+
+  function openCustomQuoteWindow() {
+    const quoteWindow = window.open(CUSTOM_SIZE_REQUEST_URL, CUSTOM_SIZE_REQUEST_WINDOW_NAME);
+    if (!quoteWindow) {
+      return null;
+    }
+
+    if (typeof quoteWindow.focus === "function") {
+      quoteWindow.focus();
+    }
+
+    return quoteWindow;
+  }
+
+  function createCustomQuoteHandoff(quoteWindow) {
+    let deliveryPayload = null;
+    let deliveryResolved = false;
+    let timeoutId = null;
+    let postPreparedArtwork = function () {};
+
+    const deliveryPromise = new Promise((resolve) => {
+      timeoutId = window.setTimeout(function () {
+        finish(false);
+      }, CUSTOM_QUOTE_HANDOFF_TIMEOUT_MS);
+
+      window.addEventListener("message", handleMessage);
+
+      function finish(result) {
+        if (deliveryResolved) {
+          return;
+        }
+
+        deliveryResolved = true;
+        window.clearTimeout(timeoutId);
+        window.removeEventListener("message", handleMessage);
+        resolve(result);
+      }
+
+      postPreparedArtwork = function () {
+        if (!deliveryPayload || !quoteWindow || quoteWindow.closed) {
+          return;
+        }
+
+        quoteWindow.postMessage(
+          {
+            action: PREPARED_ARTWORK_TRANSFER_ACTION,
+            preparedFile: deliveryPayload
+          },
+          "*"
+        );
+      };
+
+      function handleMessage(event) {
+        if (event.source !== quoteWindow || !event.data || typeof event.data.action !== "string") {
+          return;
+        }
+
+        if (event.data.action === CUSTOM_SIZE_REQUEST_READY_ACTION) {
+          postPreparedArtwork();
+          return;
+        }
+
+        if (event.data.action === PREPARED_ARTWORK_RECEIVED_ACTION) {
+          finish(true);
+          return;
+        }
+
+        if (event.data.action === PREPARED_ARTWORK_ERROR_ACTION) {
+          finish(false);
+        }
+      }
+    });
+
+    return {
+      async deliver(exportFile) {
+        const preparedFile = new File([exportFile.blob], exportFile.filename, {
+          type: exportFile.blob.type || "image/jpeg",
+          lastModified: exportFile.createdAt || Date.now()
+        });
+
+        deliveryPayload = {
+          transferId: buildTransferId(),
+          source: "white-border-builder",
+          filename: exportFile.filename,
+          createdAt: exportFile.createdAt,
+          finalWidth: exportFile.finalWidth,
+          finalHeight: exportFile.finalHeight,
+          pixelsWidth: exportFile.pixelsWidth,
+          pixelsHeight: exportFile.pixelsHeight,
+          file: preparedFile
+        };
+
+        if (typeof quoteWindow.focus === "function") {
+          quoteWindow.focus();
+        }
+
+        postPreparedArtwork();
+        return deliveryPromise;
+      }
+    };
+  }
+
+  function buildTransferId() {
+    return "prepared-" + Date.now() + "-" + Math.round(Math.random() * 1000000);
+  }
+
+  async function buildPreparedOutputFile() {
+    const exportCanvas = document.createElement("canvas");
+    exportCanvas.width = state.output.finalPixelWidth;
+    exportCanvas.height = state.output.finalPixelHeight;
+
+    const ctx = exportCanvas.getContext("2d");
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = "high";
+
+    const drawX = Math.round(state.output.imagePlacement.x * DPI);
+    const drawY = Math.round(state.output.imagePlacement.y * DPI);
+    const drawWidth = Math.round(state.output.imagePlacement.width * DPI);
+    const drawHeight = Math.round(state.output.imagePlacement.height * DPI);
+
+    if (state.output.exportMode === "cover" && state.output.crop) {
+      ctx.drawImage(
+        state.image,
+        state.output.crop.sourceX,
+        state.output.crop.sourceY,
+        state.output.crop.sourceWidth,
+        state.output.crop.sourceHeight,
+        drawX,
+        drawY,
+        drawWidth,
+        drawHeight
+      );
+    } else {
+      ctx.drawImage(state.image, drawX, drawY, drawWidth, drawHeight);
+    }
+
+    return {
+      blob: await canvasToJpegBlob(exportCanvas, JPEG_QUALITY),
+      filename: buildDownloadName(),
+      createdAt: Date.now(),
+      finalWidth: state.output.finalWidth,
+      finalHeight: state.output.finalHeight,
+      pixelsWidth: state.output.finalPixelWidth,
+      pixelsHeight: state.output.finalPixelHeight
+    };
   }
 
   function buildDownloadName() {
@@ -815,6 +980,21 @@
       ? state.file.name.replace(/\.[^.]+$/, "")
       : "monochrome-canvas-border-file";
     return base + "-white-border.jpg";
+  }
+
+  function setActionBusy(button, label) {
+    button.dataset.originalLabel = button.textContent;
+    button.textContent = label;
+    button.disabled = true;
+  }
+
+  function clearActionBusy(button) {
+    if (button.dataset.originalLabel) {
+      button.textContent = button.dataset.originalLabel;
+      delete button.dataset.originalLabel;
+    }
+
+    button.disabled = !state.output || !state.output.ok || !state.image;
   }
 
   function populatePresetSelect(select, defaultPair) {
@@ -1044,6 +1224,70 @@
     link.click();
     link.remove();
     window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+
+  function openPreparedFileDatabase() {
+    return new Promise((resolve, reject) => {
+      if (!window.indexedDB) {
+        reject(new Error("IndexedDB unavailable"));
+        return;
+      }
+
+      const request = window.indexedDB.open(PREPARED_FILE_DB_NAME, 1);
+
+      request.onupgradeneeded = function () {
+        const database = request.result;
+        if (!database.objectStoreNames.contains(PREPARED_FILE_STORE)) {
+          database.createObjectStore(PREPARED_FILE_STORE);
+        }
+      };
+
+      request.onsuccess = function () {
+        resolve(request.result);
+      };
+
+      request.onerror = function () {
+        reject(request.error || new Error("Could not open database"));
+      };
+    });
+  }
+
+  async function savePreparedFileForQuote(exportFile) {
+    const database = await openPreparedFileDatabase();
+
+    try {
+      await new Promise((resolve, reject) => {
+        const transaction = database.transaction(PREPARED_FILE_STORE, "readwrite");
+        const store = transaction.objectStore(PREPARED_FILE_STORE);
+        store.put(
+          {
+            source: "white-border-builder",
+            filename: exportFile.filename,
+            blob: exportFile.blob,
+            createdAt: exportFile.createdAt,
+            finalWidth: exportFile.finalWidth,
+            finalHeight: exportFile.finalHeight,
+            pixelsWidth: exportFile.pixelsWidth,
+            pixelsHeight: exportFile.pixelsHeight
+          },
+          PREPARED_FILE_KEY
+        );
+
+        transaction.oncomplete = function () {
+          resolve();
+        };
+
+        transaction.onerror = function () {
+          reject(transaction.error || new Error("Could not save prepared file"));
+        };
+
+        transaction.onabort = function () {
+          reject(transaction.error || new Error("Prepared file save was aborted"));
+        };
+      });
+    } finally {
+      database.close();
+    }
   }
 
   function escapeHtml(text) {

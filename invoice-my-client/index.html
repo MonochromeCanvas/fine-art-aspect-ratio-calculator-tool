@@ -3,15 +3,15 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Custom Size Request | Monochrome Canvas</title>
+    <title>Invoice My Client | Monochrome Canvas</title>
     <meta
       name="description"
-      content="Upload artwork, enter a custom print size, estimate pricing, and prepare a custom size request for Monochrome Canvas."
+      content="Upload artwork, enter the print details, set your client invoice amount, and prepare an invoice request for Monochrome Canvas."
     >
     <link rel="icon" type="image/svg+xml" href="../favicon.svg">
     <link rel="stylesheet" href="./style.css">
   </head>
-  <body>
+  <body class="invoice-tool">
     <main class="app-shell">
       <header class="hero">
         <div class="hero-layout">
@@ -19,13 +19,14 @@
             <a class="brand-pill" href="https://monochromecanvas.com" target="_blank" rel="noreferrer">
               Monochrome Canvas
             </a>
-            <p class="eyebrow">Print Tool</p>
-            <h1>Custom Size Request</h1>
+            <p class="eyebrow">Artist Invoice Tool</p>
+            <h1>Invoice My Client</h1>
             <p class="hero-copy">
-              Upload your artwork, enter the finished size and quantity, and create a clear quote request for Monochrome Canvas.
+              Build a client-ready invoice request using Monochrome Canvas production pricing, recommended retail, and your desired invoice amount.
             </p>
             <div class="hero-notes">
-              <span>Estimate first, invoice after studio review</span>
+              <span>Recommended retail starts at 2x production</span>
+              <span>Artist payout estimated before sending</span>
               <span>Request addressed to joelle@monochromecanvas.com</span>
             </div>
           </div>
@@ -35,11 +36,11 @@
       <section class="workspace" aria-labelledby="workspace-title">
         <div class="workspace-header">
           <div>
-            <p class="section-label">Request A Quote</p>
-            <h2 id="workspace-title">Build your custom print request</h2>
+            <p class="section-label">Managed Client Invoice</p>
+            <h2 id="workspace-title">Build your invoice request</h2>
           </div>
           <p class="privacy-copy">
-            Your file stays in your browser while you prepare the request. Final pricing is confirmed after the studio reviews the file.
+            Your file stays in your browser while you prepare the request. Final approval, invoicing, and payout happen after studio review.
           </p>
         </div>
 
@@ -144,9 +145,9 @@
             </div>
 
             <div class="stack-block">
-              <h3>3. Add your details</h3>
+              <h3>3. Add artist + client details</h3>
               <p class="field-note">
-                These details go into the email request so the studio can reply and prepare the invoice after reviewing your file.
+                This tool is for artists, galleries, and resellers who want Monochrome Canvas to invoice the client directly after the file is approved.
               </p>
               <div class="order-mode-switch is-hidden" role="tablist" aria-label="Order type">
                 <button
@@ -170,7 +171,7 @@
                   Invoice My Client
                 </button>
               </div>
-              <div id="standardOrderPanel" class="order-mode-panel" role="tabpanel" aria-labelledby="standardOrderModeButton">
+              <div id="standardOrderPanel" class="order-mode-panel is-hidden" role="tabpanel" aria-labelledby="standardOrderModeButton">
                 <div class="field-grid">
                   <label class="field">
                     <span>Name</span>
@@ -199,15 +200,10 @@
                   <input id="artistToggle" type="checkbox">
                   <span>I am an artist, photographer, or creative ordering my own work and would like artist pricing reviewed if this request qualifies.</span>
                 </label>
-                <div>
-                  <a class="text-link" href="../invoice-my-client/index.html">
-                    Need us to invoice your client instead?
-                  </a>
-                </div>
               </div>
               <div
                 id="invoiceClientPanel"
-                class="order-mode-panel is-hidden"
+                class="order-mode-panel"
                 role="tabpanel"
                 aria-labelledby="invoiceClientModeButton"
               >
@@ -294,12 +290,12 @@
             </div>
 
             <div class="stack-block">
-              <h3>4. Prepare the request</h3>
+              <h3>4. Send the invoice request</h3>
               <p id="prepareSupportCopy" class="support-copy">
-                We will open an email draft addressed to joelle@monochromecanvas.com with your quote details filled in.
+                We will open an email draft addressed to joelle@monochromecanvas.com with your invoice details filled in.
               </p>
               <p id="prepareFieldNote" class="field-note">
-                Attach the artwork file before sending so the studio can review it. If your email app does not open, copy the summary and use the contact page as a backup.
+                Attach the artwork file before sending so the studio can review it. If approved, Monochrome Canvas can invoice your client and send your payout after payment is received.
               </p>
               <div class="action-row">
                 <button id="downloadButton" class="swap-button swap-button--strong" type="button">
@@ -318,24 +314,29 @@
                   Contact page backup
                 </a>
               </div>
+              <div>
+                <a class="text-link" href="../custom-size-request/index.html">
+                  Need a standard quote instead?
+                </a>
+              </div>
               <p id="formMessage" class="warning-panel is-hidden" role="status" aria-live="polite"></p>
             </div>
           </section>
 
-          <section class="preview-pane" aria-label="Quote summary and artwork preview">
+          <section class="preview-pane" aria-label="Invoice summary and artwork preview">
             <div class="preview-card">
               <div class="summary-header">
-                <h3>Quote estimate</h3>
+                <h3>Invoice request summary</h3>
                 <span id="qualityBadge" class="quality-badge">Waiting for file</span>
               </div>
 
               <div class="estimate-panel">
                 <div>
-                  <p id="estimateLabel" class="estimate-label">Estimated quote</p>
+                  <p id="estimateLabel" class="estimate-label">Production cost</p>
                   <strong id="estimateTotal">$0.00</strong>
                 </div>
                 <p id="estimateRange" class="estimate-copy">
-                  Enter the size and quantity to see a custom quote estimate.
+                  Enter the size and quantity to see the production cost and recommended starting retail.
                 </p>
               </div>
 
@@ -354,7 +355,7 @@
 
               <div id="summaryContent" class="summary-list">
                 <p class="summary-empty">
-                  The requested size, quantity, material, and file quality will appear here as you fill out the form.
+                  The production cost, recommended retail, invoice amount, payout, and file quality will appear here as you fill out the form.
                 </p>
               </div>
 
@@ -365,7 +366,7 @@
       </section>
 
       <footer class="app-footer">
-        <a href="../invoice-my-client/index.html">Open Invoice My Client</a>
+        <a href="../custom-size-request/index.html">Open Custom Size Request</a>
         <a href="https://monochromecanvas.com" target="_blank" rel="noreferrer">Back to Monochrome Canvas</a>
       </footer>
     </main>

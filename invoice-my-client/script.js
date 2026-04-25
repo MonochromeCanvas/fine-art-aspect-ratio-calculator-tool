@@ -116,7 +116,7 @@
     pinchStartDistance: null,
     pinchStartScale: 1,
     lastPreparedTransferId: "",
-    orderMode: "standard",
+    orderMode: "invoice-client",
     clientInvoiceAmountEdited: false,
     lastRecommendedRetail: 0
   };
@@ -1169,8 +1169,9 @@
 
     if (estimate.width > 0 && estimate.height > 0) {
       if (maxSizeFeedback.fits) {
-        elements.estimateRange.textContent =
-          getPricingSourceMessage(estimate) + " Final invoice is confirmed after studio review.";
+        elements.estimateRange.textContent = isInvoiceMode()
+          ? getPricingSourceMessage(estimate) + " Recommended retail starts at 2x the production cost for this order."
+          : getPricingSourceMessage(estimate) + " Final invoice is confirmed after studio review.";
       } else {
         elements.estimateRange.textContent = maxSizeFeedback.message;
       }
