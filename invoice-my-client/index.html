@@ -220,6 +220,14 @@
                     <span>Artist email</span>
                     <input id="artistEmailInput" type="email" autocomplete="email" placeholder="you@example.com">
                   </label>
+                  <label class="field field--wide">
+                    <span>Artwork title (optional)</span>
+                    <input
+                      id="artworkTitleInput"
+                      type="text"
+                      placeholder="Helpful for your client note and studio reference"
+                    >
+                  </label>
                   <label class="field">
                     <span>Client name</span>
                     <input id="clientNameInput" type="text" placeholder="Client name">
@@ -294,6 +302,20 @@
               <p id="prepareFieldNote" class="field-note">
                 Attach the artwork file before sending so the studio can review it. If approved, Monochrome Canvas can invoice your client and send your payout after payment is received.
               </p>
+              <div id="clientMessageCard" class="summary-card client-message-card">
+                <div class="client-message-header">
+                  <div>
+                    <h4>Optional client note</h4>
+                    <p class="field-note">
+                      If helpful, copy this into your own email or text to the client before Monochrome Canvas sends the invoice.
+                    </p>
+                  </div>
+                  <button id="copyClientMessageButton" class="swap-button" type="button">
+                    Copy client note
+                  </button>
+                </div>
+                <textarea id="clientMessageBody" class="client-message-body" rows="8" readonly></textarea>
+              </div>
               <div class="action-row">
                 <button id="downloadButton" class="swap-button swap-button--strong" type="button">
                   Download Print JPEG

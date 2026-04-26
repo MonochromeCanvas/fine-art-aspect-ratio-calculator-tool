@@ -97,6 +97,7 @@ a {
 h1,
 h2,
 h3,
+h4,
 strong {
   color: var(--ink);
 }
@@ -121,6 +122,13 @@ h3 {
   font-size: 22px;
   font-weight: 600;
   line-height: 1.06;
+}
+
+h4 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.1;
 }
 
 .hero-copy,
@@ -506,6 +514,38 @@ h3 {
   flex-wrap: wrap;
   gap: 12px;
   margin-top: 8px;
+}
+
+.client-message-card {
+  display: grid;
+  gap: 14px;
+  margin-top: 18px;
+  padding: 18px;
+}
+
+.client-message-header {
+  display: flex;
+  gap: 14px;
+  align-items: start;
+  justify-content: space-between;
+}
+
+.client-message-header .field-note {
+  margin-top: 6px;
+  margin-bottom: 0;
+}
+
+.client-message-body {
+  width: 100%;
+  min-height: 190px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--ink-soft);
+  font-size: 16px;
+  line-height: 1.65;
+  resize: vertical;
 }
 
 .swap-button,
@@ -995,6 +1035,10 @@ button:disabled,
   }
 
   .action-row {
+    display: grid;
+  }
+
+  .client-message-header {
     display: grid;
   }
 

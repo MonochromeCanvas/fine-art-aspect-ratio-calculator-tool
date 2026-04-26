@@ -162,6 +162,7 @@
     standardNotesInput: document.getElementById("standardNotesInput"),
     artistNameInput: document.getElementById("artistNameInput"),
     artistEmailInput: document.getElementById("artistEmailInput"),
+    artworkTitleInput: document.getElementById("artworkTitleInput"),
     clientNameInput: document.getElementById("clientNameInput"),
     clientEmailInput: document.getElementById("clientEmailInput"),
     payoutMethodSelect: document.getElementById("payoutMethodSelect"),
@@ -189,6 +190,9 @@
     prepareSupportCopy: document.getElementById("prepareSupportCopy"),
     prepareFieldNote: document.getElementById("prepareFieldNote"),
     prepareButton: document.getElementById("prepareButton"),
+    clientMessageCard: document.getElementById("clientMessageCard"),
+    clientMessageBody: document.getElementById("clientMessageBody"),
+    copyClientMessageButton: document.getElementById("copyClientMessageButton"),
     formMessage: document.getElementById("formMessage"),
     emailDialog: document.getElementById("emailDialog"),
     dialogLabel: document.getElementById("dialogLabel"),
@@ -286,6 +290,10 @@
     return isInvoiceMode() ? elements.invoiceNotesInput.value.trim() : elements.standardNotesInput.value.trim();
   }
 
+  function getArtworkTitle() {
+    return elements.artworkTitleInput.value.trim();
+  }
+
   function getPrimaryContact() {
     if (isInvoiceMode()) {
       return {
@@ -330,6 +338,7 @@
       elements.standardNotesInput,
       elements.artistNameInput,
       elements.artistEmailInput,
+      elements.artworkTitleInput,
       elements.clientNameInput,
       elements.clientEmailInput,
       elements.payoutMethodSelect,
@@ -351,6 +360,7 @@
 
     elements.downloadButton.addEventListener("click", handleDownload);
     elements.prepareButton.addEventListener("click", handlePrepare);
+    elements.copyClientMessageButton.addEventListener("click", copyClientMessage);
     elements.closeDialogButton.addEventListener("click", closeDialog);
     elements.emailDialog.addEventListener("click", function (event) {
       if (event.target === elements.emailDialog) {
@@ -1249,6 +1259,7 @@
     elements.invoiceClientModeButton.setAttribute("aria-selected", String(invoiceMode));
     elements.standardOrderPanel.classList.toggle("is-hidden", invoiceMode);
     elements.invoiceClientPanel.classList.toggle("is-hidden", !invoiceMode);
+    elements.clientMessageCard.classList.toggle("is-hidden", !invoiceMode);
 
     elements.estimateLabel.textContent = invoiceMode ? "Production cost" : "Estimated quote";
     elements.prepareButton.textContent = invoiceMode ? "Create Invoice Request" : "Create Email Request";
@@ -1339,6 +1350,7 @@
     const projectType = elements.projectTypeSelect.value;
     const qualityValue = formatQualityValue(feedback);
     const primaryContact = getPrimaryContact();
+    elements.clientMessageBody.value = buildClientMessageDraft();
 
     elements.summaryContent.innerHTML = "";
     elements.guidanceContent.innerHTML = "";
@@ -1370,6 +1382,10 @@
 
     if (primaryContact.name) {
       summaryItems.push([isInvoiceMode() ? "Artist" : "Contact", primaryContact.name]);
+    }
+
+    if (getArtworkTitle()) {
+      summaryItems.push(["Artwork title", getArtworkTitle()]);
     }
 
     if (sizingFeedback.cropPreview) {
@@ -1685,6 +1701,47 @@
     return "";
   }
 
+  function buildClientMessageDraft() {
+    const estimate = calculateEstimate();
+    const invoicePricing = getInvoicePricing(estimate);
+    const artistName = elements.artistNameInput.value.trim();
+    const clientName = elements.clientNameInput.value.trim();
+    const artworkTitle = getArtworkTitle();
+    const quantityLabel = estimate.quantity === 1 ? "1 print" : estimate.quantity + " prints";
+    const sizeLabel =
+      estimate.width > 0 && estimate.height > 0 ? formatDimensions(estimate.width, estimate.height) : "the requested size";
+    const materialLabel = estimate.material ? estimate.material.label : "the selected material";
+    const totalLabel =
+      invoicePricing.clientInvoiceAmount > 0 ? formatMoney(invoicePricing.clientInvoiceAmount) : "the agreed amount";
+    const greeting = clientName ? "Hi " + clientName + "," : "Hi,";
+    const artworkLabel = artworkTitle ? '"' + artworkTitle + '"' : "this artwork";
+    const signoffName = artistName || "The artist";
+
+    return [
+      greeting,
+      "",
+      "Monochrome Canvas is my trusted print partner for this order.",
+      "You will be receiving an invoice from Monochrome Canvas for " +
+        artworkLabel +
+        ": " +
+        quantityLabel +
+        ", " +
+        sizeLabel +
+        ", on " +
+        materialLabel +
+        ", totaling " +
+        totalLabel +
+        ".",
+      "Monochrome Canvas uses museum-quality giclee printing and archival materials and practices for these reproductions.",
+      "",
+      "Printing begins once the invoice has been paid, so payment is what moves the order into production.",
+      "If you have any questions about the process, materials, or timing, please feel free to reach out.",
+      "",
+      "Thank you,",
+      signoffName
+    ].join("\n");
+  }
+
   function buildEmailDraft() {
     const estimate = calculateEstimate();
     const invoicePricing = getInvoicePricing(estimate);
@@ -1710,6 +1767,9 @@
       bodyLines.push("");
       bodyLines.push("Artist name: " + primaryContact.name);
       bodyLines.push("Artist email: " + primaryContact.email);
+      if (getArtworkTitle()) {
+        bodyLines.push("Artwork title: " + getArtworkTitle());
+      }
       bodyLines.push("Client name: " + elements.clientNameInput.value.trim());
       bodyLines.push("Client email: " + elements.clientEmailInput.value.trim());
       bodyLines.push(
@@ -1829,6 +1889,23 @@
       },
       function () {
         showMessage("Copy did not go through. You can still use the email draft button.", true);
+      }
+    );
+  }
+
+  function copyClientMessage() {
+    const message = buildClientMessageDraft();
+    if (!navigator.clipboard || !navigator.clipboard.writeText) {
+      showMessage("Copy is not available in this browser. You can still select and copy the client note manually.", true);
+      return;
+    }
+
+    navigator.clipboard.writeText(message).then(
+      function () {
+        showMessage("Client note copied.", false);
+      },
+      function () {
+        showMessage("The client note did not copy. You can still select and copy it manually.", true);
       }
     );
   }
