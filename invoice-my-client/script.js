@@ -1139,6 +1139,49 @@
     };
   }
 
+  function getPreviewCropMetrics(width, height) {
+    if (!state.imageWidth || !state.imageHeight) {
+      return null;
+    }
+
+    const frameWidth = width > 0 ? width : state.imageWidth;
+    const frameHeight = height > 0 ? height : state.imageHeight;
+    if (!(frameWidth > 0) || !(frameHeight > 0)) {
+      return null;
+    }
+
+    const frameRatio = frameWidth / frameHeight;
+    const artworkRatio = state.imageWidth / state.imageHeight;
+    const cropScale = isCropPreviewActive(width, height) ? getCropScale() : 1;
+    let imageWidthPercent = 100;
+    let imageHeightPercent = 100;
+
+    if (artworkRatio > frameRatio) {
+      imageWidthPercent = (artworkRatio / frameRatio) * 100;
+    } else {
+      imageHeightPercent = (frameRatio / artworkRatio) * 100;
+    }
+
+    imageWidthPercent *= cropScale;
+    imageHeightPercent *= cropScale;
+
+    const overflowXPercent = Math.max(0, imageWidthPercent - 100);
+    const overflowYPercent = Math.max(0, imageHeightPercent - 100);
+    const offsetXPercent = -(overflowXPercent * (getRangeValue(elements.cropXInput) / 100));
+    const offsetYPercent = -(overflowYPercent * (getRangeValue(elements.cropYInput) / 100));
+
+    return {
+      imageWidthPercent: imageWidthPercent,
+      imageHeightPercent: imageHeightPercent,
+      overflowXPercent: overflowXPercent,
+      overflowYPercent: overflowYPercent,
+      offsetXPercent: offsetXPercent,
+      offsetYPercent: offsetYPercent,
+      canMoveX: overflowXPercent > 0.5,
+      canMoveY: overflowYPercent > 0.5
+    };
+  }
+
   function getExportInfo(estimate) {
     if (!state.file || !(estimate.width > 0) || !(estimate.height > 0) || !state.imageWidth || !state.imageHeight) {
       return null;
@@ -1473,6 +1516,9 @@
   function renderRatioControls(estimate, sizingFeedback) {
     const locked = isRatioLocked();
     const cropPreviewActive = Boolean(sizingFeedback.cropPreview);
+    const cropMetrics = cropPreviewActive ? getPreviewCropMetrics(estimate.width, estimate.height) : null;
+    const canMoveX = Boolean(cropMetrics && cropMetrics.canMoveX);
+    const canMoveY = Boolean(cropMetrics && cropMetrics.canMoveY);
     const cropControlsVisible = !locked;
 
     elements.ratioToggleCard.classList.toggle("is-linked", locked);
@@ -1483,8 +1529,8 @@
     elements.cropControls.classList.toggle("is-hidden", !cropControlsVisible);
     elements.cropControls.classList.toggle("is-ready", cropPreviewActive);
     elements.cropControls.classList.toggle("is-waiting", cropControlsVisible && !cropPreviewActive);
-    elements.cropXInput.disabled = !cropPreviewActive;
-    elements.cropYInput.disabled = !cropPreviewActive;
+    elements.cropXInput.disabled = !canMoveX;
+    elements.cropYInput.disabled = !canMoveY;
     elements.cropZoomInput.disabled = !cropPreviewActive;
 
     if (!cropControlsVisible) {
@@ -1494,8 +1540,19 @@
       elements.cropControlsNote.textContent =
         "Upload artwork to preview the crop. The sliders will activate when the requested shape differs from the file.";
     } else if (cropPreviewActive) {
-      elements.cropControlsNote.textContent =
-        "Drag the preview or use the sliders to set the crop. Pinch on touch screens, or use zoom, to tighten the framing.";
+      if (canMoveX && canMoveY) {
+        elements.cropControlsNote.textContent =
+          "Drag the preview or use both sliders to place the crop. Pinch on touch screens, or use zoom, to tighten the framing.";
+      } else if (canMoveX) {
+        elements.cropControlsNote.textContent =
+          "This crop is trimming the left and right edges. Use the left / right slider, or zoom in if you also want top / bottom repositioning.";
+      } else if (canMoveY) {
+        elements.cropControlsNote.textContent =
+          "This crop is trimming the top and bottom edges. Use the top / bottom slider, or zoom in if you also want left / right repositioning.";
+      } else {
+        elements.cropControlsNote.textContent =
+          "Use zoom to tighten the framing, then reposition the crop once there is extra room to move it.";
+      }
     } else {
       elements.cropControlsNote.textContent =
         "This size is still close to the uploaded artwork shape, so no crop adjustment is needed yet.";
@@ -1508,15 +1565,26 @@
     const previewHeight = hasRequestedSize ? estimate.height : state.imageHeight || 20;
     const scaledSize = getScaledPreviewSize(previewWidth, previewHeight);
     const cropPreviewActive = isCropPreviewActive(estimate.width, estimate.height);
-    const cropX = getRangeValue(elements.cropXInput) + "%";
-    const cropY = getRangeValue(elements.cropYInput) + "%";
-    const cropScale = cropPreviewActive ? getCropScale() : 1;
+    const cropMetrics = cropPreviewActive ? getPreviewCropMetrics(estimate.width, estimate.height) : null;
 
     elements.previewFrame.style.setProperty("--preview-frame-width", scaledSize.width + "px");
     elements.previewFrame.style.setProperty("--preview-frame-ratio", previewWidth + " / " + previewHeight);
-    elements.previewFrame.style.setProperty("--crop-position-x", cropX);
-    elements.previewFrame.style.setProperty("--crop-position-y", cropY);
-    elements.previewFrame.style.setProperty("--crop-scale", cropScale);
+    elements.previewFrame.style.setProperty(
+      "--preview-image-width",
+      cropMetrics ? cropMetrics.imageWidthPercent.toFixed(4) + "%" : "100%"
+    );
+    elements.previewFrame.style.setProperty(
+      "--preview-image-height",
+      cropMetrics ? cropMetrics.imageHeightPercent.toFixed(4) + "%" : "100%"
+    );
+    elements.previewFrame.style.setProperty(
+      "--crop-offset-x",
+      cropMetrics ? cropMetrics.offsetXPercent.toFixed(4) + "%" : "0%"
+    );
+    elements.previewFrame.style.setProperty(
+      "--crop-offset-y",
+      cropMetrics ? cropMetrics.offsetYPercent.toFixed(4) + "%" : "0%"
+    );
     elements.previewFrame.classList.toggle("is-crop-preview", cropPreviewActive);
     elements.previewFrame.setAttribute(
       "aria-label",
