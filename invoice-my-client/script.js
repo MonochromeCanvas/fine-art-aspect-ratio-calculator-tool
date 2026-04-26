@@ -18,6 +18,14 @@
   const SAFE_EXPORT_MAX_DIMENSION = 12000;
   const SAFE_EXPORT_MAX_PIXELS = 80000000;
   const STANDARD_SIZE_TOLERANCE = 0.05;
+  const MAX_ARTWORKS = 5;
+  const DEFAULT_WIDTH = "16";
+  const DEFAULT_HEIGHT = "20";
+  const DEFAULT_QUANTITY = "1";
+  const DEFAULT_BORDER_DEPTH = "2";
+  const DEFAULT_CROP_POSITION = "50";
+  const DEFAULT_CROP_ZOOM = "1";
+
   const materials = [
     {
       slug: "hot-press-bright-archival",
@@ -82,7 +90,6 @@
     }
   ];
 
-  // Standard sizes synced from the live Monochrome Canvas product pages on April 24, 2026.
   const websiteVariantText = {
     "hot-press-bright-archival": String.raw`4x4 - $5.00  4x6 - $6.00  5x5 - $7.00  5x7 - $8.00  6x6 - $8.00  6x7.5 - $8.00  6x8 - $8.00  6x9 - $8.00  8x8 - $10.50  8x10 - $10.00  8x12 - $12.50  8x24 - $22.00  8.5x11 - $12.00  9x12 - $14.00  10x10 - $14.50  10x15 - $18.00  10x20 - $23.00  10x30 - $34.00  11x14 - $18.00  11x17 - $22.00  12x12 - $17.00  12x15 - $21.00  12x16 - $22.00  12x18 - $25.00  12x24 - $33.00  12x36 - $48.00  13x19 - $28.00  14x14 - $23.00  14x20 - $31.00  14x21 - $33.00  15x20 - $34.00  15x45 - $82.00  16x16 - $29.00  16x20 - $36.00  16x24 - $43.00  16x48 - $92.00  18x22 - $46.00  18x24 - $48.00  18x27 - $54.00  19x19 - $42.00  20x20 - $45.00  20x24 - $55.00  20x30 - $66.00  20x40 - $88.00  21x28 - $65.00  22x33 - $80.00  24x24 - $70.00  24x30 - $86.00  24x32 - $91.00  24x36 - $107.00  24x48 - $153.00  26x39 - $127.00  27x36 - $124.00  28x35 - $125.00  28x42 - $147.00  30x30 - $125.00  30x40 - $155.00  30x45 - $171.00  32x40 - $148.00  33x44 - $183.00  34x51 - $220.00  36x36 - $165.00  36x45 - $208.00  36x48 - $220.00  36x54 - $245.00  40x50 - $255.00`,
     "hot-press-bright-archival-paper-copy": String.raw`4x4 - $6.00  4x6 - $8.00  5x5 - $8.00  5x7 - $8.00  6x6 - $8.00  6x7.5 - $8.00  6x8 - $8.00  6x9 - $8.00  8x8 - $8.00  8x10 - $10.00  8x12 - $12.00  8x24 - $22.00  8.5x11 - $12.00  9x12 - $13.00  10x10 - $12.00  10x15 - $18.00  10x20 - $23.00  10x30 - $34.00  11x14 - $18.00  11x17 - $22.00  12x12 - $17.00  12x15 - $21.00  12x16 - $22.00  12x18 - $25.00  12x24 - $32.00  12x36 - $48.00  13x19 - $28.00  14x14 - $23.00  14x20 - $31.00  14x21 - $33.00  15x20 - $34.00  15x45 - $74.00  16x16 - $29.00  16x20 - $36.00  16x24 - $43.00  16x48 - $84.00  18x22 - $46.00  18x24 - $48.00  18x27 - $54.00  19x19 - $42.00  20x20 - $45.00  20x25 - $55.00  20x30 - $66.00  20x40 - $88.00  21x28 - $65.00  22x33 - $80.00  24x24 - $63.00  24x30 - $79.00  24x32 - $84.00  24x36 - $94.00  24x48 - $125.00  26x39 - $127.00  27x36 - $124.00  28x35 - $125.00  28x42 - $147.00  30x30 - $125.00  30x40 - $155.00  30x45 - $171.00  32x40 - $148.00  33x44 - $183.00  34x51 - $220.00  36x36 - $165.00  36x45 - $208.00  36x48 - $220.00  36x54 - $245.00  40x50 - $255.00`,
@@ -108,15 +115,11 @@
     { min: 10, rate: 0.1 }
   ];
 
+  let artworkSeed = 1;
+
   const state = {
-    file: null,
-    objectUrl: null,
-    imageWidth: null,
-    imageHeight: null,
-    dimensionsAutoFilled: false,
-    isSyncingDimensions: false,
-    lockedRatio: null,
-    sizeFieldsEdited: false,
+    artworks: [],
+    activeArtworkId: "",
     activePointers: new Map(),
     pinchStartDistance: null,
     pinchStartScale: 1,
@@ -127,8 +130,13 @@
   };
 
   const elements = {
+    addArtworkButton: document.getElementById("addArtworkButton"),
+    removeArtworkButton: document.getElementById("removeArtworkButton"),
+    artworkTabs: document.getElementById("artworkTabs"),
+    artworkManagerNote: document.getElementById("artworkManagerNote"),
     fileInput: document.getElementById("fileInput"),
     fileMeta: document.getElementById("fileMeta"),
+    artworkTitleInput: document.getElementById("artworkTitleInput"),
     materialSelect: document.getElementById("materialSelect"),
     materialDescription: document.getElementById("materialDescription"),
     canvasOptions: document.getElementById("canvasOptions"),
@@ -162,7 +170,6 @@
     standardNotesInput: document.getElementById("standardNotesInput"),
     artistNameInput: document.getElementById("artistNameInput"),
     artistEmailInput: document.getElementById("artistEmailInput"),
-    artworkTitleInput: document.getElementById("artworkTitleInput"),
     clientNameInput: document.getElementById("clientNameInput"),
     clientEmailInput: document.getElementById("clientEmailInput"),
     payoutMethodSelect: document.getElementById("payoutMethodSelect"),
@@ -210,18 +217,88 @@
   function init() {
     populateMaterials();
     populateProjectTypes();
-    state.lockedRatio = getCurrentSizeRatio();
+    const initialArtwork = createArtwork();
+    state.artworks = [initialArtwork];
+    state.activeArtworkId = initialArtwork.id;
     bindEvents();
     setupPreparedArtworkMessaging();
     setupResponsivePreview();
     setupPreviewInteractions();
+    populateActiveArtworkInputs();
     render();
     importPreparedArtworkIfRequested();
   }
 
+  function createArtwork() {
+    const defaultRatio = getNumber(DEFAULT_WIDTH) / getNumber(DEFAULT_HEIGHT);
+
+    return {
+      id: "artwork-" + artworkSeed++,
+      title: "",
+      file: null,
+      objectUrl: null,
+      imageWidth: null,
+      imageHeight: null,
+      dimensionsAutoFilled: false,
+      isSyncingDimensions: false,
+      lockedRatio: defaultRatio,
+      sizeFieldsEdited: false,
+      materialSlug: materials[0].slug,
+      width: DEFAULT_WIDTH,
+      height: DEFAULT_HEIGHT,
+      quantity: DEFAULT_QUANTITY,
+      ratioLocked: true,
+      cropX: DEFAULT_CROP_POSITION,
+      cropY: DEFAULT_CROP_POSITION,
+      cropZoom: DEFAULT_CROP_ZOOM,
+      canvasBorder: "none",
+      borderDepth: DEFAULT_BORDER_DEPTH,
+      edgeStyle: "white",
+      edgeColor: ""
+    };
+  }
+
+  function getActiveArtwork() {
+    return state.artworks.find(function (artwork) {
+      return artwork.id === state.activeArtworkId;
+    }) || state.artworks[0];
+  }
+
+  function getArtworkIndex(artwork) {
+    return state.artworks.findIndex(function (item) {
+      return item.id === artwork.id;
+    });
+  }
+
+  function getArtworkLabel(artwork, index) {
+    return artwork.title || "Artwork " + (index + 1);
+  }
+
+  function isArtworkStarted(artwork) {
+    if (!artwork) {
+      return false;
+    }
+
+    return Boolean(
+      artwork.file ||
+      artwork.title ||
+      artwork.sizeFieldsEdited ||
+      artwork.materialSlug !== materials[0].slug ||
+      artwork.quantity !== DEFAULT_QUANTITY ||
+      artwork.canvasBorder !== "none" ||
+      artwork.borderDepth !== DEFAULT_BORDER_DEPTH ||
+      artwork.edgeStyle !== "white" ||
+      artwork.edgeColor
+    );
+  }
+
+  function getStartedArtworks() {
+    return state.artworks.filter(isArtworkStarted);
+  }
+
   function populateMaterials() {
     elements.materialSelect.innerHTML = "";
-    materials.forEach((material) => {
+    materials.forEach(function (material) {
       const option = document.createElement("option");
       option.value = material.slug;
       option.textContent = material.label;
@@ -230,7 +307,7 @@
   }
 
   function populateProjectTypes() {
-    projectTypes.forEach((label) => {
+    projectTypes.forEach(function (label) {
       const option = document.createElement("option");
       option.value = label;
       option.textContent = label;
@@ -238,77 +315,9 @@
     });
   }
 
-  function getOrderMode() {
-    return state.orderMode;
-  }
-
-  function isInvoiceMode() {
-    return getOrderMode() === "invoice-client";
-  }
-
-  function getOrderModeLabel(mode) {
-    return mode === "invoice-client" ? "Invoice My Client" : "Standard Order";
-  }
-
-  function setOrderMode(mode) {
-    state.orderMode = mode === "invoice-client" ? "invoice-client" : "standard";
-    render();
-  }
-
-  function syncInvoiceAmount(estimate) {
-    const recommendedRetail = roundMoney(estimate.total * 2);
-    const currentValue = getNumericValue(elements.clientInvoiceAmountInput);
-    const shouldAutofill =
-      !state.clientInvoiceAmountEdited ||
-      !elements.clientInvoiceAmountInput.value.trim() ||
-      Math.abs(currentValue - state.lastRecommendedRetail) < 0.01;
-
-    if (shouldAutofill) {
-      elements.clientInvoiceAmountInput.value = formatMoneyInput(recommendedRetail);
-      state.clientInvoiceAmountEdited = false;
-    }
-
-    state.lastRecommendedRetail = recommendedRetail;
-    return recommendedRetail;
-  }
-
-  function getInvoicePricing(estimate) {
-    const productionCost = estimate.total;
-    const recommendedRetail = syncInvoiceAmount(estimate);
-    const clientInvoiceAmount = getNumericValue(elements.clientInvoiceAmountInput);
-    const artistPayout = roundMoney(clientInvoiceAmount - productionCost);
-
-    return {
-      productionCost: productionCost,
-      recommendedRetail: recommendedRetail,
-      clientInvoiceAmount: clientInvoiceAmount,
-      artistPayout: artistPayout
-    };
-  }
-
-  function getActiveNotes() {
-    return isInvoiceMode() ? elements.invoiceNotesInput.value.trim() : elements.standardNotesInput.value.trim();
-  }
-
-  function getArtworkTitle() {
-    return elements.artworkTitleInput.value.trim();
-  }
-
-  function getPrimaryContact() {
-    if (isInvoiceMode()) {
-      return {
-        name: elements.artistNameInput.value.trim(),
-        email: elements.artistEmailInput.value.trim()
-      };
-    }
-
-    return {
-      name: elements.standardNameInput.value.trim(),
-      email: elements.standardEmailInput.value.trim()
-    };
-  }
-
   function bindEvents() {
+    elements.addArtworkButton.addEventListener("click", addArtwork);
+    elements.removeArtworkButton.addEventListener("click", removeActiveArtwork);
     elements.fileInput.addEventListener("change", handleFileChange);
     elements.standardOrderModeButton.addEventListener("click", function () {
       setOrderMode("standard");
@@ -316,21 +325,29 @@
     elements.invoiceClientModeButton.addEventListener("click", function () {
       setOrderMode("invoice-client");
     });
-    [elements.widthInput, elements.heightInput].forEach((input) => {
+    [elements.widthInput, elements.heightInput].forEach(function (input) {
       input.addEventListener("input", handleSizeInput);
       input.addEventListener("change", handleSizeInput);
     });
     elements.ratioLockToggle.addEventListener("change", handleRatioLockChange);
+
     [
+      elements.artworkTitleInput,
       elements.materialSelect,
+      elements.quantityInput,
       elements.canvasBorderSelect,
       elements.borderDepthInput,
       elements.edgeStyleSelect,
       elements.edgeColorInput,
       elements.cropXInput,
       elements.cropYInput,
-      elements.cropZoomInput,
-      elements.quantityInput,
+      elements.cropZoomInput
+    ].forEach(function (input) {
+      input.addEventListener("input", handleArtworkFieldChange);
+      input.addEventListener("change", handleArtworkFieldChange);
+    });
+
+    [
       elements.projectTypeSelect,
       elements.artistToggle,
       elements.standardNameInput,
@@ -338,13 +355,12 @@
       elements.standardNotesInput,
       elements.artistNameInput,
       elements.artistEmailInput,
-      elements.artworkTitleInput,
       elements.clientNameInput,
       elements.clientEmailInput,
       elements.payoutMethodSelect,
       elements.payoutHandleInput,
       elements.invoiceNotesInput
-    ].forEach((input) => {
+    ].forEach(function (input) {
       input.addEventListener("input", render);
       input.addEventListener("change", render);
     });
@@ -371,175 +387,375 @@
     elements.copyButton.addEventListener("click", copySummary);
   }
 
-  function markSizeFieldsEdited() {
-    state.sizeFieldsEdited = true;
-    state.dimensionsAutoFilled = false;
-  }
-
-  function handleSizeInput(event) {
-    if (state.isSyncingDimensions) {
+  function addArtwork() {
+    if (state.artworks.length >= MAX_ARTWORKS) {
+      showMessage("This order can include up to " + MAX_ARTWORKS + " artworks.", true);
       return;
     }
 
-    markSizeFieldsEdited();
-    syncLinkedDimension(event.target);
+    syncActiveArtworkFromInputs();
+    const artwork = createArtwork();
+    state.artworks.push(artwork);
+    state.activeArtworkId = artwork.id;
+    populateActiveArtworkInputs();
+    render();
+    showMessage("Added a new artwork to this order.", false);
+  }
+
+  function removeActiveArtwork() {
+    if (state.artworks.length <= 1) {
+      showMessage("This order needs at least one artwork workspace.", true);
+      return;
+    }
+
+    const activeArtwork = getActiveArtwork();
+    const index = getArtworkIndex(activeArtwork);
+    clearArtworkFile(activeArtwork);
+    state.artworks.splice(index, 1);
+
+    const fallbackArtwork = state.artworks[Math.max(0, index - 1)] || state.artworks[0];
+    state.activeArtworkId = fallbackArtwork.id;
+    state.activePointers.clear();
+    state.pinchStartDistance = null;
+    populateActiveArtworkInputs();
+    render();
+    showMessage("Removed the selected artwork from this order.", false);
+  }
+
+  function switchArtwork(artworkId) {
+    if (artworkId === state.activeArtworkId) {
+      return;
+    }
+
+    syncActiveArtworkFromInputs();
+    state.activeArtworkId = artworkId;
+    state.activePointers.clear();
+    state.pinchStartDistance = null;
+    populateActiveArtworkInputs();
+    render();
+  }
+
+  function syncActiveArtworkFromInputs() {
+    const artwork = getActiveArtwork();
+    if (!artwork) {
+      return;
+    }
+
+    artwork.title = elements.artworkTitleInput.value.trim();
+    artwork.materialSlug = elements.materialSelect.value;
+    artwork.width = elements.widthInput.value;
+    artwork.height = elements.heightInput.value;
+    artwork.quantity = elements.quantityInput.value;
+    artwork.ratioLocked = elements.ratioLockToggle.checked;
+    artwork.canvasBorder = elements.canvasBorderSelect.value;
+    artwork.borderDepth = elements.borderDepthInput.value;
+    artwork.edgeStyle = elements.edgeStyleSelect.value;
+    artwork.edgeColor = elements.edgeColorInput.value.trim();
+    artwork.cropX = elements.cropXInput.value;
+    artwork.cropY = elements.cropYInput.value;
+    artwork.cropZoom = elements.cropZoomInput.value;
+  }
+
+  function populateActiveArtworkInputs() {
+    const artwork = getActiveArtwork();
+    if (!artwork) {
+      return;
+    }
+
+    elements.fileInput.value = "";
+    elements.artworkTitleInput.value = artwork.title;
+    elements.materialSelect.value = artwork.materialSlug;
+    elements.widthInput.value = artwork.width;
+    elements.heightInput.value = artwork.height;
+    elements.quantityInput.value = artwork.quantity;
+    elements.ratioLockToggle.checked = artwork.ratioLocked;
+    elements.canvasBorderSelect.value = artwork.canvasBorder;
+    elements.borderDepthInput.value = artwork.borderDepth;
+    elements.edgeStyleSelect.value = artwork.edgeStyle;
+    elements.edgeColorInput.value = artwork.edgeColor;
+    elements.cropXInput.value = artwork.cropX;
+    elements.cropYInput.value = artwork.cropY;
+    elements.cropZoomInput.value = artwork.cropZoom;
+  }
+
+  function getOrderMode() {
+    return state.orderMode;
+  }
+
+  function isInvoiceMode() {
+    return getOrderMode() === "invoice-client";
+  }
+
+  function getOrderModeLabel(mode) {
+    return mode === "invoice-client" ? "Invoice My Client" : "Standard Order";
+  }
+
+  function setOrderMode(mode) {
+    state.orderMode = mode === "invoice-client" ? "invoice-client" : "standard";
+    render();
+  }
+
+  function syncInvoiceAmount(orderEstimate) {
+    const recommendedRetail = roundMoney(orderEstimate.total * 2);
+    const currentValue = getNumericValue(elements.clientInvoiceAmountInput);
+    const shouldAutofill =
+      !state.clientInvoiceAmountEdited ||
+      !elements.clientInvoiceAmountInput.value.trim() ||
+      Math.abs(currentValue - state.lastRecommendedRetail) < 0.01;
+
+    if (shouldAutofill) {
+      elements.clientInvoiceAmountInput.value = formatMoneyInput(recommendedRetail);
+      state.clientInvoiceAmountEdited = false;
+    }
+
+    state.lastRecommendedRetail = recommendedRetail;
+    return recommendedRetail;
+  }
+
+  function getInvoicePricing(orderEstimate) {
+    const productionCost = orderEstimate.total;
+    const recommendedRetail = syncInvoiceAmount(orderEstimate);
+    const clientInvoiceAmount = getNumericValue(elements.clientInvoiceAmountInput);
+    const artistPayout = roundMoney(clientInvoiceAmount - productionCost);
+
+    return {
+      productionCost: productionCost,
+      recommendedRetail: recommendedRetail,
+      clientInvoiceAmount: clientInvoiceAmount,
+      artistPayout: artistPayout
+    };
+  }
+
+  function getActiveNotes() {
+    return isInvoiceMode() ? elements.invoiceNotesInput.value.trim() : elements.standardNotesInput.value.trim();
+  }
+
+  function getPrimaryContact() {
+    if (isInvoiceMode()) {
+      return {
+        name: elements.artistNameInput.value.trim(),
+        email: elements.artistEmailInput.value.trim()
+      };
+    }
+
+    return {
+      name: elements.standardNameInput.value.trim(),
+      email: elements.standardEmailInput.value.trim()
+    };
+  }
+
+  function markSizeFieldsEdited(artwork) {
+    artwork.sizeFieldsEdited = true;
+    artwork.dimensionsAutoFilled = false;
+  }
+
+  function handleArtworkFieldChange() {
+    syncActiveArtworkFromInputs();
+    render();
+  }
+
+  function handleSizeInput(event) {
+    const artwork = getActiveArtwork();
+    if (!artwork || artwork.isSyncingDimensions) {
+      return;
+    }
+
+    syncActiveArtworkFromInputs();
+    markSizeFieldsEdited(artwork);
+    syncLinkedDimension(artwork, event.target === elements.heightInput ? "height" : "width");
+    populateActiveArtworkInputs();
     render();
   }
 
   function handleRatioLockChange() {
-    if (elements.ratioLockToggle.checked) {
-      state.lockedRatio = getPreferredArtworkRatio();
-      elements.cropZoomInput.value = "1";
-      syncLinkedDimension(elements.widthInput);
+    const artwork = getActiveArtwork();
+    if (!artwork) {
+      return;
     }
 
+    syncActiveArtworkFromInputs();
+    artwork.ratioLocked = elements.ratioLockToggle.checked;
+
+    if (artwork.ratioLocked) {
+      artwork.lockedRatio = getPreferredArtworkRatio(artwork);
+      artwork.cropZoom = DEFAULT_CROP_ZOOM;
+      syncLinkedDimension(artwork, "width");
+    }
+
+    populateActiveArtworkInputs();
     render();
   }
 
   async function handleFileChange(event) {
     const file = event.target.files && event.target.files[0];
+    const artwork = getActiveArtwork();
+
+    if (!artwork) {
+      return;
+    }
 
     if (!file) {
-      clearFile();
+      clearArtworkFile(artwork);
+      elements.fileInput.value = "";
       render();
       return;
     }
 
     try {
-      await loadFileIntoState(file);
+      await loadFileIntoArtwork(file, artwork);
+      populateActiveArtworkInputs();
       render();
+      elements.fileInput.value = "";
     } catch (error) {
-      clearFile();
+      clearArtworkFile(artwork);
       showMessage("That file could not be read for a live quality preview.", true);
       render();
     }
   }
 
-  function clearFile() {
-    if (state.objectUrl) {
-      URL.revokeObjectURL(state.objectUrl);
+  function clearArtworkFile(artwork) {
+    if (artwork.objectUrl) {
+      URL.revokeObjectURL(artwork.objectUrl);
     }
-    state.file = null;
-    state.objectUrl = null;
-    state.imageWidth = null;
-    state.imageHeight = null;
-    elements.previewImage.hidden = true;
-    elements.previewImage.removeAttribute("src");
-    elements.previewPlaceholder.classList.remove("is-hidden");
-    state.dimensionsAutoFilled = false;
-    elements.cropXInput.value = "50";
-    elements.cropYInput.value = "50";
-    elements.cropZoomInput.value = "1";
+
+    artwork.file = null;
+    artwork.objectUrl = null;
+    artwork.imageWidth = null;
+    artwork.imageHeight = null;
+    artwork.dimensionsAutoFilled = false;
+    artwork.cropX = DEFAULT_CROP_POSITION;
+    artwork.cropY = DEFAULT_CROP_POSITION;
+    artwork.cropZoom = DEFAULT_CROP_ZOOM;
   }
 
-  function loadFileIntoState(file) {
-    clearFile();
+  function loadFileIntoArtwork(file, artwork) {
+    clearArtworkFile(artwork);
 
     return new Promise(function (resolve, reject) {
-      state.file = file;
-      state.objectUrl = URL.createObjectURL(file);
+      artwork.file = file;
+      artwork.objectUrl = URL.createObjectURL(file);
 
       const image = new Image();
       image.onload = function () {
-        state.imageWidth = image.naturalWidth;
-        state.imageHeight = image.naturalHeight;
-        state.lockedRatio = getPreferredArtworkRatio();
-        elements.cropXInput.value = "50";
-        elements.cropYInput.value = "50";
-        elements.cropZoomInput.value = "1";
-        elements.previewImage.src = state.objectUrl;
-        elements.previewImage.hidden = false;
-        elements.previewPlaceholder.classList.add("is-hidden");
-        autoFillDimensionsAt300Ppi();
+        artwork.imageWidth = image.naturalWidth;
+        artwork.imageHeight = image.naturalHeight;
+        artwork.lockedRatio = getPreferredArtworkRatio(artwork);
+        artwork.cropX = DEFAULT_CROP_POSITION;
+        artwork.cropY = DEFAULT_CROP_POSITION;
+        artwork.cropZoom = DEFAULT_CROP_ZOOM;
+        autoFillDimensionsAt300Ppi(artwork);
         resolve();
       };
       image.onerror = function () {
-        clearFile();
+        clearArtworkFile(artwork);
         reject(new Error("Could not load image"));
       };
-      image.src = state.objectUrl;
+      image.src = artwork.objectUrl;
     });
   }
 
-  function getSelectedMaterial() {
-    return materials.find((material) => material.slug === elements.materialSelect.value) || materials[0];
+  function getSelectedMaterial(artwork) {
+    return materials.find(function (material) {
+      return material.slug === artwork.materialSlug;
+    }) || materials[0];
   }
 
   function getNumericValue(input) {
-    const parsed = parseFloat(input.value);
+    return getNumber(input.value);
+  }
+
+  function getNumber(value) {
+    const parsed = parseFloat(value);
     return isFinite(parsed) ? parsed : 0;
   }
 
-  function getRangeValue(input) {
-    const parsed = parseInt(input.value, 10);
+  function getWholeNumber(value) {
+    const parsed = parseInt(value, 10);
+    return isFinite(parsed) ? parsed : 0;
+  }
+
+  function getRangeValue(value) {
+    const parsed = parseInt(value, 10);
     return isFinite(parsed) ? parsed : 50;
   }
 
-  function getCropScale() {
-    const parsed = parseFloat(elements.cropZoomInput.value);
+  function getCropScale(artwork) {
+    const parsed = parseFloat(artwork.cropZoom);
     return isFinite(parsed) ? parsed : 1;
   }
 
-  function isRatioLocked() {
-    return elements.ratioLockToggle.checked;
+  function isRatioLocked(artwork) {
+    return artwork.ratioLocked !== false;
   }
 
-  function getCurrentSizeRatio() {
-    const width = getNumericValue(elements.widthInput);
-    const height = getNumericValue(elements.heightInput);
+  function getArtworkWidth(artwork) {
+    return getNumber(artwork.width);
+  }
+
+  function getArtworkHeight(artwork) {
+    return getNumber(artwork.height);
+  }
+
+  function getArtworkQuantity(artwork) {
+    return Math.max(1, Math.round(getNumber(artwork.quantity) || 1));
+  }
+
+  function getCurrentSizeRatio(artwork) {
+    const width = getArtworkWidth(artwork);
+    const height = getArtworkHeight(artwork);
     return width > 0 && height > 0 ? width / height : null;
   }
 
-  function getPreferredArtworkRatio() {
-    if (state.imageWidth && state.imageHeight) {
-      return state.imageWidth / state.imageHeight;
+  function getPreferredArtworkRatio(artwork) {
+    if (artwork.imageWidth && artwork.imageHeight) {
+      return artwork.imageWidth / artwork.imageHeight;
     }
 
-    return state.lockedRatio || getCurrentSizeRatio() || 1;
+    return artwork.lockedRatio || getCurrentSizeRatio(artwork) || 1;
   }
 
-  function syncLinkedDimension(changedInput) {
-    if (!isRatioLocked()) {
+  function syncLinkedDimension(artwork, changedField) {
+    if (!isRatioLocked(artwork)) {
       return;
     }
 
-    const ratio = getPreferredArtworkRatio();
-    const width = getNumericValue(elements.widthInput);
-    const height = getNumericValue(elements.heightInput);
+    const ratio = getPreferredArtworkRatio(artwork);
+    const width = getArtworkWidth(artwork);
+    const height = getArtworkHeight(artwork);
 
-    state.isSyncingDimensions = true;
-    if (changedInput === elements.heightInput && height > 0) {
-      elements.widthInput.value = formatDimensionInput(height * ratio);
+    artwork.isSyncingDimensions = true;
+    if (changedField === "height" && height > 0) {
+      artwork.width = formatDimensionInput(height * ratio);
     } else if (width > 0) {
-      elements.heightInput.value = formatDimensionInput(width / ratio);
+      artwork.height = formatDimensionInput(width / ratio);
     }
-    state.isSyncingDimensions = false;
+    artwork.isSyncingDimensions = false;
   }
 
-  function getAspectDifference(width, height) {
-    if (!(width > 0) || !(height > 0) || !state.imageWidth || !state.imageHeight) {
+  function getAspectDifference(artwork, width, height) {
+    if (!(width > 0) || !(height > 0) || !artwork.imageWidth || !artwork.imageHeight) {
       return 0;
     }
 
-    const artworkRatio = state.imageWidth / state.imageHeight;
+    const artworkRatio = artwork.imageWidth / artwork.imageHeight;
     const requestedRatio = width / height;
     return Math.abs(artworkRatio - requestedRatio) / requestedRatio;
   }
 
-  function isCropPreviewActive(width, height) {
-    return !isRatioLocked() && getAspectDifference(width, height) > 0.025;
+  function isCropPreviewActive(artwork, width, height) {
+    return !isRatioLocked(artwork) && getAspectDifference(artwork, width, height) > 0.025;
   }
 
-  function getCropPositionText() {
-    return "X " + getRangeValue(elements.cropXInput) + "%, Y " + getRangeValue(elements.cropYInput) + "%";
+  function getCropPositionText(artwork) {
+    return "X " + getRangeValue(artwork.cropX) + "%, Y " + getRangeValue(artwork.cropY) + "%";
   }
 
-  function getSizingModeLabel(width, height) {
-    if (isRatioLocked()) {
+  function getSizingModeLabel(artwork, width, height) {
+    if (isRatioLocked(artwork)) {
       return "Linked proportions";
     }
 
-    return isCropPreviewActive(width, height) ? "Unlinked custom crop" : "Unlinked custom size";
+    return isCropPreviewActive(artwork, width, height) ? "Unlinked custom crop" : "Unlinked custom size";
   }
 
   function roundMoney(value) {
@@ -717,15 +933,15 @@
     return Math.min(max, Math.max(min, value));
   }
 
-  function autoFillDimensionsAt300Ppi() {
-    if (state.sizeFieldsEdited || !state.imageWidth || !state.imageHeight) {
-      state.dimensionsAutoFilled = false;
+  function autoFillDimensionsAt300Ppi(artwork) {
+    if (artwork.sizeFieldsEdited || !artwork.imageWidth || !artwork.imageHeight) {
+      artwork.dimensionsAutoFilled = false;
       return;
     }
 
-    elements.widthInput.value = formatDimensionInput(state.imageWidth / 300);
-    elements.heightInput.value = formatDimensionInput(state.imageHeight / 300);
-    state.dimensionsAutoFilled = true;
+    artwork.width = formatDimensionInput(artwork.imageWidth / 300);
+    artwork.height = formatDimensionInput(artwork.imageHeight / 300);
+    artwork.dimensionsAutoFilled = true;
   }
 
   function getScaledPreviewSize(width, height) {
@@ -747,12 +963,12 @@
     return formatDimension(material.maxLong) + " x " + formatDimension(material.maxShort) + " in";
   }
 
-  function getCanvasOptions(material) {
+  function getCanvasOptions(material, artwork) {
     const canAddBorder = Boolean(material.supportsStretchingBorder);
-    const hasStretchingBorder = canAddBorder && elements.canvasBorderSelect.value === "stretch";
-    const borderDepth = hasStretchingBorder ? Math.max(0, getNumericValue(elements.borderDepthInput)) : 0;
-    const edgeStyle = hasStretchingBorder ? elements.edgeStyleSelect.value : "";
-    const edgeColor = hasStretchingBorder ? elements.edgeColorInput.value.trim() : "";
+    const hasStretchingBorder = canAddBorder && artwork.canvasBorder === "stretch";
+    const borderDepth = hasStretchingBorder ? Math.max(0, getNumber(artwork.borderDepth)) : 0;
+    const edgeStyle = hasStretchingBorder ? artwork.edgeStyle : "";
+    const edgeColor = hasStretchingBorder ? artwork.edgeColor.trim() : "";
 
     return {
       canAddBorder: canAddBorder,
@@ -785,8 +1001,8 @@
     return "White edge, " + formatDimension(options.borderDepth) + " in per side";
   }
 
-  function getProductionDimensions(material, width, height) {
-    const canvasOptions = getCanvasOptions(material);
+  function getProductionDimensions(material, width, height, artwork) {
+    const canvasOptions = getCanvasOptions(material, artwork);
     const extra = canvasOptions.hasStretchingBorder ? canvasOptions.borderDepth * 2 : 0;
 
     return {
@@ -933,12 +1149,12 @@
     return estimate.pricingSource === "website-standard" ? "Unit price" : "Unit estimate";
   }
 
-  function calculateEstimate() {
-    const material = getSelectedMaterial();
-    const width = getNumericValue(elements.widthInput);
-    const height = getNumericValue(elements.heightInput);
-    const quantity = Math.max(1, Math.round(getNumericValue(elements.quantityInput) || 1));
-    const productionDimensions = getProductionDimensions(material, width, height);
+  function calculateArtworkEstimate(artwork) {
+    const material = getSelectedMaterial(artwork);
+    const width = getArtworkWidth(artwork);
+    const height = getArtworkHeight(artwork);
+    const quantity = getArtworkQuantity(artwork);
+    const productionDimensions = getProductionDimensions(material, width, height, artwork);
     const formulaUnitPrice = getFormulaUnitPrice(material, productionDimensions.width, productionDimensions.height);
     const pricingGroup = getWebsitePricingGroup(material, productionDimensions.canvasOptions);
     const requestArea = width * height;
@@ -965,7 +1181,9 @@
     const discountRate = getQuantityDiscount(quantity);
     const discountAmount = roundMoney(subtotal * discountRate);
     const total = roundMoney(subtotal - discountAmount);
+
     return {
+      artwork: artwork,
       material: material,
       width: width,
       height: height,
@@ -980,6 +1198,29 @@
       discountRate: discountRate,
       discountAmount: discountAmount,
       total: total
+    };
+  }
+
+  function calculateOrderEstimate() {
+    const items = getStartedArtworks().map(function (artwork) {
+      const estimate = calculateArtworkEstimate(artwork);
+      return {
+        artwork: artwork,
+        estimate: estimate,
+        resolutionFeedback: getResolutionFeedback(artwork, estimate.width, estimate.height),
+        sizingFeedback: getSizingFeedback(artwork, estimate.width, estimate.height),
+        maxSizeFeedback: getMaxSizeFeedback(estimate)
+      };
+    });
+
+    return {
+      items: items,
+      artworkCount: items.length,
+      total: roundMoney(
+        items.reduce(function (sum, item) {
+          return sum + item.estimate.total;
+        }, 0)
+      )
     };
   }
 
@@ -1017,7 +1258,7 @@
     };
   }
 
-  function getResolutionFeedback(width, height) {
+  function getResolutionFeedback(artwork, width, height) {
     if (!(width > 0) || !(height > 0)) {
       return {
         status: "muted",
@@ -1028,7 +1269,7 @@
       };
     }
 
-    if (!state.imageWidth || !state.imageHeight) {
+    if (!artwork.imageWidth || !artwork.imageHeight) {
       return {
         status: "muted",
         label: "Waiting for file",
@@ -1038,7 +1279,7 @@
       };
     }
 
-    const ppi = Math.floor(Math.min(state.imageWidth / width, state.imageHeight / height));
+    const ppi = Math.floor(Math.min(artwork.imageWidth / width, artwork.imageHeight / height));
     if (ppi >= 300) {
       return {
         status: "good",
@@ -1069,8 +1310,8 @@
     };
   }
 
-  function getSizingFeedback(width, height) {
-    if (!(width > 0) || !(height > 0) || !state.imageWidth || !state.imageHeight) {
+  function getSizingFeedback(artwork, width, height) {
+    if (!(width > 0) || !(height > 0) || !artwork.imageWidth || !artwork.imageHeight) {
       return {
         needsPrep: false,
         cropPreview: false,
@@ -1078,9 +1319,9 @@
       };
     }
 
-    const artworkRatio = state.imageWidth / state.imageHeight;
+    const artworkRatio = artwork.imageWidth / artwork.imageHeight;
     const requestedRatio = width / height;
-    const difference = getAspectDifference(width, height);
+    const difference = getAspectDifference(artwork, width, height);
 
     if (difference <= 0.025) {
       return {
@@ -1090,7 +1331,7 @@
       };
     }
 
-    if (!isRatioLocked()) {
+    if (!isRatioLocked(artwork)) {
       return {
         needsPrep: false,
         cropPreview: true,
@@ -1118,28 +1359,28 @@
     return feedback.ppi + " PPI" + (feedback.requiresReview ? " - studio review needed" : "");
   }
 
-  function getCropBounds(width, height) {
-    if (!state.imageWidth || !state.imageHeight) {
+  function getCropBounds(artwork, width, height) {
+    if (!artwork.imageWidth || !artwork.imageHeight) {
       return null;
     }
 
-    const requestedRatio = width > 0 && height > 0 ? width / height : state.imageWidth / state.imageHeight;
-    let cropWidth = state.imageWidth;
+    const requestedRatio = width > 0 && height > 0 ? width / height : artwork.imageWidth / artwork.imageHeight;
+    let cropWidth = artwork.imageWidth;
     let cropHeight = cropWidth / requestedRatio;
 
-    if (cropHeight > state.imageHeight) {
-      cropHeight = state.imageHeight;
+    if (cropHeight > artwork.imageHeight) {
+      cropHeight = artwork.imageHeight;
       cropWidth = cropHeight * requestedRatio;
     }
 
-    const cropScale = isCropPreviewActive(width, height) ? getCropScale() : 1;
+    const cropScale = isCropPreviewActive(artwork, width, height) ? getCropScale(artwork) : 1;
     cropWidth /= cropScale;
     cropHeight /= cropScale;
 
-    const maxX = Math.max(0, state.imageWidth - cropWidth);
-    const maxY = Math.max(0, state.imageHeight - cropHeight);
-    const x = maxX * (getRangeValue(elements.cropXInput) / 100);
-    const y = maxY * (getRangeValue(elements.cropYInput) / 100);
+    const maxX = Math.max(0, artwork.imageWidth - cropWidth);
+    const maxY = Math.max(0, artwork.imageHeight - cropHeight);
+    const x = maxX * (getRangeValue(artwork.cropX) / 100);
+    const y = maxY * (getRangeValue(artwork.cropY) / 100);
 
     return {
       x: x,
@@ -1149,20 +1390,20 @@
     };
   }
 
-  function getPreviewCropMetrics(width, height) {
-    if (!state.imageWidth || !state.imageHeight) {
+  function getPreviewCropMetrics(artwork, width, height) {
+    if (!artwork.imageWidth || !artwork.imageHeight) {
       return null;
     }
 
-    const frameWidth = width > 0 ? width : state.imageWidth;
-    const frameHeight = height > 0 ? height : state.imageHeight;
+    const frameWidth = width > 0 ? width : artwork.imageWidth;
+    const frameHeight = height > 0 ? height : artwork.imageHeight;
     if (!(frameWidth > 0) || !(frameHeight > 0)) {
       return null;
     }
 
     const frameRatio = frameWidth / frameHeight;
-    const artworkRatio = state.imageWidth / state.imageHeight;
-    const cropScale = isCropPreviewActive(width, height) ? getCropScale() : 1;
+    const artworkRatio = artwork.imageWidth / artwork.imageHeight;
+    const cropScale = isCropPreviewActive(artwork, width, height) ? getCropScale(artwork) : 1;
     let imageWidthPercent = 100;
     let imageHeightPercent = 100;
 
@@ -1177,8 +1418,8 @@
 
     const overflowXPercent = Math.max(0, imageWidthPercent - 100);
     const overflowYPercent = Math.max(0, imageHeightPercent - 100);
-    const offsetXPercent = -(overflowXPercent * (getRangeValue(elements.cropXInput) / 100));
-    const offsetYPercent = -(overflowYPercent * (getRangeValue(elements.cropYInput) / 100));
+    const offsetXPercent = -(overflowXPercent * (getRangeValue(artwork.cropX) / 100));
+    const offsetYPercent = -(overflowYPercent * (getRangeValue(artwork.cropY) / 100));
 
     return {
       imageWidthPercent: imageWidthPercent,
@@ -1192,12 +1433,12 @@
     };
   }
 
-  function getExportInfo(estimate) {
-    if (!state.file || !(estimate.width > 0) || !(estimate.height > 0) || !state.imageWidth || !state.imageHeight) {
+  function getExportInfo(artwork, estimate) {
+    if (!artwork.file || !(estimate.width > 0) || !(estimate.height > 0) || !artwork.imageWidth || !artwork.imageHeight) {
       return null;
     }
 
-    const cropBounds = getCropBounds(estimate.width, estimate.height);
+    const cropBounds = getCropBounds(artwork, estimate.width, estimate.height);
     if (!cropBounds) {
       return null;
     }
@@ -1250,8 +1491,68 @@
     };
   }
 
-  function renderOrderMode(invoicePricing) {
+  function renderArtworkTabs() {
+    elements.artworkTabs.innerHTML = "";
+
+    state.artworks.forEach(function (artwork, index) {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "artwork-tab" + (artwork.id === state.activeArtworkId ? " is-active" : "");
+      button.setAttribute("role", "tab");
+      button.setAttribute("aria-selected", String(artwork.id === state.activeArtworkId));
+
+      const estimate = calculateArtworkEstimate(artwork);
+      const statusLabel = artwork.file ? "Ready" : isArtworkStarted(artwork) ? "Needs file" : "Empty";
+      const metaParts = [];
+      if (artwork.file) {
+        metaParts.push(artwork.file.name);
+      } else if (artwork.title) {
+        metaParts.push("No file uploaded yet");
+      } else {
+        metaParts.push("Blank until you start it");
+      }
+
+      if (isArtworkStarted(artwork)) {
+        metaParts.push(formatDimensions(estimate.width, estimate.height));
+        metaParts.push("Qty " + estimate.quantity);
+      }
+
+      const labelRow = document.createElement("span");
+      labelRow.className = "artwork-tab-label";
+      const title = document.createElement("strong");
+      title.textContent = getArtworkLabel(artwork, index);
+      labelRow.appendChild(title);
+
+      const status = document.createElement("span");
+      status.className = "artwork-tab-status" + (artwork.file ? " is-ready" : "");
+      status.textContent = statusLabel;
+      labelRow.appendChild(status);
+
+      const meta = document.createElement("span");
+      meta.className = "artwork-tab-meta";
+      meta.textContent = metaParts.join(" · ");
+
+      button.appendChild(labelRow);
+      button.appendChild(meta);
+
+      button.addEventListener("click", function () {
+        switchArtwork(artwork.id);
+      });
+      elements.artworkTabs.appendChild(button);
+    });
+
+    elements.addArtworkButton.disabled = state.artworks.length >= MAX_ARTWORKS;
+    elements.removeArtworkButton.disabled = state.artworks.length <= 1;
+
+    const activeArtwork = getActiveArtwork();
+    elements.artworkManagerNote.textContent =
+      getArtworkLabel(activeArtwork, getArtworkIndex(activeArtwork)) +
+      " is selected. Blank artworks are ignored until you start them.";
+  }
+
+  function renderOrderMode(invoicePricing, orderEstimate) {
     const invoiceMode = isInvoiceMode();
+    const artworkLabel = orderEstimate.artworkCount === 1 ? "artwork file" : "artwork files";
 
     elements.standardOrderModeButton.classList.toggle("is-active", !invoiceMode);
     elements.standardOrderModeButton.setAttribute("aria-selected", String(!invoiceMode));
@@ -1261,19 +1562,19 @@
     elements.invoiceClientPanel.classList.toggle("is-hidden", !invoiceMode);
     elements.clientMessageCard.classList.toggle("is-hidden", !invoiceMode);
 
-    elements.estimateLabel.textContent = invoiceMode ? "Production cost" : "Estimated quote";
+    elements.estimateLabel.textContent = invoiceMode ? "Order production cost" : "Order estimate";
     elements.prepareButton.textContent = invoiceMode ? "Create Invoice Request" : "Create Email Request";
     elements.prepareSupportCopy.textContent = invoiceMode
       ? "We will open an email draft addressed to joelle@monochromecanvas.com with your artist, client, and invoice details filled in."
       : "We will open an email draft addressed to joelle@monochromecanvas.com with your quote details filled in.";
     elements.prepareFieldNote.textContent = invoiceMode
-      ? "Attach the artwork file before sending so the studio can review it. If approved, Monochrome Canvas can invoice your client using the details below."
-      : "Attach the artwork file before sending so the studio can review it. If your email app does not open, copy the summary and use the contact page as a backup.";
+      ? "Attach each " + artworkLabel + " before sending so the studio can review it. If approved, Monochrome Canvas can invoice your client using the details below."
+      : "Attach each " + artworkLabel + " before sending so the studio can review it. If your email app does not open, copy the summary and use the contact page as a backup.";
     elements.dialogLabel.textContent = invoiceMode ? "Invoice Request Ready" : "Quote Request Ready";
     elements.dialogTitle.textContent = invoiceMode ? "Your invoice request email is ready." : "Your studio email is ready.";
     elements.dialogSupportCopy.textContent = invoiceMode
-      ? "Review the request below, then open your email draft and attach the artwork file before sending. This draft is addressed to joelle@monochromecanvas.com so the studio can invoice your client after review."
-      : "Review the request below, then open your email draft and attach the artwork file before sending. This draft is addressed to joelle@monochromecanvas.com.";
+      ? "Review the request below, then open your email draft and attach the artwork files before sending. This draft is addressed to joelle@monochromecanvas.com so the studio can invoice your client after review."
+      : "Review the request below, then open your email draft and attach the artwork files before sending. This draft is addressed to joelle@monochromecanvas.com.";
 
     elements.productionCostValue.textContent = formatMoney(invoicePricing.productionCost);
     elements.recommendedRetailValue.textContent = formatMoney(invoicePricing.recommendedRetail);
@@ -1285,193 +1586,116 @@
   }
 
   function render() {
-    const estimate = calculateEstimate();
-    const feedback = getResolutionFeedback(estimate.width, estimate.height);
-    const sizingFeedback = getSizingFeedback(estimate.width, estimate.height);
-    const maxSizeFeedback = getMaxSizeFeedback(estimate);
-    const exportInfo = getExportInfo(estimate);
-    const invoicePricing = getInvoicePricing(estimate);
-    const maxWidthAt300 = state.imageWidth ? state.imageWidth / 300 : null;
-    const maxHeightAt300 = state.imageHeight ? state.imageHeight / 300 : null;
-    const selectedMaterial = getSelectedMaterial();
+    const activeArtwork = getActiveArtwork();
+    const activeEstimate = calculateArtworkEstimate(activeArtwork);
+    const activeFeedback = getResolutionFeedback(activeArtwork, activeEstimate.width, activeEstimate.height);
+    const activeSizingFeedback = getSizingFeedback(activeArtwork, activeEstimate.width, activeEstimate.height);
+    const activeMaxSizeFeedback = getMaxSizeFeedback(activeEstimate);
+    const activeExportInfo = getExportInfo(activeArtwork, activeEstimate);
+    const orderEstimate = calculateOrderEstimate();
+    const invoicePricing = getInvoicePricing(orderEstimate);
+    const maxWidthAt300 = activeArtwork.imageWidth ? activeArtwork.imageWidth / 300 : null;
+    const maxHeightAt300 = activeArtwork.imageHeight ? activeArtwork.imageHeight / 300 : null;
+    const selectedMaterial = getSelectedMaterial(activeArtwork);
 
+    renderArtworkTabs();
     elements.materialDescription.textContent = selectedMaterial.description;
     updateSizeInputLimits(selectedMaterial);
-    renderOrderMode(invoicePricing);
-    renderCanvasOptions(estimate);
-    renderPreviewShape(estimate);
-    renderRatioControls(estimate, sizingFeedback);
-    elements.estimateTotal.textContent =
-      estimate.width > 0 && estimate.height > 0 ? formatMoney(estimate.total) : "$0.00";
+    renderOrderMode(invoicePricing, orderEstimate);
+    renderCanvasOptions(activeEstimate);
+    renderPreviewImage(activeArtwork);
+    renderPreviewShape(activeArtwork, activeEstimate);
+    renderRatioControls(activeArtwork, activeEstimate, activeSizingFeedback);
+    elements.estimateTotal.textContent = orderEstimate.artworkCount ? formatMoney(orderEstimate.total) : "$0.00";
 
-    if (estimate.width > 0 && estimate.height > 0) {
-      if (maxSizeFeedback.fits) {
-        const pricingSourceMessage = getPricingSourceMessage(estimate);
+    if (activeEstimate.width > 0 && activeEstimate.height > 0) {
+      if (activeMaxSizeFeedback.fits) {
+        const pricingSourceMessage = getPricingSourceMessage(activeEstimate);
+        const orderCountMessage = orderEstimate.artworkCount
+          ? orderEstimate.artworkCount + " artwork" + (orderEstimate.artworkCount === 1 ? " is" : "s are") + " currently included in this order."
+          : "Start an artwork to build the order total.";
         const defaultMessage = isInvoiceMode()
-          ? "Recommended retail starts at 2x the production cost for this order."
+          ? "Recommended retail starts at 2x the production cost for the full order."
           : "Final invoice is confirmed after studio review.";
-        elements.estimateRange.textContent = pricingSourceMessage
-          ? pricingSourceMessage + " " + defaultMessage
-          : defaultMessage;
+        elements.estimateRange.textContent = [pricingSourceMessage, orderCountMessage, defaultMessage]
+          .filter(Boolean)
+          .join(" ");
       } else {
-        elements.estimateRange.textContent = maxSizeFeedback.message;
+        elements.estimateRange.textContent = activeMaxSizeFeedback.message;
       }
     } else {
-      elements.estimateRange.textContent = "Enter the size and quantity to see a custom quote estimate.";
+      elements.estimateRange.textContent = "Enter the size and quantity to see the selected artwork in the order total.";
     }
 
-    elements.qualityBadge.textContent = feedback.label;
-    elements.qualityBadge.className = "quality-badge is-" + feedback.status;
-    elements.downloadButton.disabled = !exportInfo;
-    elements.downloadNote.textContent = exportInfo
-      ? exportInfo.message
-      : "Upload artwork and enter a size to export a cropped JPEG you can attach to the email request.";
+    elements.qualityBadge.textContent = activeFeedback.label;
+    elements.qualityBadge.className = "quality-badge is-" + activeFeedback.status;
+    elements.downloadButton.disabled = !activeExportInfo;
+    elements.downloadNote.textContent = activeExportInfo
+      ? activeExportInfo.message + " This download applies to the selected artwork."
+      : "Upload artwork and enter a size to export the selected artwork as a cropped JPEG you can attach to the email request.";
     elements.prepFlowNote.classList.add("is-hidden");
     elements.prepFlowNote.textContent = "";
 
-    if (state.file && state.imageWidth && state.imageHeight) {
+    if (activeArtwork.file && activeArtwork.imageWidth && activeArtwork.imageHeight) {
       elements.fileMeta.classList.remove("is-muted");
       elements.fileMeta.textContent =
-        state.file.name +
+        activeArtwork.file.name +
         " · " +
-        state.imageWidth.toLocaleString() +
+        activeArtwork.imageWidth.toLocaleString() +
         " x " +
-        state.imageHeight.toLocaleString() +
+        activeArtwork.imageHeight.toLocaleString() +
         " px · best up to " +
         formatDimensions(maxWidthAt300, maxHeightAt300) +
         " at 300 PPI" +
-        (state.dimensionsAutoFilled ? " · size fields filled from this file" : "");
+        (activeArtwork.dimensionsAutoFilled ? " · size fields filled from this file" : "");
     } else {
       elements.fileMeta.classList.add("is-muted");
       elements.fileMeta.textContent =
         "Upload a file to see its pixel dimensions and recommended maximum print size at 300 PPI.";
     }
 
-    const projectType = elements.projectTypeSelect.value;
-    const qualityValue = formatQualityValue(feedback);
-    const primaryContact = getPrimaryContact();
-    elements.clientMessageBody.value = buildClientMessageDraft();
-
+    elements.clientMessageBody.value = buildClientMessageDraft(orderEstimate, invoicePricing);
     elements.summaryContent.innerHTML = "";
     elements.guidanceContent.innerHTML = "";
-    if (!(estimate.width > 0) || !(estimate.height > 0)) {
+
+    if (!orderEstimate.artworkCount) {
       elements.summaryContent.innerHTML =
-        '<p class="summary-empty">The requested size, quantity, material, and file quality will appear here as you fill out the form.</p>';
-      return;
+        '<p class="summary-empty">Add one or more artworks, then the order pricing, payout, quality checks, and invoice details will build here.</p>';
+    } else {
+      renderOrderSummary(orderEstimate, invoicePricing, activeArtwork);
     }
 
-    const summaryItems = [
-      ["Order type", getOrderModeLabel(getOrderMode())],
-      ["Material", estimate.material.label],
-      ["Requested size", formatDimensions(estimate.width, estimate.height)],
-      ["Sizing mode", getSizingModeLabel(estimate.width, estimate.height)],
-      ["Quantity", String(estimate.quantity)],
-      [getUnitLabel(estimate), formatMoney(estimate.unitPrice)],
-      ["Pricing basis", getPricingSourceLabel(estimate)],
-      ["Artwork file", state.file ? state.file.name : "Upload needed"],
-      ["File quality", qualityValue],
-      [
-        "Artwork fit",
-        sizingFeedback.cropPreview
-          ? "Crop preview active"
-          : sizingFeedback.needsPrep
-            ? "Sizing prep recommended"
-            : sizingFeedback.message || "Upload needed"
-      ]
-    ];
-
-    if (primaryContact.name) {
-      summaryItems.push([isInvoiceMode() ? "Artist" : "Contact", primaryContact.name]);
-    }
-
-    if (getArtworkTitle()) {
-      summaryItems.push(["Artwork title", getArtworkTitle()]);
-    }
-
-    if (sizingFeedback.cropPreview) {
-      summaryItems.push(["Crop position", getCropPositionText()]);
-    }
-
-    if (estimate.discountRate) {
-      summaryItems.push(["Quantity pricing", Math.round(estimate.discountRate * 100) + "% applied"]);
-    }
-
-    if (estimate.canvasOptions.canAddBorder) {
-      summaryItems.push(["Stretching border", formatEdgeStyle(estimate.canvasOptions)]);
-    }
-
-    if (estimate.canvasOptions.hasStretchingBorder) {
-      summaryItems.push(["Production size", formatDimensions(estimate.productionWidth, estimate.productionHeight)]);
-    }
-
-    if (!isInvoiceMode() && projectType) {
-      summaryItems.push(["Project type", projectType]);
-    }
-
-    if (!isInvoiceMode() && elements.artistToggle.checked) {
-      summaryItems.push(["Artist pricing", "Please review"]);
-    }
-
-    if (isInvoiceMode()) {
-      if (elements.clientNameInput.value.trim()) {
-        summaryItems.push(["Client", elements.clientNameInput.value.trim()]);
-      }
-
-      summaryItems.push(["Production cost", formatMoney(invoicePricing.productionCost)]);
-      summaryItems.push(["Recommended retail", formatMoney(invoicePricing.recommendedRetail)]);
-
-      if (invoicePricing.clientInvoiceAmount > 0) {
-        summaryItems.push(["Client invoice amount", formatMoney(invoicePricing.clientInvoiceAmount)]);
-        summaryItems.push(["Estimated artist payout", formatMoney(invoicePricing.artistPayout)]);
-      }
-
-      if (elements.payoutMethodSelect.value) {
-        const payoutDetails = elements.payoutHandleInput.value.trim();
-        summaryItems.push([
-          "Payout method",
-          payoutDetails ? elements.payoutMethodSelect.value + " · " + payoutDetails : elements.payoutMethodSelect.value
-        ]);
-      }
-    }
-
-    summaryItems.forEach(function (item) {
-      const wrap = document.createElement("dl");
-      wrap.className = "summary-item";
-      wrap.innerHTML = "<dt>" + item[0] + "</dt><dd>" + item[1] + "</dd>";
-      elements.summaryContent.appendChild(wrap);
-    });
-
-    if (sizingFeedback.cropPreview) {
+    if (activeSizingFeedback.cropPreview) {
       elements.prepFlowNote.textContent =
         "Need borders instead of a crop? Open the White Border Builder with this file loaded, make your adjustments there, then come back here with that prepared version before sending the request.";
       elements.prepFlowNote.classList.remove("is-hidden");
       renderGuidanceCard({
         title: "Want borders instead of a crop?",
         message:
-          "This preview is trimming the artwork to fit the requested size. If you would rather keep the full image with added border space, open the White Border Builder with this artwork already loaded and prep it there first.",
+          "This preview is trimming the selected artwork to fit the requested size. If you would rather keep the full image with added border space, open the White Border Builder with this artwork already loaded and prep it there first.",
         steps: [
           "Open the White Border Builder with this file loaded.",
           "Adjust the crop or add borders there.",
           "Download the prepared file from that tool.",
-          "Come back here and upload that prepared version before sending the invoice request."
+          "Come back here and keep building the invoice request."
         ],
         linkHref: WHITE_BORDER_BUILDER_IMPORT_URL,
         linkText: "Prepare file in White Border Builder",
         onClick: handOffToWhiteBorderBuilder
       });
-    } else if (sizingFeedback.needsPrep) {
+    } else if (activeSizingFeedback.needsPrep) {
       elements.prepFlowNote.textContent =
         "This file will work better if you prep it first. Open the White Border Builder with the artwork loaded, make the adjustment there, then come back here with that prepared version.";
       elements.prepFlowNote.classList.remove("is-hidden");
       renderGuidanceCard({
         title: "Prepare this file before ordering",
         message:
-          "The artwork shape does not match this print size closely enough yet. The easiest path is to open the White Border Builder with this file already loaded, prep it there, and then return here once that new version is ready.",
+          "The selected artwork shape does not match this print size closely enough yet. The easiest path is to open the White Border Builder with this file already loaded, prep it there, and then return here once that new version is ready.",
         steps: [
           "Open the White Border Builder with this file loaded.",
           "Add the border or framing space you want.",
           "Download the prepared file from that tool.",
-          "Return here and upload that prepared file before creating the invoice request."
+          "Return here and keep building the order with that prepared file."
         ],
         linkHref: WHITE_BORDER_BUILDER_IMPORT_URL,
         linkText: "Open White Border Builder to prep file",
@@ -1479,18 +1703,34 @@
       });
     }
 
-    if (!maxSizeFeedback.fits) {
+    if (!activeMaxSizeFeedback.fits) {
       renderGuidanceCard({
         title: "Size limit reached",
-        message: maxSizeFeedback.message,
+        message: activeMaxSizeFeedback.message,
         tone: "danger"
       });
     }
 
-    if (feedback.requiresReview) {
+    if (activeFeedback.requiresReview) {
       renderGuidanceCard({
         title: "Studio review required",
-        message: feedback.message,
+        message: activeFeedback.message,
+        tone: "danger"
+      });
+    }
+
+    const artworksMissingFiles = getStartedArtworks().filter(function (artwork) {
+      return !artwork.file;
+    });
+    if (artworksMissingFiles.length) {
+      renderGuidanceCard({
+        title: "Some artworks still need files",
+        message:
+          artworksMissingFiles
+            .map(function (artwork) {
+              return getArtworkLabel(artwork, getArtworkIndex(artwork));
+            })
+            .join(", ") + " still need uploaded files before the invoice request can be sent.",
         tone: "danger"
       });
     }
@@ -1503,6 +1743,19 @@
         tone: "danger"
       });
     }
+  }
+
+  function renderPreviewImage(artwork) {
+    if (artwork.objectUrl) {
+      elements.previewImage.src = artwork.objectUrl;
+      elements.previewImage.hidden = false;
+      elements.previewPlaceholder.classList.add("is-hidden");
+      return;
+    }
+
+    elements.previewImage.hidden = true;
+    elements.previewImage.removeAttribute("src");
+    elements.previewPlaceholder.classList.remove("is-hidden");
   }
 
   function updateSizeInputLimits(material) {
@@ -1529,10 +1782,10 @@
     elements.edgeColorField.classList.toggle("is-hidden", !showColorField);
   }
 
-  function renderRatioControls(estimate, sizingFeedback) {
-    const locked = isRatioLocked();
+  function renderRatioControls(artwork, estimate, sizingFeedback) {
+    const locked = isRatioLocked(artwork);
     const cropPreviewActive = Boolean(sizingFeedback.cropPreview);
-    const cropMetrics = cropPreviewActive ? getPreviewCropMetrics(estimate.width, estimate.height) : null;
+    const cropMetrics = cropPreviewActive ? getPreviewCropMetrics(artwork, estimate.width, estimate.height) : null;
     const canMoveX = Boolean(cropMetrics && cropMetrics.canMoveX);
     const canMoveY = Boolean(cropMetrics && cropMetrics.canMoveY);
     const cropControlsVisible = !locked;
@@ -1552,7 +1805,7 @@
     if (!cropControlsVisible) {
       elements.cropControlsNote.textContent =
         "Unlink the size if you want to enter a custom crop instead of preserving the uploaded artwork proportions.";
-    } else if (!state.file) {
+    } else if (!artwork.file) {
       elements.cropControlsNote.textContent =
         "Upload artwork to preview the crop. The sliders will activate when the requested shape differs from the file.";
     } else if (cropPreviewActive) {
@@ -1575,13 +1828,13 @@
     }
   }
 
-  function renderPreviewShape(estimate) {
+  function renderPreviewShape(artwork, estimate) {
     const hasRequestedSize = estimate.width > 0 && estimate.height > 0;
-    const previewWidth = hasRequestedSize ? estimate.width : state.imageWidth || 16;
-    const previewHeight = hasRequestedSize ? estimate.height : state.imageHeight || 20;
+    const previewWidth = hasRequestedSize ? estimate.width : artwork.imageWidth || 16;
+    const previewHeight = hasRequestedSize ? estimate.height : artwork.imageHeight || 20;
     const scaledSize = getScaledPreviewSize(previewWidth, previewHeight);
-    const cropPreviewActive = isCropPreviewActive(estimate.width, estimate.height);
-    const cropMetrics = cropPreviewActive ? getPreviewCropMetrics(estimate.width, estimate.height) : null;
+    const cropPreviewActive = isCropPreviewActive(artwork, estimate.width, estimate.height);
+    const cropMetrics = cropPreviewActive ? getPreviewCropMetrics(artwork, estimate.width, estimate.height) : null;
 
     elements.previewFrame.style.setProperty("--preview-frame-width", scaledSize.width + "px");
     elements.previewFrame.style.setProperty("--preview-frame-ratio", previewWidth + " / " + previewHeight);
@@ -1610,6 +1863,142 @@
         ? "Preview shown in the requested print ratio: " + formatDimensions(previewWidth, previewHeight)
         : "Preview shown in the uploaded artwork ratio"
     );
+  }
+
+  function renderOrderSummary(orderEstimate, invoicePricing, activeArtwork) {
+    const orderGroup = document.createElement("section");
+    orderGroup.className = "summary-group";
+
+    const orderTitle = document.createElement("p");
+    orderTitle.className = "summary-group-title";
+    orderTitle.textContent = "Order totals";
+    orderGroup.appendChild(orderTitle);
+
+    const orderCard = document.createElement("div");
+    orderCard.className = "summary-group-card";
+    appendSummaryItem(orderCard, "Order type", getOrderModeLabel(getOrderMode()));
+    appendSummaryItem(orderCard, "Artworks included", String(orderEstimate.artworkCount));
+    appendSummaryItem(orderCard, "Order production cost", formatMoney(orderEstimate.total));
+
+    if (isInvoiceMode()) {
+      appendSummaryItem(orderCard, "Recommended retail", formatMoney(invoicePricing.recommendedRetail));
+      appendSummaryItem(
+        orderCard,
+        "Client invoice amount",
+        invoicePricing.clientInvoiceAmount > 0 ? formatMoney(invoicePricing.clientInvoiceAmount) : "Waiting for amount"
+      );
+      appendSummaryItem(orderCard, "Estimated artist payout", formatMoney(invoicePricing.artistPayout));
+    } else {
+      if (elements.projectTypeSelect.value) {
+        appendSummaryItem(orderCard, "Project type", elements.projectTypeSelect.value);
+      }
+      if (elements.artistToggle.checked) {
+        appendSummaryItem(orderCard, "Artist pricing", "Please review");
+      }
+    }
+
+    const primaryContact = getPrimaryContact();
+    if (primaryContact.name) {
+      appendSummaryItem(orderCard, isInvoiceMode() ? "Artist" : "Contact", primaryContact.name);
+    }
+    if (isInvoiceMode() && elements.clientNameInput.value.trim()) {
+      appendSummaryItem(orderCard, "Client", elements.clientNameInput.value.trim());
+    }
+    if (getActiveNotes()) {
+      appendSummaryItem(orderCard, "Notes", getActiveNotes());
+    }
+
+    orderGroup.appendChild(orderCard);
+    elements.summaryContent.appendChild(orderGroup);
+
+    const artworksGroup = document.createElement("section");
+    artworksGroup.className = "summary-group";
+    const artworksTitle = document.createElement("p");
+    artworksTitle.className = "summary-group-title";
+    artworksTitle.textContent = "Artwork details";
+    artworksGroup.appendChild(artworksTitle);
+
+    orderEstimate.items.forEach(function (item) {
+      const artworkIndex = getArtworkIndex(item.artwork);
+      const card = document.createElement("div");
+      card.className = "summary-group-card" + (item.artwork.id === activeArtwork.id ? " is-active" : "");
+
+      const heading = document.createElement("div");
+      heading.className = "summary-group-heading";
+      const headingCopy = document.createElement("div");
+      const headingTitle = document.createElement("h4");
+      headingTitle.textContent = getArtworkLabel(item.artwork, artworkIndex);
+      headingCopy.appendChild(headingTitle);
+      const headingMeta = document.createElement("p");
+      headingMeta.textContent = item.artwork.file ? item.artwork.file.name : "File still needed";
+      headingCopy.appendChild(headingMeta);
+      heading.appendChild(headingCopy);
+
+      const badge = document.createElement("span");
+      badge.className = "summary-group-badge";
+      badge.textContent = item.artwork.id === activeArtwork.id ? "Selected" : "Artwork " + (artworkIndex + 1);
+      heading.appendChild(badge);
+      card.appendChild(heading);
+
+      appendSummaryItem(card, "Material", item.estimate.material.label);
+      appendSummaryItem(card, "Requested size", formatDimensions(item.estimate.width, item.estimate.height));
+      appendSummaryItem(card, "Sizing mode", getSizingModeLabel(item.artwork, item.estimate.width, item.estimate.height));
+      appendSummaryItem(card, "Quantity", String(item.estimate.quantity));
+      appendSummaryItem(card, getUnitLabel(item.estimate), formatMoney(item.estimate.unitPrice));
+      appendSummaryItem(card, "Pricing basis", getPricingSourceLabel(item.estimate));
+      appendSummaryItem(card, "Production cost", formatMoney(item.estimate.total));
+      appendSummaryItem(
+        card,
+        "Artwork file",
+        item.artwork.file ? item.artwork.file.name : "Upload needed before sending"
+      );
+      appendSummaryItem(card, "File quality", formatQualityValue(item.resolutionFeedback));
+      appendSummaryItem(
+        card,
+        "Artwork fit",
+        item.sizingFeedback.cropPreview
+          ? "Crop preview active"
+          : item.sizingFeedback.needsPrep
+          ? "Sizing prep recommended"
+          : item.sizingFeedback.message || "Upload needed"
+      );
+
+      if (item.sizingFeedback.cropPreview) {
+        appendSummaryItem(card, "Crop position", getCropPositionText(item.artwork));
+      }
+
+      if (item.estimate.discountRate) {
+        appendSummaryItem(card, "Quantity pricing", Math.round(item.estimate.discountRate * 100) + "% applied");
+      }
+
+      if (item.estimate.canvasOptions.canAddBorder) {
+        appendSummaryItem(card, "Stretching border", formatEdgeStyle(item.estimate.canvasOptions));
+      }
+
+      if (item.estimate.canvasOptions.hasStretchingBorder) {
+        appendSummaryItem(
+          card,
+          "Production size",
+          formatDimensions(item.estimate.productionWidth, item.estimate.productionHeight)
+        );
+      }
+
+      artworksGroup.appendChild(card);
+    });
+
+    elements.summaryContent.appendChild(artworksGroup);
+  }
+
+  function appendSummaryItem(container, label, value) {
+    const wrap = document.createElement("dl");
+    wrap.className = "summary-item";
+    const term = document.createElement("dt");
+    term.textContent = label;
+    const detail = document.createElement("dd");
+    detail.textContent = value;
+    wrap.appendChild(term);
+    wrap.appendChild(detail);
+    container.appendChild(wrap);
   }
 
   function renderGuidanceCard(options) {
@@ -1653,27 +2042,36 @@
   }
 
   function validateRequest() {
-    const estimate = calculateEstimate();
-    const invoicePricing = getInvoicePricing(estimate);
-    const maxSizeFeedback = getMaxSizeFeedback(estimate);
-    if (!state.file) {
-      return "Please upload the artwork before preparing the quote request.";
+    const orderEstimate = calculateOrderEstimate();
+    const invoicePricing = getInvoicePricing(orderEstimate);
+
+    if (!orderEstimate.artworkCount) {
+      return "Please add at least one artwork before preparing the invoice request.";
     }
-    if (!(estimate.width > 0) || !(estimate.height > 0)) {
-      return "Please enter the custom width and height you want quoted.";
-    }
-    if (!maxSizeFeedback.fits) {
-      return maxSizeFeedback.message;
-    }
-    if (estimate.canvasOptions.hasStretchingBorder && !(estimate.canvasOptions.borderDepth > 0)) {
-      return "Please enter the stretching border depth for this canvas request.";
-    }
-    if (
-      estimate.canvasOptions.hasStretchingBorder &&
-      estimate.canvasOptions.edgeStyle === "color" &&
-      !estimate.canvasOptions.edgeColor
-    ) {
-      return "Please describe the color edge request for the canvas stretching border.";
+
+    for (let index = 0; index < orderEstimate.items.length; index += 1) {
+      const item = orderEstimate.items[index];
+      const artworkLabel = getArtworkLabel(item.artwork, getArtworkIndex(item.artwork));
+
+      if (!item.artwork.file) {
+        return "Please upload the file for " + artworkLabel + " before sending the invoice request.";
+      }
+      if (!(item.estimate.width > 0) || !(item.estimate.height > 0)) {
+        return "Please enter the width and height for " + artworkLabel + ".";
+      }
+      if (!item.maxSizeFeedback.fits) {
+        return artworkLabel + ": " + item.maxSizeFeedback.message;
+      }
+      if (item.estimate.canvasOptions.hasStretchingBorder && !(item.estimate.canvasOptions.borderDepth > 0)) {
+        return "Please enter the stretching border depth for " + artworkLabel + ".";
+      }
+      if (
+        item.estimate.canvasOptions.hasStretchingBorder &&
+        item.estimate.canvasOptions.edgeStyle === "color" &&
+        !item.estimate.canvasOptions.edgeColor
+      ) {
+        return "Please describe the color edge request for " + artworkLabel + ".";
+      }
     }
 
     if (isInvoiceMode()) {
@@ -1701,125 +2099,179 @@
     return "";
   }
 
-  function buildClientMessageDraft() {
-    const estimate = calculateEstimate();
-    const invoicePricing = getInvoicePricing(estimate);
+  function buildClientMessageDraft(orderEstimate, invoicePricing) {
     const artistName = elements.artistNameInput.value.trim();
     const clientName = elements.clientNameInput.value.trim();
-    const artworkTitle = getArtworkTitle();
-    const quantityLabel = estimate.quantity === 1 ? "1 print" : estimate.quantity + " prints";
-    const sizeLabel =
-      estimate.width > 0 && estimate.height > 0 ? formatDimensions(estimate.width, estimate.height) : "the requested size";
-    const materialLabel = estimate.material ? estimate.material.label : "the selected material";
-    const totalLabel =
-      invoicePricing.clientInvoiceAmount > 0 ? formatMoney(invoicePricing.clientInvoiceAmount) : "the agreed amount";
     const greeting = clientName ? "Hi " + clientName + "," : "Hi,";
-    const artworkLabel = artworkTitle ? '"' + artworkTitle + '"' : "this artwork";
     const signoffName = artistName || "The artist";
 
-    return [
-      greeting,
-      "",
-      "Monochrome Canvas is my trusted print partner for this order.",
-      "You will be receiving an invoice from Monochrome Canvas for " +
-        artworkLabel +
-        ": " +
-        quantityLabel +
-        ", " +
-        sizeLabel +
-        ", on " +
-        materialLabel +
-        ", totaling " +
-        totalLabel +
-        ".",
-      "Monochrome Canvas uses museum-quality giclee printing and archival materials and practices for these reproductions.",
-      "",
-      "Printing begins once the invoice has been paid, so payment is what moves the order into production.",
-      "If you have any questions about the process, materials, or timing, please feel free to reach out.",
-      "",
-      "Thank you,",
-      signoffName
-    ].join("\n");
+    if (!orderEstimate.artworkCount) {
+      return [
+        greeting,
+        "",
+        "Monochrome Canvas is my trusted print partner.",
+        "Once I finish building the order details, Monochrome Canvas will send your invoice directly.",
+        "",
+        "Thank you,",
+        signoffName
+      ].join("\n");
+    }
+
+    const lines = [greeting, "", "Monochrome Canvas is my trusted print partner for this order."];
+
+    if (orderEstimate.artworkCount === 1) {
+      const item = orderEstimate.items[0];
+      const artworkLabel = item.artwork.title ? '"' + item.artwork.title + '"' : "this artwork";
+      const quantityLabel = item.estimate.quantity === 1 ? "1 print" : item.estimate.quantity + " prints";
+      const totalLabel =
+        invoicePricing.clientInvoiceAmount > 0 ? formatMoney(invoicePricing.clientInvoiceAmount) : "the agreed amount";
+
+      lines.push(
+        "You will be receiving an invoice from Monochrome Canvas for " +
+          artworkLabel +
+          ": " +
+          quantityLabel +
+          ", " +
+          formatDimensions(item.estimate.width, item.estimate.height) +
+          ", on " +
+          item.estimate.material.label +
+          ", totaling " +
+          totalLabel +
+          "."
+      );
+    } else {
+      lines.push("You will be receiving an invoice from Monochrome Canvas for the following artworks:");
+      lines.push("");
+      orderEstimate.items.forEach(function (item, index) {
+        lines.push(
+          (index + 1) +
+            ". " +
+            getArtworkLabel(item.artwork, getArtworkIndex(item.artwork)) +
+            " - " +
+            item.estimate.quantity +
+            " x " +
+            formatDimensions(item.estimate.width, item.estimate.height) +
+            " on " +
+            item.estimate.material.label
+        );
+      });
+      lines.push("");
+      if (invoicePricing.clientInvoiceAmount > 0) {
+        lines.push("The total invoice amount will be " + formatMoney(invoicePricing.clientInvoiceAmount) + ".");
+      }
+    }
+
+    lines.push(
+      "Monochrome Canvas uses museum-quality giclee printing and archival materials and practices for these reproductions."
+    );
+    lines.push("");
+    lines.push("Printing begins once the invoice has been paid, so payment is what moves the order into production.");
+    lines.push("If you have any questions about the process, materials, or timing, please feel free to reach out.");
+    lines.push("");
+    lines.push("Thank you,");
+    lines.push(signoffName);
+
+    return lines.join("\n");
   }
 
   function buildEmailDraft() {
-    const estimate = calculateEstimate();
-    const invoicePricing = getInvoicePricing(estimate);
-    const feedback = getResolutionFeedback(estimate.width, estimate.height);
-    const sizingFeedback = getSizingFeedback(estimate.width, estimate.height);
+    const orderEstimate = calculateOrderEstimate();
+    const invoicePricing = getInvoicePricing(orderEstimate);
     const primaryContact = getPrimaryContact();
+    const artworkCount = orderEstimate.artworkCount;
     const subjectPrefix = isInvoiceMode() ? "Invoice my client" : "Custom size quote request";
-    const subject =
-      subjectPrefix +
-      " | " +
-      estimate.material.label +
-      " | " +
-      formatDimensions(estimate.width, estimate.height) +
-      " | Qty " +
-      estimate.quantity;
-    const bodyLines = [
-      "Hi Joëlle,",
-      ""
-    ];
+    let subject = subjectPrefix;
+
+    if (artworkCount === 1) {
+      const item = orderEstimate.items[0];
+      subject +=
+        " | " +
+        item.estimate.material.label +
+        " | " +
+        formatDimensions(item.estimate.width, item.estimate.height) +
+        " | Qty " +
+        item.estimate.quantity;
+    } else if (artworkCount > 1) {
+      subject += " | " + artworkCount + " artworks";
+    }
+
+    if (isInvoiceMode() && elements.clientNameInput.value.trim()) {
+      subject += " | " + elements.clientNameInput.value.trim();
+    }
+
+    const bodyLines = ["Hi Joëlle,", ""];
 
     if (isInvoiceMode()) {
-      bodyLines.push("I would like Monochrome Canvas to invoice my client for the request below.");
+      bodyLines.push("I would like Monochrome Canvas to invoice my client for the order below.");
       bodyLines.push("");
       bodyLines.push("Artist name: " + primaryContact.name);
       bodyLines.push("Artist email: " + primaryContact.email);
-      if (getArtworkTitle()) {
-        bodyLines.push("Artwork title: " + getArtworkTitle());
-      }
       bodyLines.push("Client name: " + elements.clientNameInput.value.trim());
       bodyLines.push("Client email: " + elements.clientEmailInput.value.trim());
       bodyLines.push(
         "Payout method: " + elements.payoutMethodSelect.value + " (" + elements.payoutHandleInput.value.trim() + ")"
       );
-    } else {
-      bodyLines.push("I would like a custom size quote from Monochrome Canvas for the request below.");
-      bodyLines.push("");
-      bodyLines.push("Customer name: " + primaryContact.name);
-      bodyLines.push("Customer email: " + primaryContact.email);
-    }
-
-    bodyLines.push("Artwork file: " + (state.file ? state.file.name + " (attach before sending)" : "Will attach before sending"));
-    bodyLines.push("Material: " + estimate.material.label);
-    bodyLines.push("Requested size: " + formatDimensions(estimate.width, estimate.height));
-    bodyLines.push("Print quality: " + formatQualityValue(feedback));
-    bodyLines.push("Sizing mode: " + getSizingModeLabel(estimate.width, estimate.height));
-    bodyLines.push("Quantity: " + estimate.quantity);
-    bodyLines.push(getUnitLabel(estimate) + ": " + formatMoney(estimate.unitPrice));
-    bodyLines.push("Pricing basis: " + getPricingSourceLabel(estimate));
-    bodyLines.push((isInvoiceMode() ? "Production cost" : "Quote estimate") + ": " + formatMoney(estimate.total));
-
-    if (isInvoiceMode()) {
+      bodyLines.push("Artworks included: " + artworkCount);
+      bodyLines.push("Order production cost: " + formatMoney(orderEstimate.total));
       bodyLines.push("Recommended starting retail: " + formatMoney(invoicePricing.recommendedRetail));
       bodyLines.push("Client invoice amount: " + formatMoney(invoicePricing.clientInvoiceAmount));
       bodyLines.push("Estimated artist payout: " + formatMoney(invoicePricing.artistPayout));
+    } else {
+      bodyLines.push("I would like a custom size quote from Monochrome Canvas for the order below.");
+      bodyLines.push("");
+      bodyLines.push("Customer name: " + primaryContact.name);
+      bodyLines.push("Customer email: " + primaryContact.email);
+      bodyLines.push("Artworks included: " + artworkCount);
+      bodyLines.push("Order estimate: " + formatMoney(orderEstimate.total));
     }
 
-    bodyLines.push(
-      "Artwork fit: " +
-        (sizingFeedback.cropPreview
-          ? "Crop preview active."
-          : sizingFeedback.needsPrep
-          ? "Sizing prep recommended in the White Border Builder before printing."
-          : sizingFeedback.message || "Not checked")
-    );
+    orderEstimate.items.forEach(function (item, index) {
+      bodyLines.push("");
+      bodyLines.push("Artwork " + (index + 1) + ": " + getArtworkLabel(item.artwork, getArtworkIndex(item.artwork)));
+      bodyLines.push(
+        "Artwork file: " +
+          (item.artwork.file ? item.artwork.file.name + " (attach before sending)" : "Will attach before sending")
+      );
+      bodyLines.push("Material: " + item.estimate.material.label);
+      bodyLines.push("Requested size: " + formatDimensions(item.estimate.width, item.estimate.height));
+      bodyLines.push("Print quality: " + formatQualityValue(item.resolutionFeedback));
+      bodyLines.push("Sizing mode: " + getSizingModeLabel(item.artwork, item.estimate.width, item.estimate.height));
+      bodyLines.push("Quantity: " + item.estimate.quantity);
+      bodyLines.push(getUnitLabel(item.estimate) + ": " + formatMoney(item.estimate.unitPrice));
+      bodyLines.push("Pricing basis: " + getPricingSourceLabel(item.estimate));
+      bodyLines.push("Production cost: " + formatMoney(item.estimate.total));
+      bodyLines.push(
+        "Artwork fit: " +
+          (item.sizingFeedback.cropPreview
+            ? "Crop preview active."
+            : item.sizingFeedback.needsPrep
+            ? "Sizing prep recommended in the White Border Builder before printing."
+            : item.sizingFeedback.message || "Not checked")
+      );
 
-    if (sizingFeedback.cropPreview) {
-      bodyLines.push("Crop position: " + getCropPositionText());
-    }
+      if (item.artwork.title) {
+        bodyLines.push("Artwork title: " + item.artwork.title);
+      }
 
-    if (estimate.canvasOptions.canAddBorder) {
-      bodyLines.push("Canvas stretching border: " + formatEdgeStyle(estimate.canvasOptions));
-    }
+      if (item.sizingFeedback.cropPreview) {
+        bodyLines.push("Crop position: " + getCropPositionText(item.artwork));
+      }
 
-    if (estimate.discountRate) {
-      bodyLines.push("Quantity pricing: " + Math.round(estimate.discountRate * 100) + "% applied");
-    }
+      if (item.estimate.canvasOptions.canAddBorder) {
+        bodyLines.push("Canvas stretching border: " + formatEdgeStyle(item.estimate.canvasOptions));
+      }
+
+      if (item.estimate.canvasOptions.hasStretchingBorder) {
+        bodyLines.push("Production size: " + formatDimensions(item.estimate.productionWidth, item.estimate.productionHeight));
+      }
+
+      if (item.estimate.discountRate) {
+        bodyLines.push("Quantity pricing: " + Math.round(item.estimate.discountRate * 100) + "% applied");
+      }
+    });
 
     if (!isInvoiceMode() && elements.projectTypeSelect.value) {
+      bodyLines.push("");
       bodyLines.push("Project type: " + elements.projectTypeSelect.value);
     }
 
@@ -1828,12 +2280,13 @@
     }
 
     if (getActiveNotes()) {
+      bodyLines.push("");
       bodyLines.push("Notes: " + getActiveNotes());
     }
 
     bodyLines.push("");
     if (isInvoiceMode()) {
-      bodyLines.push("If the file is approved for printing, please send the invoice to the client email listed above.");
+      bodyLines.push("If the files are approved for printing, please send the invoice to the client email listed above.");
       bodyLines.push(
         "Please send the artist payout through " +
           elements.payoutMethodSelect.value +
@@ -1842,7 +2295,7 @@
           " after payment is received."
       );
     } else {
-      bodyLines.push("Please reply to the customer email listed above if the file is approved for printing.");
+      bodyLines.push("Please reply to the customer email listed above if the files are approved for printing.");
     }
     bodyLines.push("");
     bodyLines.push("Thank you,");
@@ -1894,7 +2347,10 @@
   }
 
   function copyClientMessage() {
-    const message = buildClientMessageDraft();
+    const orderEstimate = calculateOrderEstimate();
+    const invoicePricing = getInvoicePricing(orderEstimate);
+    const message = buildClientMessageDraft(orderEstimate, invoicePricing);
+
     if (!navigator.clipboard || !navigator.clipboard.writeText) {
       showMessage("Copy is not available in this browser. You can still select and copy the client note manually.", true);
       return;
@@ -1981,6 +2437,7 @@
 
   async function importPreparedArtworkTransfer(preparedFile) {
     const incomingFile = preparedFile.file || preparedFile.blob || null;
+    const artwork = getActiveArtwork();
     let file = null;
 
     if (incomingFile instanceof File) {
@@ -1996,10 +2453,11 @@
       throw new Error("Prepared file payload missing");
     }
 
-    await loadFileIntoState(file);
+    await loadFileIntoArtwork(file, artwork);
+    populateActiveArtworkInputs();
     render();
     showMessage(
-      "Prepared file loaded from the White Border Builder. You can download it here, request a custom quote, or adjust the order details before sending.",
+      "Prepared file loaded from the White Border Builder into the selected artwork. You can keep building the order, download it here, or send the invoice request when ready.",
       false
     );
   }
@@ -2090,8 +2548,8 @@
     }
   }
 
-  async function saveCurrentFileForWhiteBorderBuilder() {
-    if (!state.file) {
+  async function saveCurrentFileForWhiteBorderBuilder(artwork) {
+    if (!artwork.file) {
       throw new Error("No file available for White Border Builder handoff");
     }
 
@@ -2104,8 +2562,8 @@
         store.put(
           {
             source: "invoice-my-client",
-            filename: state.file.name || "invoice-artwork",
-            blob: state.file,
+            filename: artwork.file.name || "invoice-artwork",
+            blob: artwork.file,
             createdAt: Date.now()
           },
           WHITE_BORDER_BUILDER_FILE_KEY
@@ -2156,10 +2614,12 @@
         lastModified: record.createdAt || Date.now()
       });
 
-      await loadFileIntoState(importedFile);
+      const artwork = getActiveArtwork();
+      await loadFileIntoArtwork(importedFile, artwork);
+      populateActiveArtworkInputs();
       render();
       showMessage(
-        "Prepared file loaded from the White Border Builder. You can download it here, request a custom quote, or adjust the order details before sending.",
+        "Prepared file loaded from the White Border Builder into the selected artwork. You can download it here, keep building the order, or send the invoice request when ready.",
         false
       );
     } catch (error) {
@@ -2181,8 +2641,8 @@
     elements.emailDialog.classList.add("is-hidden");
   }
 
-  function buildExportFilename(estimate) {
-    const baseName = state.file ? state.file.name.replace(/\.[^.]+$/, "") : "custom-print";
+  function buildExportFilename(artwork, estimate) {
+    const baseName = artwork.file ? artwork.file.name.replace(/\.[^.]+$/, "") : "custom-print";
     return (
       baseName +
       "-" +
@@ -2193,12 +2653,13 @@
     );
   }
 
-  function loadExportImage() {
-    if (elements.previewImage.complete && elements.previewImage.naturalWidth) {
-      return Promise.resolve(elements.previewImage);
-    }
-
+  function loadExportImage(artwork) {
     return new Promise(function (resolve, reject) {
+      if (!artwork.objectUrl) {
+        reject(new Error("No image to export."));
+        return;
+      }
+
       const image = new Image();
       image.onload = function () {
         resolve(image);
@@ -2206,7 +2667,7 @@
       image.onerror = function () {
         reject(new Error("Image did not load."));
       };
-      image.src = state.objectUrl;
+      image.src = artwork.objectUrl;
     });
   }
 
@@ -2224,15 +2685,16 @@
   }
 
   function handleDownload() {
-    const estimate = calculateEstimate();
-    const exportInfo = getExportInfo(estimate);
+    const artwork = getActiveArtwork();
+    const estimate = calculateArtworkEstimate(artwork);
+    const exportInfo = getExportInfo(artwork, estimate);
 
     if (!exportInfo) {
       showMessage("Upload artwork and enter a size before downloading the cropped JPEG.", true);
       return;
     }
 
-    loadExportImage()
+    loadExportImage(artwork)
       .then(function (image) {
         const canvas = document.createElement("canvas");
         canvas.width = exportInfo.exportWidth;
@@ -2266,8 +2728,12 @@
               return;
             }
 
-            triggerBlobDownload(blob, buildExportFilename(estimate));
-            showMessage("Print JPEG downloaded. Attach it to the email request you send to the studio.", false);
+            triggerBlobDownload(blob, buildExportFilename(artwork, estimate));
+            showMessage(
+              getArtworkLabel(artwork, getArtworkIndex(artwork)) +
+                " was downloaded as a print JPEG. Attach it to the email request you send to the studio.",
+              false
+            );
           },
           "image/jpeg",
           0.92
@@ -2288,14 +2754,15 @@
   }
 
   async function handOffToWhiteBorderBuilder(event) {
-    if (!state.file) {
+    const artwork = getActiveArtwork();
+    if (!artwork.file) {
       return;
     }
 
     event.preventDefault();
 
     try {
-      await saveCurrentFileForWhiteBorderBuilder();
+      await saveCurrentFileForWhiteBorderBuilder(artwork);
     } catch (error) {
       showMessage(
         "The current file could not be sent into the White Border Builder automatically. You can still open it and upload the artwork there.",
@@ -2308,9 +2775,8 @@
       return;
     }
 
-    const destination = event.currentTarget && event.currentTarget.href
-      ? event.currentTarget.href
-      : WHITE_BORDER_BUILDER_IMPORT_URL;
+    const destination =
+      event.currentTarget && event.currentTarget.href ? event.currentTarget.href : WHITE_BORDER_BUILDER_IMPORT_URL;
     const builderWindow = window.open(destination, "_blank", "noopener");
 
     if (builderWindow && typeof builderWindow.focus === "function") {
@@ -2351,8 +2817,9 @@
   }
 
   function setCropFromClientPoint(clientX, clientY) {
-    const estimate = calculateEstimate();
-    if (!isCropPreviewActive(estimate.width, estimate.height)) {
+    const artwork = getActiveArtwork();
+    const estimate = calculateArtworkEstimate(artwork);
+    if (!isCropPreviewActive(artwork, estimate.width, estimate.height)) {
       return;
     }
 
@@ -2360,8 +2827,10 @@
     const x = clamp(((clientX - rect.left) / rect.width) * 100, 0, 100);
     const y = clamp(((clientY - rect.top) / rect.height) * 100, 0, 100);
 
-    elements.cropXInput.value = String(Math.round(x));
-    elements.cropYInput.value = String(Math.round(y));
+    artwork.cropX = String(Math.round(x));
+    artwork.cropY = String(Math.round(y));
+    elements.cropXInput.value = artwork.cropX;
+    elements.cropYInput.value = artwork.cropY;
     render();
   }
 
@@ -2377,8 +2846,9 @@
     };
 
     elements.previewFrame.addEventListener("pointerdown", function (event) {
-      const estimate = calculateEstimate();
-      if (!isCropPreviewActive(estimate.width, estimate.height)) {
+      const artwork = getActiveArtwork();
+      const estimate = calculateArtworkEstimate(artwork);
+      if (!isCropPreviewActive(artwork, estimate.width, estimate.height)) {
         return;
       }
 
@@ -2388,7 +2858,7 @@
         setCropFromClientPoint(event.clientX, event.clientY);
       } else if (state.activePointers.size === 2) {
         state.pinchStartDistance = getPointerDistance();
-        state.pinchStartScale = getCropScale();
+        state.pinchStartScale = getCropScale(artwork);
       }
     });
 
@@ -2398,11 +2868,13 @@
       }
 
       state.activePointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+      const artwork = getActiveArtwork();
 
       if (state.activePointers.size >= 2 && state.pinchStartDistance) {
         const distance = getPointerDistance();
         const nextScale = clamp((distance / state.pinchStartDistance) * state.pinchStartScale, 1, 3);
-        elements.cropZoomInput.value = nextScale.toFixed(2);
+        artwork.cropZoom = nextScale.toFixed(2);
+        elements.cropZoomInput.value = artwork.cropZoom;
         const pointers = Array.from(state.activePointers.values());
         setCropFromClientPoint((pointers[0].x + pointers[1].x) / 2, (pointers[0].y + pointers[1].y) / 2);
         return;

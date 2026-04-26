@@ -48,11 +48,31 @@
           <section class="controls-pane" aria-label="Custom quote request form">
             <div class="stack-block">
               <h3>1. Upload artwork</h3>
+              <div class="artwork-manager">
+                <div class="artwork-manager-header">
+                  <div>
+                    <p class="section-label">Order artworks</p>
+                    <h4>Up to five artworks in one invoice request</h4>
+                  </div>
+                  <div class="artwork-manager-actions">
+                    <button id="addArtworkButton" class="swap-button" type="button">
+                      Add artwork
+                    </button>
+                    <button id="removeArtworkButton" class="swap-button" type="button">
+                      Remove selected
+                    </button>
+                  </div>
+                </div>
+                <div id="artworkTabs" class="artwork-tabs" role="tablist" aria-label="Order artworks"></div>
+                <p id="artworkManagerNote" class="field-note">
+                  Each artwork keeps its own file, crop, material, size, quantity, and download/export settings.
+                </p>
+              </div>
               <label class="upload-drop" for="fileInput">
                 <input id="fileInput" type="file" accept="image/png,image/jpeg,image/webp">
                 <span class="upload-title">Choose a JPG, PNG, or WebP file</span>
                 <span class="upload-copy">
-                  Upload the artwork you want quoted. We will auto-fill the 300 PPI print size, then you can adjust it if you want a different finished size.
+                  Upload the selected artwork. We will auto-fill the 300 PPI print size, then you can adjust it if you want a different finished size.
                 </span>
               </label>
               <div id="fileMeta" class="meta-panel is-muted">
@@ -63,6 +83,14 @@
             <div class="stack-block">
               <h3>2. Enter the print details</h3>
               <div class="field-grid">
+                <label class="field field--wide">
+                  <span>Artwork title (optional)</span>
+                  <input
+                    id="artworkTitleInput"
+                    type="text"
+                    placeholder="Helpful for your client note and studio reference"
+                  >
+                </label>
                 <label class="field field--wide">
                   <span>Material</span>
                   <select id="materialSelect"></select>
@@ -220,14 +248,6 @@
                     <span>Artist email</span>
                     <input id="artistEmailInput" type="email" autocomplete="email" placeholder="you@example.com">
                   </label>
-                  <label class="field field--wide">
-                    <span>Artwork title (optional)</span>
-                    <input
-                      id="artworkTitleInput"
-                      type="text"
-                      placeholder="Helpful for your client note and studio reference"
-                    >
-                  </label>
                   <label class="field">
                     <span>Client name</span>
                     <input id="clientNameInput" type="text" placeholder="Client name">
@@ -318,14 +338,14 @@
               </div>
               <div class="action-row">
                 <button id="downloadButton" class="swap-button swap-button--strong" type="button">
-                  Download Print JPEG
+                  Download Selected Print JPEG
                 </button>
                 <button id="prepareButton" class="download-button" type="button">
                   Create Email Request
                 </button>
               </div>
               <p id="downloadNote" class="field-note">
-                Export a cropped JPEG that matches the requested proportions, ready to attach to your email request.
+                Export the selected artwork as a cropped JPEG that matches the requested proportions, ready to attach to your email request.
               </p>
               <p id="prepFlowNote" class="field-note is-hidden"></p>
               <div>
