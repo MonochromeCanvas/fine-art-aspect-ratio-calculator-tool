@@ -124,9 +124,7 @@
     pinchStartDistance: null,
     pinchStartScale: 1,
     lastPreparedTransferId: "",
-    orderMode: "invoice-client",
-    clientInvoiceAmountEdited: false,
-    lastRecommendedRetail: 0
+    orderMode: "invoice-client"
   };
 
   const elements = {
@@ -178,6 +176,8 @@
     invoiceNotesInput: document.getElementById("invoiceNotesInput"),
     productionCostValue: document.getElementById("productionCostValue"),
     recommendedRetailValue: document.getElementById("recommendedRetailValue"),
+    orderProductionCostValue: document.getElementById("orderProductionCostValue"),
+    orderInvoiceTotalValue: document.getElementById("orderInvoiceTotalValue"),
     artistPayoutValue: document.getElementById("artistPayoutValue"),
     artistPayoutNote: document.getElementById("artistPayoutNote"),
     qualityBadge: document.getElementById("qualityBadge"),
@@ -254,7 +254,10 @@
       canvasBorder: "none",
       borderDepth: DEFAULT_BORDER_DEPTH,
       edgeStyle: "white",
-      edgeColor: ""
+      edgeColor: "",
+      clientInvoiceAmount: "",
+      clientInvoiceAmountEdited: false,
+      lastRecommendedRetail: 0
     };
   }
 
@@ -283,6 +286,7 @@
       artwork.file ||
       artwork.title ||
       artwork.sizeFieldsEdited ||
+      String(artwork.clientInvoiceAmount || "").trim() ||
       artwork.materialSlug !== materials[0].slug ||
       artwork.quantity !== DEFAULT_QUANTITY ||
       artwork.canvasBorder !== "none" ||
@@ -366,11 +370,19 @@
     });
 
     elements.clientInvoiceAmountInput.addEventListener("input", function () {
-      state.clientInvoiceAmountEdited = true;
+      const artwork = getActiveArtwork();
+      if (artwork) {
+        artwork.clientInvoiceAmountEdited = true;
+        artwork.clientInvoiceAmount = elements.clientInvoiceAmountInput.value;
+      }
       render();
     });
     elements.clientInvoiceAmountInput.addEventListener("change", function () {
-      state.clientInvoiceAmountEdited = true;
+      const artwork = getActiveArtwork();
+      if (artwork) {
+        artwork.clientInvoiceAmountEdited = true;
+        artwork.clientInvoiceAmount = elements.clientInvoiceAmountInput.value;
+      }
       render();
     });
 
@@ -454,6 +466,7 @@
     artwork.cropX = elements.cropXInput.value;
     artwork.cropY = elements.cropYInput.value;
     artwork.cropZoom = elements.cropZoomInput.value;
+    artwork.clientInvoiceAmount = elements.clientInvoiceAmountInput.value;
   }
 
   function populateActiveArtworkInputs() {
@@ -476,6 +489,7 @@
     elements.cropXInput.value = artwork.cropX;
     elements.cropYInput.value = artwork.cropY;
     elements.cropZoomInput.value = artwork.cropZoom;
+    elements.clientInvoiceAmountInput.value = artwork.clientInvoiceAmount;
   }
 
   function getOrderMode() {
@@ -495,27 +509,41 @@
     render();
   }
 
-  function syncInvoiceAmount(orderEstimate) {
-    const recommendedRetail = roundMoney(orderEstimate.total * 2);
-    const currentValue = getNumericValue(elements.clientInvoiceAmountInput);
+  function syncArtworkInvoiceAmount(artwork, estimate) {
+    const recommendedRetail = roundMoney(estimate.total * 2);
+    const currentValue = getNumber(artwork.clientInvoiceAmount);
     const shouldAutofill =
-      !state.clientInvoiceAmountEdited ||
-      !elements.clientInvoiceAmountInput.value.trim() ||
-      Math.abs(currentValue - state.lastRecommendedRetail) < 0.01;
+      !artwork.clientInvoiceAmountEdited ||
+      !String(artwork.clientInvoiceAmount || "").trim() ||
+      Math.abs(currentValue - artwork.lastRecommendedRetail) < 0.01;
 
     if (shouldAutofill) {
-      elements.clientInvoiceAmountInput.value = formatMoneyInput(recommendedRetail);
-      state.clientInvoiceAmountEdited = false;
+      artwork.clientInvoiceAmount = formatMoneyInput(recommendedRetail);
+      artwork.clientInvoiceAmountEdited = false;
     }
 
-    state.lastRecommendedRetail = recommendedRetail;
-    return recommendedRetail;
+    artwork.lastRecommendedRetail = recommendedRetail;
+
+    return {
+      productionCost: estimate.total,
+      recommendedRetail: recommendedRetail,
+      clientInvoiceAmount: getNumber(artwork.clientInvoiceAmount),
+      artistPayout: roundMoney(getNumber(artwork.clientInvoiceAmount) - estimate.total)
+    };
   }
 
-  function getInvoicePricing(orderEstimate) {
+  function getOrderInvoicePricing(orderEstimate) {
     const productionCost = orderEstimate.total;
-    const recommendedRetail = syncInvoiceAmount(orderEstimate);
-    const clientInvoiceAmount = getNumericValue(elements.clientInvoiceAmountInput);
+    const recommendedRetail = roundMoney(
+      orderEstimate.items.reduce(function (sum, item) {
+        return sum + item.invoicePricing.recommendedRetail;
+      }, 0)
+    );
+    const clientInvoiceAmount = roundMoney(
+      orderEstimate.items.reduce(function (sum, item) {
+        return sum + item.invoicePricing.clientInvoiceAmount;
+      }, 0)
+    );
     const artistPayout = roundMoney(clientInvoiceAmount - productionCost);
 
     return {
@@ -1204,9 +1232,11 @@
   function calculateOrderEstimate() {
     const items = getStartedArtworks().map(function (artwork) {
       const estimate = calculateArtworkEstimate(artwork);
+      const invoicePricing = syncArtworkInvoiceAmount(artwork, estimate);
       return {
         artwork: artwork,
         estimate: estimate,
+        invoicePricing: invoicePricing,
         resolutionFeedback: getResolutionFeedback(artwork, estimate.width, estimate.height),
         sizingFeedback: getSizingFeedback(artwork, estimate.width, estimate.height),
         maxSizeFeedback: getMaxSizeFeedback(estimate)
@@ -1550,7 +1580,7 @@
       " is selected. Blank artworks are ignored until you start them.";
   }
 
-  function renderOrderMode(invoicePricing, orderEstimate) {
+  function renderOrderMode(selectedInvoicePricing, orderInvoicePricing, orderEstimate) {
     const invoiceMode = isInvoiceMode();
     const artworkLabel = orderEstimate.artworkCount === 1 ? "artwork file" : "artwork files";
 
@@ -1576,32 +1606,45 @@
       ? "Review the request below, then open your email draft and attach the artwork files before sending. This draft is addressed to joelle@monochromecanvas.com so the studio can invoice your client after review."
       : "Review the request below, then open your email draft and attach the artwork files before sending. This draft is addressed to joelle@monochromecanvas.com.";
 
-    elements.productionCostValue.textContent = formatMoney(invoicePricing.productionCost);
-    elements.recommendedRetailValue.textContent = formatMoney(invoicePricing.recommendedRetail);
-    elements.artistPayoutValue.textContent = formatMoney(invoicePricing.artistPayout);
+    elements.productionCostValue.textContent = formatMoney(selectedInvoicePricing.productionCost);
+    elements.recommendedRetailValue.textContent = formatMoney(selectedInvoicePricing.recommendedRetail);
+    elements.orderProductionCostValue.textContent = formatMoney(orderInvoicePricing.productionCost);
+    elements.orderInvoiceTotalValue.textContent = formatMoney(orderInvoicePricing.clientInvoiceAmount);
+    elements.artistPayoutValue.textContent = formatMoney(orderInvoicePricing.artistPayout);
     elements.artistPayoutNote.textContent =
-      invoicePricing.clientInvoiceAmount > 0 && invoicePricing.clientInvoiceAmount < invoicePricing.productionCost
-        ? "This invoice amount is below production cost. Raise the client invoice amount before sending."
-        : "The estimated artist payout is the client invoice amount minus Monochrome Canvas production cost.";
+      selectedInvoicePricing.clientInvoiceAmount > 0 &&
+      selectedInvoicePricing.clientInvoiceAmount < selectedInvoicePricing.productionCost
+        ? "This selected artwork is priced below its production cost. Raise it before sending the invoice request."
+        : "The estimated artist payout is the combined invoice total minus the combined Monochrome Canvas production cost.";
   }
 
   function render() {
     const activeArtwork = getActiveArtwork();
     const activeEstimate = calculateArtworkEstimate(activeArtwork);
+    const activeArtworkStarted = isArtworkStarted(activeArtwork);
+    const activeInvoicePricing = activeArtworkStarted
+      ? syncArtworkInvoiceAmount(activeArtwork, activeEstimate)
+      : {
+          productionCost: 0,
+          recommendedRetail: 0,
+          clientInvoiceAmount: 0,
+          artistPayout: 0
+        };
     const activeFeedback = getResolutionFeedback(activeArtwork, activeEstimate.width, activeEstimate.height);
     const activeSizingFeedback = getSizingFeedback(activeArtwork, activeEstimate.width, activeEstimate.height);
     const activeMaxSizeFeedback = getMaxSizeFeedback(activeEstimate);
     const activeExportInfo = getExportInfo(activeArtwork, activeEstimate);
     const orderEstimate = calculateOrderEstimate();
-    const invoicePricing = getInvoicePricing(orderEstimate);
+    const orderInvoicePricing = getOrderInvoicePricing(orderEstimate);
     const maxWidthAt300 = activeArtwork.imageWidth ? activeArtwork.imageWidth / 300 : null;
     const maxHeightAt300 = activeArtwork.imageHeight ? activeArtwork.imageHeight / 300 : null;
     const selectedMaterial = getSelectedMaterial(activeArtwork);
 
+    elements.clientInvoiceAmountInput.value = activeArtwork.clientInvoiceAmount;
     renderArtworkTabs();
     elements.materialDescription.textContent = selectedMaterial.description;
     updateSizeInputLimits(selectedMaterial);
-    renderOrderMode(invoicePricing, orderEstimate);
+    renderOrderMode(activeInvoicePricing, orderInvoicePricing, orderEstimate);
     renderCanvasOptions(activeEstimate);
     renderPreviewImage(activeArtwork);
     renderPreviewShape(activeArtwork, activeEstimate);
@@ -1615,7 +1658,7 @@
           ? orderEstimate.artworkCount + " artwork" + (orderEstimate.artworkCount === 1 ? " is" : "s are") + " currently included in this order."
           : "Start an artwork to build the order total.";
         const defaultMessage = isInvoiceMode()
-          ? "Recommended retail starts at 2x the production cost for the full order."
+          ? "Each artwork starts at 2x its production cost, and the order invoice total adds those artwork prices together."
           : "Final invoice is confirmed after studio review.";
         elements.estimateRange.textContent = [pricingSourceMessage, orderCountMessage, defaultMessage]
           .filter(Boolean)
@@ -1654,7 +1697,7 @@
         "Upload a file to see its pixel dimensions and recommended maximum print size at 300 PPI.";
     }
 
-    elements.clientMessageBody.value = buildClientMessageDraft(orderEstimate, invoicePricing);
+    elements.clientMessageBody.value = buildClientMessageDraft(orderEstimate, orderInvoicePricing);
     elements.summaryContent.innerHTML = "";
     elements.guidanceContent.innerHTML = "";
 
@@ -1662,7 +1705,7 @@
       elements.summaryContent.innerHTML =
         '<p class="summary-empty">Add one or more artworks, then the order pricing, payout, quality checks, and invoice details will build here.</p>';
     } else {
-      renderOrderSummary(orderEstimate, invoicePricing, activeArtwork);
+      renderOrderSummary(orderEstimate, orderInvoicePricing, activeArtwork);
     }
 
     if (activeSizingFeedback.cropPreview) {
@@ -1735,11 +1778,19 @@
       });
     }
 
-    if (isInvoiceMode() && invoicePricing.clientInvoiceAmount > 0 && invoicePricing.clientInvoiceAmount < invoicePricing.productionCost) {
+    const artworksPricedBelowCost = orderEstimate.items.filter(function (item) {
+      return item.invoicePricing.clientInvoiceAmount > 0 && item.invoicePricing.clientInvoiceAmount < item.invoicePricing.productionCost;
+    });
+    if (isInvoiceMode() && artworksPricedBelowCost.length) {
       renderGuidanceCard({
-        title: "Raise the client invoice amount",
+        title: "Raise the invoice amount for one or more artworks",
         message:
-          "The client invoice amount is below the current production cost for this order. Increase it before sending the invoice request so the studio is not quoting below cost.",
+          artworksPricedBelowCost
+            .map(function (item) {
+              return getArtworkLabel(item.artwork, getArtworkIndex(item.artwork));
+            })
+            .join(", ") +
+          " is currently priced below production cost. Increase those artwork invoice amounts before sending the request.",
         tone: "danger"
       });
     }
@@ -1865,7 +1916,7 @@
     );
   }
 
-  function renderOrderSummary(orderEstimate, invoicePricing, activeArtwork) {
+  function renderOrderSummary(orderEstimate, orderInvoicePricing, activeArtwork) {
     const orderGroup = document.createElement("section");
     orderGroup.className = "summary-group";
 
@@ -1881,13 +1932,13 @@
     appendSummaryItem(orderCard, "Order production cost", formatMoney(orderEstimate.total));
 
     if (isInvoiceMode()) {
-      appendSummaryItem(orderCard, "Recommended retail", formatMoney(invoicePricing.recommendedRetail));
+      appendSummaryItem(orderCard, "Recommended retail", formatMoney(orderInvoicePricing.recommendedRetail));
       appendSummaryItem(
         orderCard,
-        "Client invoice amount",
-        invoicePricing.clientInvoiceAmount > 0 ? formatMoney(invoicePricing.clientInvoiceAmount) : "Waiting for amount"
+        "Order invoice total",
+        orderInvoicePricing.clientInvoiceAmount > 0 ? formatMoney(orderInvoicePricing.clientInvoiceAmount) : "Waiting for pricing"
       );
-      appendSummaryItem(orderCard, "Estimated artist payout", formatMoney(invoicePricing.artistPayout));
+      appendSummaryItem(orderCard, "Estimated artist payout", formatMoney(orderInvoicePricing.artistPayout));
     } else {
       if (elements.projectTypeSelect.value) {
         appendSummaryItem(orderCard, "Project type", elements.projectTypeSelect.value);
@@ -1947,6 +1998,12 @@
       appendSummaryItem(card, getUnitLabel(item.estimate), formatMoney(item.estimate.unitPrice));
       appendSummaryItem(card, "Pricing basis", getPricingSourceLabel(item.estimate));
       appendSummaryItem(card, "Production cost", formatMoney(item.estimate.total));
+      appendSummaryItem(card, "Recommended retail", formatMoney(item.invoicePricing.recommendedRetail));
+      appendSummaryItem(
+        card,
+        "Client invoice amount",
+        item.invoicePricing.clientInvoiceAmount > 0 ? formatMoney(item.invoicePricing.clientInvoiceAmount) : "Waiting for pricing"
+      );
       appendSummaryItem(
         card,
         "Artwork file",
@@ -2043,7 +2100,7 @@
 
   function validateRequest() {
     const orderEstimate = calculateOrderEstimate();
-    const invoicePricing = getInvoicePricing(orderEstimate);
+    const orderInvoicePricing = getOrderInvoicePricing(orderEstimate);
 
     if (!orderEstimate.artworkCount) {
       return "Please add at least one artwork before preparing the invoice request.";
@@ -2072,6 +2129,12 @@
       ) {
         return "Please describe the color edge request for " + artworkLabel + ".";
       }
+      if (!(item.invoicePricing.clientInvoiceAmount > 0)) {
+        return "Please enter the client invoice amount for " + artworkLabel + ".";
+      }
+      if (item.invoicePricing.clientInvoiceAmount < item.invoicePricing.productionCost) {
+        return "Please raise the client invoice amount for " + artworkLabel + " so it is not below production cost.";
+      }
     }
 
     if (isInvoiceMode()) {
@@ -2084,11 +2147,8 @@
       if (!elements.payoutMethodSelect.value || !elements.payoutHandleInput.value.trim()) {
         return "Please add the payout method and payout handle so Monochrome Canvas knows how to pay the artist.";
       }
-      if (!(invoicePricing.clientInvoiceAmount > 0)) {
-        return "Please enter the client invoice amount you want Monochrome Canvas to send.";
-      }
-      if (invoicePricing.clientInvoiceAmount < invoicePricing.productionCost) {
-        return "Please raise the client invoice amount so it is not below the production cost for this order.";
+      if (!(orderInvoicePricing.clientInvoiceAmount > 0)) {
+        return "Please enter the client invoice amounts you want Monochrome Canvas to send.";
       }
       return "";
     }
@@ -2099,7 +2159,7 @@
     return "";
   }
 
-  function buildClientMessageDraft(orderEstimate, invoicePricing) {
+  function buildClientMessageDraft(orderEstimate, orderInvoicePricing) {
     const artistName = elements.artistNameInput.value.trim();
     const clientName = elements.clientNameInput.value.trim();
     const greeting = clientName ? "Hi " + clientName + "," : "Hi,";
@@ -2129,7 +2189,7 @@
       const artworkLabel = item.artwork.title ? '"' + item.artwork.title + '"' : '"' + getArtworkLabel(item.artwork, getArtworkIndex(item.artwork)) + '"';
       const quantityLabel = item.estimate.quantity + " print" + (item.estimate.quantity === 1 ? "" : "s");
       const totalLabel =
-        invoicePricing.clientInvoiceAmount > 0 ? formatMoney(invoicePricing.clientInvoiceAmount) : "the agreed amount";
+        item.invoicePricing.clientInvoiceAmount > 0 ? formatMoney(item.invoicePricing.clientInvoiceAmount) : "the agreed amount";
 
       lines.push(
         "You’ll receive an invoice from Monochrome Canvas for " +
@@ -2159,14 +2219,19 @@
             (item.estimate.quantity === 1 ? "" : "s") +
             ", " +
             formatDimensions(item.estimate.width, item.estimate.height) +
-            " on " +
+            ", on " +
             item.estimate.material.label +
+            ", totaling " +
+            (item.invoicePricing.clientInvoiceAmount > 0
+              ? formatMoney(item.invoicePricing.clientInvoiceAmount)
+              : "the agreed amount") +
             "."
         );
       });
       lines.push("");
-      if (invoicePricing.clientInvoiceAmount > 0) {
-        lines.push("Total invoice amount: " + formatMoney(invoicePricing.clientInvoiceAmount) + ".");
+      if (orderInvoicePricing.clientInvoiceAmount > 0) {
+        lines.push("Total invoice amount: " + formatMoney(orderInvoicePricing.clientInvoiceAmount) + ".");
+        lines.push("");
       }
     }
 
@@ -2185,7 +2250,7 @@
 
   function buildEmailDraft() {
     const orderEstimate = calculateOrderEstimate();
-    const invoicePricing = getInvoicePricing(orderEstimate);
+    const orderInvoicePricing = getOrderInvoicePricing(orderEstimate);
     const primaryContact = getPrimaryContact();
     const artworkCount = orderEstimate.artworkCount;
     const subjectPrefix = isInvoiceMode() ? "Invoice my client" : "Custom size quote request";
@@ -2222,9 +2287,9 @@
       );
       bodyLines.push("Artworks included: " + artworkCount);
       bodyLines.push("Order production cost: " + formatMoney(orderEstimate.total));
-      bodyLines.push("Recommended starting retail: " + formatMoney(invoicePricing.recommendedRetail));
-      bodyLines.push("Client invoice amount: " + formatMoney(invoicePricing.clientInvoiceAmount));
-      bodyLines.push("Estimated artist payout: " + formatMoney(invoicePricing.artistPayout));
+      bodyLines.push("Recommended starting retail: " + formatMoney(orderInvoicePricing.recommendedRetail));
+      bodyLines.push("Client invoice total: " + formatMoney(orderInvoicePricing.clientInvoiceAmount));
+      bodyLines.push("Estimated artist payout: " + formatMoney(orderInvoicePricing.artistPayout));
     } else {
       bodyLines.push("I would like a custom size quote from Monochrome Canvas for the order below.");
       bodyLines.push("");
@@ -2249,6 +2314,13 @@
       bodyLines.push(getUnitLabel(item.estimate) + ": " + formatMoney(item.estimate.unitPrice));
       bodyLines.push("Pricing basis: " + getPricingSourceLabel(item.estimate));
       bodyLines.push("Production cost: " + formatMoney(item.estimate.total));
+      bodyLines.push("Recommended retail: " + formatMoney(item.invoicePricing.recommendedRetail));
+      bodyLines.push(
+        "Client invoice amount: " +
+          (item.invoicePricing.clientInvoiceAmount > 0
+            ? formatMoney(item.invoicePricing.clientInvoiceAmount)
+            : "Waiting for pricing")
+      );
       bodyLines.push(
         "Artwork fit: " +
           (item.sizingFeedback.cropPreview
@@ -2357,8 +2429,8 @@
 
   function copyClientMessage() {
     const orderEstimate = calculateOrderEstimate();
-    const invoicePricing = getInvoicePricing(orderEstimate);
-    const message = buildClientMessageDraft(orderEstimate, invoicePricing);
+    const orderInvoicePricing = getOrderInvoicePricing(orderEstimate);
+    const message = buildClientMessageDraft(orderEstimate, orderInvoicePricing);
 
     if (!navigator.clipboard || !navigator.clipboard.writeText) {
       showMessage("Copy is not available in this browser. You can still select and copy the client note manually.", true);

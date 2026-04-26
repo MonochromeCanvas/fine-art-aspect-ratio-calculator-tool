@@ -274,17 +274,17 @@
                   <p class="section-label">Invoice Pricing</p>
                   <div class="invoice-pricing-grid">
                     <div class="invoice-pricing-stat">
-                      <span class="pricing-label">Production cost</span>
+                      <span class="pricing-label">Selected artwork cost</span>
                       <strong id="productionCostValue">$0.00</strong>
-                      <p class="field-note">Current order total at Monochrome Canvas pricing.</p>
+                      <p class="field-note">Monochrome Canvas production pricing for the artwork currently selected above.</p>
                     </div>
                     <div class="invoice-pricing-stat">
-                      <span class="pricing-label">Recommended starting retail</span>
+                      <span class="pricing-label">Selected artwork retail</span>
                       <strong id="recommendedRetailValue">$0.00</strong>
-                      <p class="field-note">Based on 2x the production cost for this order.</p>
+                      <p class="field-note">Recommended starting retail for the selected artwork, based on 2x production cost.</p>
                     </div>
                     <label class="field field--wide">
-                      <span>Client invoice amount</span>
+                      <span>Selected artwork client invoice amount</span>
                       <input
                         id="clientInvoiceAmountInput"
                         type="number"
@@ -294,11 +294,21 @@
                         placeholder="0.00"
                       >
                     </label>
+                    <div class="invoice-pricing-stat">
+                      <span class="pricing-label">Order production cost</span>
+                      <strong id="orderProductionCostValue">$0.00</strong>
+                      <p class="field-note">Combined Monochrome Canvas production cost for all included artworks.</p>
+                    </div>
+                    <div class="invoice-pricing-stat">
+                      <span class="pricing-label">Order invoice total</span>
+                      <strong id="orderInvoiceTotalValue">$0.00</strong>
+                      <p class="field-note">Combined client invoice amount across all included artworks in this order.</p>
+                    </div>
                     <div class="invoice-payout-callout field--wide">
                       <span class="pricing-label">Estimated artist payout</span>
                       <strong id="artistPayoutValue">$0.00</strong>
                       <p id="artistPayoutNote" class="field-note">
-                        The estimated artist payout is the client invoice amount minus Monochrome Canvas production cost.
+                        The estimated artist payout is the combined invoice total minus the combined Monochrome Canvas production cost.
                       </p>
                     </div>
                   </div>
