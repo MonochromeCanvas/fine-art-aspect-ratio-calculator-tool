@@ -2117,20 +2117,25 @@
       ].join("\n");
     }
 
-    const lines = [greeting, "", "Monochrome Canvas is my trusted print partner for this order."];
+    const lines = [
+      greeting,
+      "",
+      "For this order, I’m working with Monochrome Canvas as my print partner. They’ll be handling production and invoicing directly.",
+      ""
+    ];
 
     if (orderEstimate.artworkCount === 1) {
       const item = orderEstimate.items[0];
-      const artworkLabel = item.artwork.title ? '"' + item.artwork.title + '"' : "this artwork";
-      const quantityLabel = item.estimate.quantity === 1 ? "1 print" : item.estimate.quantity + " prints";
+      const artworkLabel = item.artwork.title ? '"' + item.artwork.title + '"' : '"' + getArtworkLabel(item.artwork, getArtworkIndex(item.artwork)) + '"';
+      const quantityLabel = item.estimate.quantity + " print" + (item.estimate.quantity === 1 ? "" : "s");
       const totalLabel =
         invoicePricing.clientInvoiceAmount > 0 ? formatMoney(invoicePricing.clientInvoiceAmount) : "the agreed amount";
 
       lines.push(
-        "You will be receiving an invoice from Monochrome Canvas for " +
+        "You’ll receive an invoice from Monochrome Canvas for " +
           artworkLabel +
-          ": " +
-          quantityLabel +
+          ":",
+        quantityLabel +
           ", " +
           formatDimensions(item.estimate.width, item.estimate.height) +
           ", on " +
@@ -2140,33 +2145,37 @@
           "."
       );
     } else {
-      lines.push("You will be receiving an invoice from Monochrome Canvas for the following artworks:");
-      lines.push("");
+      lines.push("You’ll receive an invoice from Monochrome Canvas for the following artworks:", "");
       orderEstimate.items.forEach(function (item, index) {
+        const artworkLabel = item.artwork.title
+          ? '"' + item.artwork.title + '"'
+          : '"' + getArtworkLabel(item.artwork, getArtworkIndex(item.artwork)) + '"';
         lines.push(
-          (index + 1) +
-            ". " +
-            getArtworkLabel(item.artwork, getArtworkIndex(item.artwork)) +
-            " - " +
+          "- " +
+            artworkLabel +
+            ": " +
             item.estimate.quantity +
-            " x " +
+            " print" +
+            (item.estimate.quantity === 1 ? "" : "s") +
+            ", " +
             formatDimensions(item.estimate.width, item.estimate.height) +
             " on " +
-            item.estimate.material.label
+            item.estimate.material.label +
+            "."
         );
       });
       lines.push("");
       if (invoicePricing.clientInvoiceAmount > 0) {
-        lines.push("The total invoice amount will be " + formatMoney(invoicePricing.clientInvoiceAmount) + ".");
+        lines.push("Total invoice amount: " + formatMoney(invoicePricing.clientInvoiceAmount) + ".");
       }
     }
 
     lines.push(
-      "Monochrome Canvas uses museum-quality giclee printing and archival materials and practices for these reproductions."
+      "Monochrome Canvas is a dedicated fine art print studio specializing in museum-quality giclée printing with archival materials, with close attention to color accuracy, detail, and overall presentation."
     );
     lines.push("");
-    lines.push("Printing begins once the invoice has been paid, so payment is what moves the order into production.");
-    lines.push("If you have any questions about the process, materials, or timing, please feel free to reach out.");
+    lines.push("Once the invoice is paid, the order moves into production and you’ll receive updates as it progresses.");
+    lines.push("If you have any questions about the materials, process, or timing, feel free to reach out at any point.");
     lines.push("");
     lines.push("Thank you,");
     lines.push(signoffName);
