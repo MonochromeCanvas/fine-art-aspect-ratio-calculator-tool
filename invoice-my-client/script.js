@@ -1679,6 +1679,16 @@
     elements.prepFlowNote.classList.add("is-hidden");
     elements.prepFlowNote.textContent = "";
 
+    if (
+      isInvoiceMode() &&
+      orderEstimate.items.some(function (item) {
+        return item.sizingFeedback.cropPreview || item.sizingFeedback.needsPrep;
+      })
+    ) {
+      elements.prepareFieldNote.textContent =
+        "Attach the finalized cropped or prepared JPEG for any artwork where you changed the crop or border. Monochrome Canvas should print from those attached files, not from the slider positions in this tool.";
+    }
+
     if (activeArtwork.file && activeArtwork.imageWidth && activeArtwork.imageHeight) {
       elements.fileMeta.classList.remove("is-muted");
       elements.fileMeta.textContent =
@@ -2335,7 +2345,11 @@
       }
 
       if (item.sizingFeedback.cropPreview) {
-        bodyLines.push("Crop position: " + getCropPositionText(item.artwork));
+        bodyLines.push("Prepared file note: I will attach the finalized cropped file I want printed for this artwork.");
+      }
+
+      if (item.sizingFeedback.needsPrep) {
+        bodyLines.push("Prepared file note: I will attach the finalized prepared file I want printed for this artwork.");
       }
 
       if (item.estimate.canvasOptions.canAddBorder) {
@@ -2363,6 +2377,18 @@
     if (getActiveNotes()) {
       bodyLines.push("");
       bodyLines.push("Notes: " + getActiveNotes());
+    }
+
+    if (
+      isInvoiceMode() &&
+      orderEstimate.items.some(function (item) {
+        return item.sizingFeedback.cropPreview || item.sizingFeedback.needsPrep;
+      })
+    ) {
+      bodyLines.push("");
+      bodyLines.push(
+        "If any artwork uses a crop or border adjustment, please print from the finalized attached file rather than recreating the crop from this request."
+      );
     }
 
     bodyLines.push("");
