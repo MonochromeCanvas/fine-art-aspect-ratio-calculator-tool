@@ -3,6 +3,9 @@
   const JPEG_QUALITY = 0.95;
   const MAX_EXPORT_SIDE = 12000;
   const MAX_EXPORT_PIXELS = 100000000;
+  const INVOICE_TOOL_IMPORT_QUERY_VALUE = "invoice-my-client";
+  const INVOICE_TOOL_FILE_KEY = "invoice-my-client-to-white-border-builder";
+  const INCOMING_FILE_MAX_AGE_MS = 1000 * 60 * 60 * 24;
   const CUSTOM_SIZE_REQUEST_URL = "../custom-size-request/index.html";
   const CUSTOM_SIZE_REQUEST_IMPORT_URL = CUSTOM_SIZE_REQUEST_URL + "?import=white-border-builder";
   const CUSTOM_SIZE_REQUEST_WINDOW_NAME = "monochromeCanvasCustomQuote";
@@ -127,6 +130,7 @@
     updateCropControls(null);
     render();
     reportHeight();
+    importIncomingArtworkIfRequested();
   }
 
   function bindEvents() {
@@ -232,35 +236,7 @@
     }
 
     try {
-      const image = await loadImage(file);
-      state.file = file;
-      state.image = image;
-      state.pixelsWidth = image.naturalWidth;
-      state.pixelsHeight = image.naturalHeight;
-      state.cropFocusX = 0.5;
-      state.cropFocusY = 0.5;
-      elements.cropX.value = "50";
-      elements.cropY.value = "50";
-      hideDownloadToast();
-
-      const maxWidthIn = roundTo(state.pixelsWidth / DPI, 2);
-      const maxHeightIn = roundTo(state.pixelsHeight / DPI, 2);
-
-      setArtworkInputs(maxWidthIn, maxHeightIn);
-      autoOrientFrameFields(elements.fitFrameWidth, elements.fitFrameHeight, elements.fitFramePreset);
-      autoOrientFrameFields(elements.evenFrameWidth, elements.evenFrameHeight, elements.evenFramePreset);
-
-      elements.fileMeta.classList.remove("is-muted");
-      elements.fileMeta.innerHTML =
-        "<strong>Loaded file:</strong> " +
-        escapeHtml(file.name) +
-        "<br>" +
-        formatPixels(state.pixelsWidth, state.pixelsHeight) +
-        "<br>" +
-        "Maximum recommended print size at 300 PPI: " +
-        formatInches(maxWidthIn, maxHeightIn);
-
-      render();
+      await loadFileIntoBuilder(file);
     } catch (error) {
       elements.fileMeta.classList.remove("is-muted");
       elements.fileMeta.textContent = "That file could not be opened. Try a PNG, JPG, or WebP image.";
@@ -268,6 +244,38 @@
       state.image = null;
       render();
     }
+  }
+
+  async function loadFileIntoBuilder(file) {
+    const image = await loadImage(file);
+    state.file = file;
+    state.image = image;
+    state.pixelsWidth = image.naturalWidth;
+    state.pixelsHeight = image.naturalHeight;
+    state.cropFocusX = 0.5;
+    state.cropFocusY = 0.5;
+    elements.cropX.value = "50";
+    elements.cropY.value = "50";
+    hideDownloadToast();
+
+    const maxWidthIn = roundTo(state.pixelsWidth / DPI, 2);
+    const maxHeightIn = roundTo(state.pixelsHeight / DPI, 2);
+
+    setArtworkInputs(maxWidthIn, maxHeightIn);
+    autoOrientFrameFields(elements.fitFrameWidth, elements.fitFrameHeight, elements.fitFramePreset);
+    autoOrientFrameFields(elements.evenFrameWidth, elements.evenFrameHeight, elements.evenFramePreset);
+
+    elements.fileMeta.classList.remove("is-muted");
+    elements.fileMeta.innerHTML =
+      "<strong>Loaded file:</strong> " +
+      escapeHtml(file.name) +
+      "<br>" +
+      formatPixels(state.pixelsWidth, state.pixelsHeight) +
+      "<br>" +
+      "Maximum recommended print size at 300 PPI: " +
+      formatInches(maxWidthIn, maxHeightIn);
+
+    render();
   }
 
   function syncModeButtons() {
@@ -1250,6 +1258,101 @@
         reject(request.error || new Error("Could not open database"));
       };
     });
+  }
+
+  function shouldImportIncomingArtwork() {
+    const params = new URLSearchParams(window.location.search);
+    return params.get("import") === INVOICE_TOOL_IMPORT_QUERY_VALUE;
+  }
+
+  function stripIncomingArtworkQueryFlag() {
+    const url = new URL(window.location.href);
+    url.searchParams.delete("import");
+    const nextUrl = url.pathname + (url.search ? url.search : "") + (url.hash ? url.hash : "");
+    window.history.replaceState({}, "", nextUrl);
+  }
+
+  async function readIncomingArtworkRecord() {
+    const database = await openPreparedFileDatabase();
+
+    try {
+      return await new Promise((resolve, reject) => {
+        const transaction = database.transaction(PREPARED_FILE_STORE, "readonly");
+        const store = transaction.objectStore(PREPARED_FILE_STORE);
+        const request = store.get(INVOICE_TOOL_FILE_KEY);
+
+        request.onsuccess = function () {
+          resolve(request.result || null);
+        };
+
+        request.onerror = function () {
+          reject(request.error || new Error("Could not read incoming artwork"));
+        };
+      });
+    } finally {
+      database.close();
+    }
+  }
+
+  async function clearIncomingArtworkRecord() {
+    const database = await openPreparedFileDatabase();
+
+    try {
+      await new Promise((resolve, reject) => {
+        const transaction = database.transaction(PREPARED_FILE_STORE, "readwrite");
+        const store = transaction.objectStore(PREPARED_FILE_STORE);
+        store.delete(INVOICE_TOOL_FILE_KEY);
+
+        transaction.oncomplete = function () {
+          resolve();
+        };
+
+        transaction.onerror = function () {
+          reject(transaction.error || new Error("Could not clear incoming artwork"));
+        };
+
+        transaction.onabort = function () {
+          reject(transaction.error || new Error("Incoming artwork clear was aborted"));
+        };
+      });
+    } finally {
+      database.close();
+    }
+  }
+
+  async function importIncomingArtworkIfRequested() {
+    if (!shouldImportIncomingArtwork()) {
+      return;
+    }
+
+    try {
+      const record = await readIncomingArtworkRecord();
+      if (!record || !record.blob) {
+        showWarning("The artwork did not carry over automatically. You can still upload it here.", "warn");
+        return;
+      }
+
+      if (record.createdAt && Date.now() - record.createdAt > INCOMING_FILE_MAX_AGE_MS) {
+        showWarning("That artwork handoff expired. Please reopen the Invoice My Client tool and try again.", "warn");
+        return;
+      }
+
+      const importedFile = new File([record.blob], record.filename || "invoice-artwork", {
+        type: record.blob.type || "image/jpeg",
+        lastModified: record.createdAt || Date.now()
+      });
+
+      await loadFileIntoBuilder(importedFile);
+    } catch (error) {
+      showWarning("The artwork could not be loaded automatically in this browser. You can still upload it here.", "warn");
+    } finally {
+      try {
+        await clearIncomingArtworkRecord();
+      } catch (error) {
+        // Ignore cleanup issues so the builder still opens normally.
+      }
+      stripIncomingArtworkQueryFlag();
+    }
   }
 
   async function savePreparedFileForQuote(exportFile) {

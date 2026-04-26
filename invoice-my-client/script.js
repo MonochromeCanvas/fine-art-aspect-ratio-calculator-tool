@@ -1,9 +1,13 @@
 (function () {
   const STUDIO_EMAIL = "joelle@monochromecanvas.com";
   const WHITE_BORDER_BUILDER_URL = "../white-border-builder-tool/index.html";
+  const WHITE_BORDER_BUILDER_IMPORT_QUERY_VALUE = "invoice-my-client";
+  const WHITE_BORDER_BUILDER_IMPORT_URL =
+    WHITE_BORDER_BUILDER_URL + "?import=" + encodeURIComponent(WHITE_BORDER_BUILDER_IMPORT_QUERY_VALUE);
   const PREPARED_FILE_DB_NAME = "monochrome-canvas-prep";
   const PREPARED_FILE_STORE = "prepared-files";
   const PREPARED_FILE_KEY = "white-border-builder-to-custom-size-request";
+  const WHITE_BORDER_BUILDER_FILE_KEY = "invoice-my-client-to-white-border-builder";
   const PREPARED_FILE_QUERY_VALUE = "white-border-builder";
   const PREPARED_FILE_MAX_AGE_MS = 1000 * 60 * 60 * 24;
   const CUSTOM_SIZE_REQUEST_READY_ACTION = "monochrome-custom-size-request-ready";
@@ -127,7 +131,6 @@
     fileMeta: document.getElementById("fileMeta"),
     materialSelect: document.getElementById("materialSelect"),
     materialDescription: document.getElementById("materialDescription"),
-    materialLink: document.getElementById("materialLink"),
     canvasOptions: document.getElementById("canvasOptions"),
     canvasBorderSelect: document.getElementById("canvasBorderSelect"),
     borderDepthField: document.getElementById("borderDepthField"),
@@ -164,6 +167,7 @@
     payoutMethodSelect: document.getElementById("payoutMethodSelect"),
     payoutHandleInput: document.getElementById("payoutHandleInput"),
     clientInvoiceAmountInput: document.getElementById("clientInvoiceAmountInput"),
+    invoiceNotesInput: document.getElementById("invoiceNotesInput"),
     productionCostValue: document.getElementById("productionCostValue"),
     recommendedRetailValue: document.getElementById("recommendedRetailValue"),
     artistPayoutValue: document.getElementById("artistPayoutValue"),
@@ -905,11 +909,7 @@
 
   function getPricingSourceMessage(estimate) {
     if (estimate.pricingSource === "website-standard") {
-      if (estimate.discountRate) {
-        return "Base unit price matches the website for this standard size, with quantity pricing applied here.";
-      }
-
-      return "This standard size matches the current website price for this material.";
+      return "";
     }
 
     if (estimate.pricingSource === "website-interpolated") {
@@ -1242,7 +1242,6 @@
     const selectedMaterial = getSelectedMaterial();
 
     elements.materialDescription.textContent = selectedMaterial.description;
-    elements.materialLink.href = selectedMaterial.url;
     updateSizeInputLimits(selectedMaterial);
     renderOrderMode(invoicePricing);
     renderCanvasOptions(estimate);
@@ -1253,9 +1252,13 @@
 
     if (estimate.width > 0 && estimate.height > 0) {
       if (maxSizeFeedback.fits) {
-        elements.estimateRange.textContent = isInvoiceMode()
-          ? getPricingSourceMessage(estimate) + " Recommended retail starts at 2x the production cost for this order."
-          : getPricingSourceMessage(estimate) + " Final invoice is confirmed after studio review.";
+        const pricingSourceMessage = getPricingSourceMessage(estimate);
+        const defaultMessage = isInvoiceMode()
+          ? "Recommended retail starts at 2x the production cost for this order."
+          : "Final invoice is confirmed after studio review.";
+        elements.estimateRange.textContent = pricingSourceMessage
+          ? pricingSourceMessage + " " + defaultMessage
+          : defaultMessage;
       } else {
         elements.estimateRange.textContent = maxSizeFeedback.message;
       }
@@ -1381,37 +1384,39 @@
 
     if (sizingFeedback.cropPreview) {
       elements.prepFlowNote.textContent =
-        "If you switch to the White Border Builder, download the edited file there first, then come back here and upload that prepared version before sending your request.";
+        "Need borders instead of a crop? Open the White Border Builder with this file loaded, make your adjustments there, then come back here with that prepared version before sending the request.";
       elements.prepFlowNote.classList.remove("is-hidden");
       renderGuidanceCard({
         title: "Want borders instead of a crop?",
         message:
-          "This preview is trimming the artwork to fit the requested size. If you would rather keep the full image with added border space, prep the file first and then return here for the quote.",
+          "This preview is trimming the artwork to fit the requested size. If you would rather keep the full image with added border space, open the White Border Builder with this artwork already loaded and prep it there first.",
         steps: [
-          "Open the White Border Builder.",
+          "Open the White Border Builder with this file loaded.",
           "Adjust the crop or add borders there.",
           "Download the prepared file from that tool.",
-          "Come back here and upload that prepared version for the quote request."
+          "Come back here and upload that prepared version before sending the invoice request."
         ],
-        linkHref: WHITE_BORDER_BUILDER_URL,
-        linkText: "Prepare file in White Border Builder"
+        linkHref: WHITE_BORDER_BUILDER_IMPORT_URL,
+        linkText: "Prepare file in White Border Builder",
+        onClick: handOffToWhiteBorderBuilder
       });
     } else if (sizingFeedback.needsPrep) {
       elements.prepFlowNote.textContent =
-        "If you prepare the artwork in the White Border Builder, download that finished file there and then re-upload it here before creating the request.";
+        "This file will work better if you prep it first. Open the White Border Builder with the artwork loaded, make the adjustment there, then come back here with that prepared version.";
       elements.prepFlowNote.classList.remove("is-hidden");
       renderGuidanceCard({
         title: "Prepare this file before ordering",
         message:
-          "The artwork shape does not match this print size closely enough yet. The easiest path is to prep the file first, then return here once that new version is ready.",
+          "The artwork shape does not match this print size closely enough yet. The easiest path is to open the White Border Builder with this file already loaded, prep it there, and then return here once that new version is ready.",
         steps: [
-          "Open the White Border Builder.",
+          "Open the White Border Builder with this file loaded.",
           "Add the border or framing space you want.",
           "Download the prepared file from that tool.",
-          "Return here and upload that prepared file for the quote."
+          "Return here and upload that prepared file before creating the invoice request."
         ],
-        linkHref: WHITE_BORDER_BUILDER_URL,
-        linkText: "Open White Border Builder to prep file"
+        linkHref: WHITE_BORDER_BUILDER_IMPORT_URL,
+        linkText: "Open White Border Builder to prep file",
+        onClick: handOffToWhiteBorderBuilder
       });
     }
 
@@ -1554,6 +1559,9 @@
       link.target = "_blank";
       link.rel = "noreferrer";
       link.textContent = options.linkText;
+      if (typeof options.onClick === "function") {
+        link.addEventListener("click", options.onClick);
+      }
       card.appendChild(link);
     }
 
@@ -1937,6 +1945,44 @@
     }
   }
 
+  async function saveCurrentFileForWhiteBorderBuilder() {
+    if (!state.file) {
+      throw new Error("No file available for White Border Builder handoff");
+    }
+
+    const database = await openPreparedFileDatabase();
+
+    try {
+      await new Promise(function (resolve, reject) {
+        const transaction = database.transaction(PREPARED_FILE_STORE, "readwrite");
+        const store = transaction.objectStore(PREPARED_FILE_STORE);
+        store.put(
+          {
+            source: "invoice-my-client",
+            filename: state.file.name || "invoice-artwork",
+            blob: state.file,
+            createdAt: Date.now()
+          },
+          WHITE_BORDER_BUILDER_FILE_KEY
+        );
+
+        transaction.oncomplete = function () {
+          resolve();
+        };
+
+        transaction.onerror = function () {
+          reject(transaction.error || new Error("Could not save invoice artwork"));
+        };
+
+        transaction.onabort = function () {
+          reject(transaction.error || new Error("Invoice artwork save was aborted"));
+        };
+      });
+    } finally {
+      database.close();
+    }
+  }
+
   async function importPreparedArtworkIfRequested() {
     if (!shouldImportPreparedArtwork()) {
       return;
@@ -2094,6 +2140,40 @@
         false
       );
     }, 250);
+  }
+
+  async function handOffToWhiteBorderBuilder(event) {
+    if (!state.file) {
+      return;
+    }
+
+    event.preventDefault();
+
+    try {
+      await saveCurrentFileForWhiteBorderBuilder();
+    } catch (error) {
+      showMessage(
+        "The current file could not be sent into the White Border Builder automatically. You can still open it and upload the artwork there.",
+        true
+      );
+      const fallbackWindow = window.open(WHITE_BORDER_BUILDER_URL, "_blank", "noopener");
+      if (!fallbackWindow) {
+        window.location.href = WHITE_BORDER_BUILDER_URL;
+      }
+      return;
+    }
+
+    const destination = event.currentTarget && event.currentTarget.href
+      ? event.currentTarget.href
+      : WHITE_BORDER_BUILDER_IMPORT_URL;
+    const builderWindow = window.open(destination, "_blank", "noopener");
+
+    if (builderWindow && typeof builderWindow.focus === "function") {
+      builderWindow.focus();
+      return;
+    }
+
+    window.location.href = destination;
   }
 
   function setupResponsivePreview() {
