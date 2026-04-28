@@ -118,6 +118,8 @@
     downloadButton: document.getElementById("downloadButton"),
     sendToQuoteButton: document.getElementById("sendToQuoteButton"),
     downloadToast: document.getElementById("downloadToast"),
+    downloadToastTitle: document.querySelector("#downloadToast strong"),
+    downloadToastBody: document.querySelector("#downloadToast p"),
     dismissToast: document.getElementById("dismissToast"),
     modeCards: Array.from(document.querySelectorAll("[data-mode]")),
     modePanels: Array.from(document.querySelectorAll("[data-mode-panel]"))
@@ -129,6 +131,7 @@
     populatePresetSelect(elements.fitFramePreset, [11, 14]);
     populatePresetSelect(elements.evenFramePreset, [11, 14]);
     applySelectedModeCopy();
+    configureDownloadButtonCopy();
     bindEvents();
     syncModeButtons();
     syncModePanels();
@@ -840,8 +843,18 @@
       setActionBusy(elements.downloadButton, "Preparing file...");
       const exportFile = await buildPreparedOutputFile();
       const blob = exportFile.blob;
-      downloadBlob(blob, buildDownloadName());
-      showDownloadToast();
+      const exportResult = await shareOrDownloadBlob(blob, buildDownloadName());
+
+      if (exportResult === "aborted") {
+        return;
+      }
+
+      showDownloadToast(
+        exportResult === "shared" ? "Share sheet opened." : undefined,
+        exportResult === "shared"
+          ? "Choose Save Image or Save to Photos if your phone offers it, or share the prepared JPEG wherever you need it next."
+          : undefined
+      );
     } catch (error) {
       showWarning("The browser could not build that download. Try a slightly smaller final size.", "danger");
     } finally {
@@ -1212,7 +1225,11 @@
     elements.warningPanel.textContent = "";
   }
 
-  function showDownloadToast() {
+  function showDownloadToast(title, body) {
+    elements.downloadToastTitle.textContent = title || "Your new file is downloading.";
+    elements.downloadToastBody.textContent =
+      body ||
+      "Keep this file for print, or come back and use the custom quote button if you want Monochrome Canvas to price it out for you.";
     elements.downloadToast.classList.remove("is-hidden");
     reportHeight();
   }
@@ -1274,6 +1291,26 @@
     });
   }
 
+  function prefersNativeFileShare() {
+    const userAgent = navigator.userAgent || "";
+    const isTouchMac = /Mac/i.test(userAgent) && navigator.maxTouchPoints > 1;
+    return /iPhone|iPad|iPod|Android/i.test(userAgent) || isTouchMac;
+  }
+
+  function canUseNativeFileShare() {
+    return (
+      prefersNativeFileShare() &&
+      typeof File === "function" &&
+      typeof navigator.share === "function"
+    );
+  }
+
+  function configureDownloadButtonCopy() {
+    if (canUseNativeFileShare()) {
+      elements.downloadButton.textContent = "Save / Share print-ready JPEG";
+    }
+  }
+
   function downloadBlob(blob, filename) {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
@@ -1283,6 +1320,39 @@
     link.click();
     link.remove();
     window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+
+  async function shareOrDownloadBlob(blob, filename) {
+    if (canUseNativeFileShare()) {
+      const exportFile = new File([blob], filename, { type: "image/jpeg" });
+      const shareData = {
+        files: [exportFile],
+        title: filename
+      };
+      let canShareFile = true;
+
+      if (typeof navigator.canShare === "function") {
+        try {
+          canShareFile = navigator.canShare(shareData);
+        } catch (error) {
+          canShareFile = false;
+        }
+      }
+
+      if (canShareFile) {
+        try {
+          await navigator.share(shareData);
+          return "shared";
+        } catch (error) {
+          if (error && error.name === "AbortError") {
+            return "aborted";
+          }
+        }
+      }
+    }
+
+    downloadBlob(blob, filename);
+    return "downloaded";
   }
 
   function openPreparedFileDatabase() {

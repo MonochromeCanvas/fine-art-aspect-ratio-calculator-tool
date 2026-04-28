@@ -224,6 +224,7 @@
     state.artworks = [initialArtwork];
     state.activeArtworkId = initialArtwork.id;
     bindEvents();
+    configureExportButtonCopy();
     setupPreparedArtworkMessaging();
     setupResponsivePreview();
     setupPreviewInteractions();
@@ -2802,6 +2803,26 @@
     });
   }
 
+  function prefersNativeFileShare() {
+    const userAgent = navigator.userAgent || "";
+    const isTouchMac = /Mac/i.test(userAgent) && navigator.maxTouchPoints > 1;
+    return /iPhone|iPad|iPod|Android/i.test(userAgent) || isTouchMac;
+  }
+
+  function canUseNativeFileShare() {
+    return (
+      prefersNativeFileShare() &&
+      typeof File === "function" &&
+      typeof navigator.share === "function"
+    );
+  }
+
+  function configureExportButtonCopy() {
+    if (canUseNativeFileShare()) {
+      elements.downloadButton.textContent = "Save / Share Selected JPEG";
+    }
+  }
+
   function triggerBlobDownload(blob, filename) {
     const downloadUrl = URL.createObjectURL(blob);
     const link = document.createElement("a");
@@ -2813,6 +2834,39 @@
     window.setTimeout(function () {
       URL.revokeObjectURL(downloadUrl);
     }, 1000);
+  }
+
+  async function shareOrDownloadBlob(blob, filename) {
+    if (canUseNativeFileShare()) {
+      const exportFile = new File([blob], filename, { type: "image/jpeg" });
+      const shareData = {
+        files: [exportFile],
+        title: filename
+      };
+      let canShareFile = true;
+
+      if (typeof navigator.canShare === "function") {
+        try {
+          canShareFile = navigator.canShare(shareData);
+        } catch (error) {
+          canShareFile = false;
+        }
+      }
+
+      if (canShareFile) {
+        try {
+          await navigator.share(shareData);
+          return "shared";
+        } catch (error) {
+          if (error && error.name === "AbortError") {
+            return "aborted";
+          }
+        }
+      }
+    }
+
+    triggerBlobDownload(blob, filename);
+    return "downloaded";
   }
 
   function handleDownload() {
@@ -2853,16 +2907,24 @@
         );
 
         canvas.toBlob(
-          function (blob) {
+          async function (blob) {
             if (!blob) {
               showMessage("The JPEG export could not be created in this browser.", true);
               return;
             }
 
-            triggerBlobDownload(blob, buildExportFilename(artwork, estimate));
+            const exportResult = await shareOrDownloadBlob(blob, buildExportFilename(artwork, estimate));
+
+            if (exportResult === "aborted") {
+              return;
+            }
+
             showMessage(
-              getArtworkLabel(artwork, getArtworkIndex(artwork)) +
-                " was downloaded as a print JPEG. Attach it to the email request you send to the studio.",
+              exportResult === "shared"
+                ? getArtworkLabel(artwork, getArtworkIndex(artwork)) +
+                    " opened in the share sheet. Choose Save Image or Save to Photos if your phone offers it, then attach that JPEG to the email request."
+                : getArtworkLabel(artwork, getArtworkIndex(artwork)) +
+                    " was downloaded as a print JPEG. Attach it to the email request you send to the studio.",
               false
             );
           },
