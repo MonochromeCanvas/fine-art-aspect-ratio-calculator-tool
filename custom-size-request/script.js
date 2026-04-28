@@ -518,7 +518,7 @@
   }
 
   function isCropPreviewActive(width, height) {
-    return !isRatioLocked() && getAspectDifference(width, height) > 0.025;
+    return !isRatioLocked() && (getAspectDifference(width, height) > 0.025 || getCropScale() > 1.001);
   }
 
   function getCropPositionText() {
@@ -1530,7 +1530,7 @@
     elements.cropControls.classList.toggle("is-waiting", cropControlsVisible && !cropPreviewActive);
     elements.cropXInput.disabled = !canMoveX;
     elements.cropYInput.disabled = !canMoveY;
-    elements.cropZoomInput.disabled = !cropPreviewActive;
+    elements.cropZoomInput.disabled = !state.file;
 
     if (!cropControlsVisible) {
       elements.cropControlsNote.textContent =
@@ -1554,7 +1554,7 @@
       }
     } else {
       elements.cropControlsNote.textContent =
-        "This size is still close to the uploaded artwork shape, so no crop adjustment is needed yet.";
+        "This size is still close to the uploaded artwork shape, so no crop adjustment is needed yet. You can still use zoom if you want a tighter crop.";
     }
   }
 

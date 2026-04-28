@@ -700,8 +700,7 @@
     const showControls =
       output &&
       output.ok &&
-      output.mode === "even-border" &&
-      output.crop;
+      output.mode === "even-border";
 
     elements.cropAdjustBlock.classList.toggle("is-hidden", !showControls);
     elements.cropHorizontalGroup.classList.add("is-hidden");
@@ -715,11 +714,11 @@
 
     elements.cropZoomGroup.classList.remove("is-hidden");
 
-    if (output.crop.trimsWidth) {
+    if (output.crop && output.crop.trimsWidth) {
       elements.cropHorizontalGroup.classList.remove("is-hidden");
     }
 
-    if (output.crop.trimsHeight) {
+    if (output.crop && output.crop.trimsHeight) {
       elements.cropVerticalGroup.classList.remove("is-hidden");
     }
   }

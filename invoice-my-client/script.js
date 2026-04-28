@@ -774,7 +774,10 @@
   }
 
   function isCropPreviewActive(artwork, width, height) {
-    return !isRatioLocked(artwork) && getAspectDifference(artwork, width, height) > 0.025;
+    return (
+      !isRatioLocked(artwork) &&
+      (getAspectDifference(artwork, width, height) > 0.025 || getCropScale(artwork) > 1.001)
+    );
   }
 
   function getCropPositionText(artwork) {
@@ -1881,7 +1884,7 @@
     elements.cropControls.classList.toggle("is-waiting", cropControlsVisible && !cropPreviewActive);
     elements.cropXInput.disabled = !canMoveX;
     elements.cropYInput.disabled = !canMoveY;
-    elements.cropZoomInput.disabled = !cropPreviewActive;
+    elements.cropZoomInput.disabled = !artwork.file;
 
     if (!cropControlsVisible) {
       elements.cropControlsNote.textContent =
@@ -1905,7 +1908,7 @@
       }
     } else {
       elements.cropControlsNote.textContent =
-        "This size is still close to the uploaded artwork shape, so no crop adjustment is needed yet.";
+        "This size is still close to the uploaded artwork shape, so no crop adjustment is needed yet. You can still use zoom if you want a tighter crop.";
     }
   }
 
@@ -2319,7 +2322,7 @@
       bodyLines.push("Order production cost: " + formatMoney(orderEstimate.total));
       bodyLines.push("Recommended starting retail: " + formatMoney(orderInvoicePricing.recommendedRetail));
       bodyLines.push("Client invoice total: " + formatMoney(orderInvoicePricing.clientInvoiceAmount));
-      bodyLines.push("Estimated artist payout: " + formatMoney(orderInvoicePricing.artistPayout));
+      bodyLines.push("Estimated artist payout total: " + formatMoney(orderInvoicePricing.artistPayout));
     } else {
       bodyLines.push("I would like a custom size quote from Monochrome Canvas for the order below.");
       bodyLines.push("");
@@ -2351,6 +2354,7 @@
             ? formatMoney(item.invoicePricing.clientInvoiceAmount)
             : "Waiting for pricing")
       );
+      bodyLines.push("Estimated artist payout: " + formatMoney(item.invoicePricing.artistPayout));
       bodyLines.push(
         "Artwork fit: " +
           (item.sizingFeedback.cropPreview
