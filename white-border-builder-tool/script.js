@@ -3,6 +3,8 @@
   const JPEG_QUALITY = 0.95;
   const MAX_EXPORT_SIDE = 12000;
   const MAX_EXPORT_PIXELS = 100000000;
+  const CUSTOM_SIZE_REQUEST_IMPORT_QUERY_VALUE = "custom-size-request";
+  const CUSTOM_SIZE_REQUEST_FILE_KEY = "custom-size-request-to-white-border-builder";
   const INVOICE_TOOL_IMPORT_QUERY_VALUE = "invoice-my-client";
   const INVOICE_TOOL_FILE_KEY = "invoice-my-client-to-white-border-builder";
   const INCOMING_FILE_MAX_AGE_MS = 1000 * 60 * 60 * 24;
@@ -73,6 +75,7 @@
     output: null,
     cropFocusX: 0.5,
     cropFocusY: 0.5,
+    cropZoom: 1,
     syncingArtworkInputs: false
   };
 
@@ -103,8 +106,10 @@
     cropAdjustBlock: document.getElementById("cropAdjustBlock"),
     cropHorizontalGroup: document.getElementById("cropHorizontalGroup"),
     cropVerticalGroup: document.getElementById("cropVerticalGroup"),
+    cropZoomGroup: document.getElementById("cropZoomGroup"),
     cropX: document.getElementById("cropX"),
     cropY: document.getElementById("cropY"),
+    cropZoom: document.getElementById("cropZoom"),
     previewCanvas: document.getElementById("previewCanvas"),
     previewPlaceholder: document.getElementById("previewPlaceholder"),
     summaryContent: document.getElementById("summaryContent"),
@@ -222,6 +227,11 @@
       render();
     });
 
+    elements.cropZoom.addEventListener("input", () => {
+      state.cropZoom = Math.max(1, Number(elements.cropZoom.value) || 1);
+      render();
+    });
+
     elements.dismissToast.addEventListener("click", hideDownloadToast);
     elements.downloadButton.addEventListener("click", downloadOutput);
     elements.sendToQuoteButton.addEventListener("click", sendOutputToCustomQuote);
@@ -254,8 +264,10 @@
     state.pixelsHeight = image.naturalHeight;
     state.cropFocusX = 0.5;
     state.cropFocusY = 0.5;
+    state.cropZoom = 1;
     elements.cropX.value = "50";
     elements.cropY.value = "50";
+    elements.cropZoom.value = "1";
     hideDownloadToast();
 
     const maxWidthIn = roundTo(state.pixelsWidth / DPI, 2);
@@ -498,7 +510,8 @@
         state.pixelsHeight,
         innerWidth / innerHeight,
         state.cropFocusX,
-        state.cropFocusY
+        state.cropFocusY,
+        state.cropZoom
       );
 
       Object.assign(output, {
@@ -569,47 +582,77 @@
     };
   }
 
-  function calculateCrop(sourceWidth, sourceHeight, targetRatio, focusX, focusY) {
+  function calculateCrop(sourceWidth, sourceHeight, targetRatio, focusX, focusY, zoomFactor) {
     const sourceRatio = sourceWidth / sourceHeight;
+    const safeZoom = Math.max(1, zoomFactor || 1);
+    let cropWidth = sourceWidth;
+    let cropHeight = sourceHeight;
+    let axis = null;
+    let baseMessage = "";
 
-    if (Math.abs(sourceRatio - targetRatio) < 0.0005) {
+    if (sourceRatio > targetRatio) {
+      cropWidth = sourceHeight * targetRatio;
+      axis = "width";
+      baseMessage =
+        "To keep the border even, the tool trims about " +
+        roundTo(((sourceWidth - cropWidth) / sourceWidth) * 100, 1) +
+        "% of the width in total.";
+    } else if (sourceRatio < targetRatio) {
+      cropHeight = sourceWidth / targetRatio;
+      axis = "height";
+      baseMessage =
+        "To keep the border even, the tool trims about " +
+        roundTo(((sourceHeight - cropHeight) / sourceHeight) * 100, 1) +
+        "% of the height in total.";
+    } else {
+      baseMessage = "The artwork ratio already matches the opening.";
+    }
+
+    if (safeZoom > 1) {
+      cropWidth = cropWidth / safeZoom;
+      cropHeight = cropHeight / safeZoom;
+      axis = axis ? "both" : "both";
+    }
+
+    const trimmedWidth = Math.max(0, sourceWidth - cropWidth);
+    const trimmedHeight = Math.max(0, sourceHeight - cropHeight);
+
+    if (trimmedWidth < 0.5 && trimmedHeight < 0.5) {
       return null;
     }
 
-    if (sourceRatio > targetRatio) {
-      const keptWidth = sourceHeight * targetRatio;
-      const trimmedPixels = sourceWidth - keptWidth;
-      const sourceX = trimmedPixels * focusX;
-      return {
-        axis: "width",
-        sourceX,
-        sourceY: 0,
-        sourceWidth: keptWidth,
-        sourceHeight,
-        percentTrimmed: (trimmedPixels / sourceWidth) * 100,
-        positionLabel: describeHorizontalPosition(focusX),
-        message:
-          "To keep the border even, the tool trims about " +
-          roundTo((trimmedPixels / sourceWidth) * 100, 1) +
-          "% of the width in total. Use the slider to choose where that crop happens."
-      };
+    const sourceX = trimmedWidth * focusX;
+    const sourceY = trimmedHeight * focusY;
+    const movementParts = [];
+
+    if (trimmedWidth > 0.5) {
+      movementParts.push("horizontal slider");
     }
 
-    const keptHeight = sourceWidth / targetRatio;
-    const trimmedPixels = sourceHeight - keptHeight;
-    const sourceY = trimmedPixels * focusY;
+    if (trimmedHeight > 0.5) {
+      movementParts.push("vertical slider");
+    }
+
     return {
-      axis: "height",
-      sourceX: 0,
+      axis: axis || "both",
+      sourceX,
       sourceY,
-      sourceWidth: sourceWidth,
-      sourceHeight: keptHeight,
-      percentTrimmed: (trimmedPixels / sourceHeight) * 100,
-      positionLabel: describeVerticalPosition(focusY),
+      sourceWidth: cropWidth,
+      sourceHeight: cropHeight,
+      trimsWidth: trimmedWidth > 0.5,
+      trimsHeight: trimmedHeight > 0.5,
+      percentTrimmedWidth: (trimmedWidth / sourceWidth) * 100,
+      percentTrimmedHeight: (trimmedHeight / sourceHeight) * 100,
+      positionLabel:
+        trimmedWidth > 0.5 && trimmedHeight > 0.5
+          ? describeHorizontalPosition(focusX) + " / " + describeVerticalPosition(focusY)
+          : trimmedWidth > 0.5
+            ? describeHorizontalPosition(focusX)
+            : describeVerticalPosition(focusY),
       message:
-        "To keep the border even, the tool trims about " +
-        roundTo((trimmedPixels / sourceHeight) * 100, 1) +
-        "% of the height in total. Use the slider to choose where that crop happens."
+        baseMessage +
+        (safeZoom > 1 ? " Zoom is also trimming in closer for a tighter edit." : "") +
+        (movementParts.length ? " Use the " + movementParts.join(" and the ") + " to choose where that crop happens." : "")
     };
   }
 
@@ -626,8 +669,10 @@
   }
 
   function calculateQuality(output) {
-    const effectivePpiX = output.pixelsWidth / output.imageAreaWidth;
-    const effectivePpiY = output.pixelsHeight / output.imageAreaHeight;
+    const effectiveSourceWidth = output.crop ? output.crop.sourceWidth : output.pixelsWidth;
+    const effectiveSourceHeight = output.crop ? output.crop.sourceHeight : output.pixelsHeight;
+    const effectivePpiX = effectiveSourceWidth / output.imageAreaWidth;
+    const effectivePpiY = effectiveSourceHeight / output.imageAreaHeight;
     const effectivePpi = Math.min(effectivePpiX, effectivePpiY);
 
     let label = "Great for print";
@@ -661,15 +706,20 @@
     elements.cropAdjustBlock.classList.toggle("is-hidden", !showControls);
     elements.cropHorizontalGroup.classList.add("is-hidden");
     elements.cropVerticalGroup.classList.add("is-hidden");
+    elements.cropZoomGroup.classList.add("is-hidden");
 
     if (!showControls) {
       reportHeight();
       return;
     }
 
-    if (output.crop.axis === "width") {
+    elements.cropZoomGroup.classList.remove("is-hidden");
+
+    if (output.crop.trimsWidth) {
       elements.cropHorizontalGroup.classList.remove("is-hidden");
-    } else if (output.crop.axis === "height") {
+    }
+
+    if (output.crop.trimsHeight) {
       elements.cropVerticalGroup.classList.remove("is-hidden");
     }
   }
@@ -731,6 +781,7 @@
     const cropText = output.crop
       ? output.crop.message + " Current crop position: " + output.crop.positionLabel + "."
       : "No crop is needed for this setup.";
+    const zoomText = output.crop && state.cropZoom > 1 ? trimNumber(state.cropZoom) + "x tighter crop" : "Standard crop fit";
 
     let summaryHtml =
       createSummaryItem("Uploaded file", formatPixels(output.pixelsWidth, output.pixelsHeight) + " | up to " + maxPrintText + " at 300 PPI") +
@@ -744,6 +795,7 @@
 
     summaryHtml +=
       createSummaryItem(output.mode === "even-border" ? "Crop note" : "Fit note", output.mode === "even-border" ? cropText : output.fitNote) +
+      createSummaryItem("Crop zoom", zoomText) +
       createSummaryItem("Download format", "High-quality JPEG") +
       createSummaryItem("Effective print quality", output.quality.effectivePpi + " PPI at the image area");
 
@@ -1260,9 +1312,29 @@
     });
   }
 
-  function shouldImportIncomingArtwork() {
+  function getIncomingArtworkSource() {
     const params = new URLSearchParams(window.location.search);
-    return params.get("import") === INVOICE_TOOL_IMPORT_QUERY_VALUE;
+    const importValue = params.get("import");
+
+    if (importValue === INVOICE_TOOL_IMPORT_QUERY_VALUE) {
+      return {
+        key: INVOICE_TOOL_FILE_KEY,
+        retryMessage: "Please reopen the Invoice My Client tool and try again."
+      };
+    }
+
+    if (importValue === CUSTOM_SIZE_REQUEST_IMPORT_QUERY_VALUE) {
+      return {
+        key: CUSTOM_SIZE_REQUEST_FILE_KEY,
+        retryMessage: "Please reopen the Custom Size Request tool and try again."
+      };
+    }
+
+    return null;
+  }
+
+  function shouldImportIncomingArtwork() {
+    return Boolean(getIncomingArtworkSource());
   }
 
   function stripIncomingArtworkQueryFlag() {
@@ -1272,14 +1344,14 @@
     window.history.replaceState({}, "", nextUrl);
   }
 
-  async function readIncomingArtworkRecord() {
+  async function readIncomingArtworkRecord(sourceConfig) {
     const database = await openPreparedFileDatabase();
 
     try {
       return await new Promise((resolve, reject) => {
         const transaction = database.transaction(PREPARED_FILE_STORE, "readonly");
         const store = transaction.objectStore(PREPARED_FILE_STORE);
-        const request = store.get(INVOICE_TOOL_FILE_KEY);
+        const request = store.get(sourceConfig.key);
 
         request.onsuccess = function () {
           resolve(request.result || null);
@@ -1294,14 +1366,14 @@
     }
   }
 
-  async function clearIncomingArtworkRecord() {
+  async function clearIncomingArtworkRecord(sourceConfig) {
     const database = await openPreparedFileDatabase();
 
     try {
       await new Promise((resolve, reject) => {
         const transaction = database.transaction(PREPARED_FILE_STORE, "readwrite");
         const store = transaction.objectStore(PREPARED_FILE_STORE);
-        store.delete(INVOICE_TOOL_FILE_KEY);
+        store.delete(sourceConfig.key);
 
         transaction.oncomplete = function () {
           resolve();
@@ -1321,19 +1393,21 @@
   }
 
   async function importIncomingArtworkIfRequested() {
-    if (!shouldImportIncomingArtwork()) {
+    const sourceConfig = getIncomingArtworkSource();
+
+    if (!sourceConfig) {
       return;
     }
 
     try {
-      const record = await readIncomingArtworkRecord();
+      const record = await readIncomingArtworkRecord(sourceConfig);
       if (!record || !record.blob) {
         showWarning("The artwork did not carry over automatically. You can still upload it here.", "warn");
         return;
       }
 
       if (record.createdAt && Date.now() - record.createdAt > INCOMING_FILE_MAX_AGE_MS) {
-        showWarning("That artwork handoff expired. Please reopen the Invoice My Client tool and try again.", "warn");
+        showWarning("That artwork handoff expired. " + sourceConfig.retryMessage, "warn");
         return;
       }
 
@@ -1347,7 +1421,7 @@
       showWarning("The artwork could not be loaded automatically in this browser. You can still upload it here.", "warn");
     } finally {
       try {
-        await clearIncomingArtworkRecord();
+        await clearIncomingArtworkRecord(sourceConfig);
       } catch (error) {
         // Ignore cleanup issues so the builder still opens normally.
       }

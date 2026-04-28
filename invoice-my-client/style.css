@@ -785,6 +785,14 @@ h4 {
   margin-top: 16px;
 }
 
+.mobile-preview-mount .preview-stage {
+  margin-top: 0;
+}
+
+.mobile-preview-mount .wall-preview {
+  min-height: 280px;
+}
+
 .preview-stage {
   margin-top: 18px;
 }
@@ -1239,5 +1247,9 @@ button:disabled,
 
   .mobile-preview-mount {
     display: block;
+  }
+
+  .crop-controls {
+    margin-top: 16px;
   }
 }

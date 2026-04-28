@@ -176,6 +176,9 @@
     invoiceNotesInput: document.getElementById("invoiceNotesInput"),
     productionCostValue: document.getElementById("productionCostValue"),
     recommendedRetailValue: document.getElementById("recommendedRetailValue"),
+    invoicePricingContext: document.getElementById("invoicePricingContext"),
+    orderProductionStat: document.getElementById("orderProductionStat"),
+    orderInvoiceStat: document.getElementById("orderInvoiceStat"),
     orderProductionCostValue: document.getElementById("orderProductionCostValue"),
     orderInvoiceTotalValue: document.getElementById("orderInvoiceTotalValue"),
     artistPayoutValue: document.getElementById("artistPayoutValue"),
@@ -1582,6 +1585,7 @@
 
   function renderOrderMode(selectedInvoicePricing, orderInvoicePricing, orderEstimate) {
     const invoiceMode = isInvoiceMode();
+    const hasMultipleArtworks = orderEstimate.artworkCount > 1;
     const artworkLabel = orderEstimate.artworkCount === 1 ? "artwork file" : "artwork files";
 
     elements.standardOrderModeButton.classList.toggle("is-active", !invoiceMode);
@@ -1592,7 +1596,7 @@
     elements.invoiceClientPanel.classList.toggle("is-hidden", !invoiceMode);
     elements.clientMessageCard.classList.toggle("is-hidden", !invoiceMode);
 
-    elements.estimateLabel.textContent = invoiceMode ? "Order production cost" : "Order estimate";
+    elements.estimateLabel.textContent = invoiceMode ? "Selected artwork cost" : "Order estimate";
     elements.prepareButton.textContent = invoiceMode ? "Create Invoice Request" : "Create Email Request";
     elements.prepareSupportCopy.textContent = invoiceMode
       ? "We will open an email draft addressed to joelle@monochromecanvas.com with your artist, client, and invoice details filled in."
@@ -1611,11 +1615,19 @@
     elements.orderProductionCostValue.textContent = formatMoney(orderInvoicePricing.productionCost);
     elements.orderInvoiceTotalValue.textContent = formatMoney(orderInvoicePricing.clientInvoiceAmount);
     elements.artistPayoutValue.textContent = formatMoney(orderInvoicePricing.artistPayout);
+    elements.invoicePricingContext.classList.toggle("is-hidden", !invoiceMode || !hasMultipleArtworks);
+    elements.orderProductionStat.classList.toggle("is-hidden", !invoiceMode || !hasMultipleArtworks);
+    elements.orderInvoiceStat.classList.toggle("is-hidden", !invoiceMode || !hasMultipleArtworks);
+    elements.invoicePricingContext.textContent = hasMultipleArtworks
+      ? "You are editing the pricing for the selected artwork. The order totals below combine every artwork currently included."
+      : "";
     elements.artistPayoutNote.textContent =
       selectedInvoicePricing.clientInvoiceAmount > 0 &&
       selectedInvoicePricing.clientInvoiceAmount < selectedInvoicePricing.productionCost
         ? "This selected artwork is priced below its production cost. Raise it before sending the invoice request."
-        : "The estimated artist payout is the combined invoice total minus the combined Monochrome Canvas production cost.";
+        : hasMultipleArtworks
+          ? "The estimated artist payout is the combined invoice total minus the combined Monochrome Canvas production cost."
+          : "The estimated artist payout is the client invoice amount minus the Monochrome Canvas production cost.";
   }
 
   function render() {
@@ -1649,7 +1661,13 @@
     renderPreviewImage(activeArtwork);
     renderPreviewShape(activeArtwork, activeEstimate);
     renderRatioControls(activeArtwork, activeEstimate, activeSizingFeedback);
-    elements.estimateTotal.textContent = orderEstimate.artworkCount ? formatMoney(orderEstimate.total) : "$0.00";
+    elements.estimateTotal.textContent = isInvoiceMode()
+      ? activeArtworkStarted
+        ? formatMoney(activeInvoicePricing.productionCost)
+        : "$0.00"
+      : orderEstimate.artworkCount
+        ? formatMoney(orderEstimate.total)
+        : "$0.00";
 
     if (activeEstimate.width > 0 && activeEstimate.height > 0) {
       if (activeMaxSizeFeedback.fits) {
@@ -1658,7 +1676,9 @@
           ? orderEstimate.artworkCount + " artwork" + (orderEstimate.artworkCount === 1 ? " is" : "s are") + " currently included in this order."
           : "Start an artwork to build the order total.";
         const defaultMessage = isInvoiceMode()
-          ? "Each artwork starts at 2x its production cost, and the order invoice total adds those artwork prices together."
+          ? orderEstimate.artworkCount > 1
+            ? "The amount above is for the selected artwork. Order totals in the pricing card and summary combine all started artworks."
+            : "Set the selected artwork pricing here, and Monochrome Canvas will confirm the invoice after studio review."
           : "Final invoice is confirmed after studio review.";
         elements.estimateRange.textContent = [pricingSourceMessage, orderCountMessage, defaultMessage]
           .filter(Boolean)

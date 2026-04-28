@@ -1,6 +1,10 @@
 (function () {
   const STUDIO_EMAIL = "joelle@monochromecanvas.com";
   const WHITE_BORDER_BUILDER_URL = "../white-border-builder-tool/index.html";
+  const WHITE_BORDER_BUILDER_IMPORT_QUERY_VALUE = "custom-size-request";
+  const WHITE_BORDER_BUILDER_IMPORT_URL =
+    WHITE_BORDER_BUILDER_URL + "?import=" + encodeURIComponent(WHITE_BORDER_BUILDER_IMPORT_QUERY_VALUE);
+  const WHITE_BORDER_BUILDER_FILE_KEY = "custom-size-request-to-white-border-builder";
   const PREPARED_FILE_DB_NAME = "monochrome-canvas-prep";
   const PREPARED_FILE_STORE = "prepared-files";
   const PREPARED_FILE_KEY = "white-border-builder-to-custom-size-request";
@@ -164,6 +168,7 @@
     payoutMethodSelect: document.getElementById("payoutMethodSelect"),
     payoutHandleInput: document.getElementById("payoutHandleInput"),
     clientInvoiceAmountInput: document.getElementById("clientInvoiceAmountInput"),
+    invoiceNotesInput: document.getElementById("invoiceNotesInput"),
     productionCostValue: document.getElementById("productionCostValue"),
     recommendedRetailValue: document.getElementById("recommendedRetailValue"),
     artistPayoutValue: document.getElementById("artistPayoutValue"),
@@ -1423,37 +1428,37 @@
 
     if (sizingFeedback.cropPreview) {
       elements.prepFlowNote.textContent =
-        "If you switch to the White Border Builder, download the edited file there first, then come back here and upload that prepared version before sending your request.";
+        "You can open the White Border Builder with this artwork already loaded. If you use the custom quote button there, the prepared file can come back here automatically.";
       elements.prepFlowNote.classList.remove("is-hidden");
       renderGuidanceCard({
         title: "Want borders instead of a crop?",
         message:
           "This preview is trimming the artwork to fit the requested size. If you would rather keep the full image with added border space, prep the file first and then return here for the quote.",
         steps: [
-          "Open the White Border Builder.",
+          "Open the White Border Builder with this artwork already loaded.",
           "Adjust the crop or add borders there.",
-          "Download the prepared file from that tool.",
-          "Come back here and upload that prepared version for the quote request."
+          "Use the custom quote button there to return here with the prepared file loaded, or download it there if you prefer to keep the file."
         ],
-        linkHref: WHITE_BORDER_BUILDER_URL,
-        linkText: "Prepare file in White Border Builder"
+        linkHref: WHITE_BORDER_BUILDER_IMPORT_URL,
+        linkText: "Prepare file in White Border Builder",
+        onClick: handOffToWhiteBorderBuilder
       });
     } else if (sizingFeedback.needsPrep) {
       elements.prepFlowNote.textContent =
-        "If you prepare the artwork in the White Border Builder, download that finished file there and then re-upload it here before creating the request.";
+        "You can open the White Border Builder with this artwork already loaded. When you finish there, the prepared file can be sent back here for the request.";
       elements.prepFlowNote.classList.remove("is-hidden");
       renderGuidanceCard({
         title: "Prepare this file before ordering",
         message:
           "The artwork shape does not match this print size closely enough yet. The easiest path is to prep the file first, then return here once that new version is ready.",
         steps: [
-          "Open the White Border Builder.",
+          "Open the White Border Builder with this artwork already loaded.",
           "Add the border or framing space you want.",
-          "Download the prepared file from that tool.",
-          "Return here and upload that prepared file for the quote."
+          "Use the custom quote button there to come back here with the prepared version, or download it there if you want to keep the file."
         ],
-        linkHref: WHITE_BORDER_BUILDER_URL,
-        linkText: "Open White Border Builder to prep file"
+        linkHref: WHITE_BORDER_BUILDER_IMPORT_URL,
+        linkText: "Open White Border Builder to prep file",
+        onClick: handOffToWhiteBorderBuilder
       });
     }
 
@@ -1621,6 +1626,9 @@
       link.target = "_blank";
       link.rel = "noreferrer";
       link.textContent = options.linkText;
+      if (typeof options.onClick === "function") {
+        link.addEventListener("click", options.onClick);
+      }
       card.appendChild(link);
     }
 
@@ -2004,6 +2012,44 @@
     }
   }
 
+  async function saveCurrentFileForWhiteBorderBuilder() {
+    if (!state.file) {
+      throw new Error("No file available for White Border Builder handoff");
+    }
+
+    const database = await openPreparedFileDatabase();
+
+    try {
+      await new Promise(function (resolve, reject) {
+        const transaction = database.transaction(PREPARED_FILE_STORE, "readwrite");
+        const store = transaction.objectStore(PREPARED_FILE_STORE);
+        store.put(
+          {
+            source: "custom-size-request",
+            filename: state.file.name || "custom-size-artwork",
+            blob: state.file,
+            createdAt: Date.now()
+          },
+          WHITE_BORDER_BUILDER_FILE_KEY
+        );
+
+        transaction.oncomplete = function () {
+          resolve();
+        };
+
+        transaction.onerror = function () {
+          reject(transaction.error || new Error("Could not save custom size artwork"));
+        };
+
+        transaction.onabort = function () {
+          reject(transaction.error || new Error("Custom size artwork save was aborted"));
+        };
+      });
+    } finally {
+      database.close();
+    }
+  }
+
   async function importPreparedArtworkIfRequested() {
     if (!shouldImportPreparedArtwork()) {
       return;
@@ -2051,6 +2097,41 @@
       }
       stripPreparedArtworkQueryFlag();
     }
+  }
+
+  async function handOffToWhiteBorderBuilder(event) {
+    if (!state.file) {
+      return;
+    }
+
+    if (event) {
+      event.preventDefault();
+    }
+
+    try {
+      await saveCurrentFileForWhiteBorderBuilder();
+    } catch (error) {
+      showMessage(
+        "The current file could not be sent into the White Border Builder automatically. You can still open it and upload the artwork there.",
+        true
+      );
+      const fallbackWindow = window.open(WHITE_BORDER_BUILDER_URL, "_blank", "noopener");
+      if (!fallbackWindow) {
+        window.location.href = WHITE_BORDER_BUILDER_URL;
+      }
+      return;
+    }
+
+    const destination =
+      event && event.currentTarget && event.currentTarget.href ? event.currentTarget.href : WHITE_BORDER_BUILDER_IMPORT_URL;
+    const builderWindow = window.open(destination, "_blank", "noopener");
+
+    if (builderWindow && typeof builderWindow.focus === "function") {
+      builderWindow.focus();
+      return;
+    }
+
+    window.location.href = destination;
   }
 
   function closeDialog() {

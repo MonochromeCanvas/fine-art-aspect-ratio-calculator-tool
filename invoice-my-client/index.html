@@ -116,6 +116,7 @@
                 </span>
               </label>
               <p id="ratioModeNote" class="field-note"></p>
+              <div id="mobilePreviewMount" class="mobile-preview-mount"></div>
               <div id="cropControls" class="crop-controls is-hidden">
                 <p id="cropControlsNote" class="field-note">
                   Crop position controls appear when the size is unlinked and the artwork needs to be cropped to fill the requested shape.
@@ -135,7 +136,6 @@
                   </label>
                 </div>
               </div>
-              <div id="mobilePreviewMount" class="mobile-preview-mount"></div>
               <div id="canvasOptions" class="canvas-options is-hidden">
                 <p class="field-note">
                   For canvas requests, enter the finished face size above. If you need canvas for stretching, add the extra border below.
@@ -236,7 +236,7 @@
                   <p class="section-label">Managed Client Invoice</p>
                   <h4>Monochrome Canvas will invoice your client after studio review.</h4>
                   <p>
-                    Recommended starting retail is based on 2x the production cost for this order. Artist pricing is not applied in this mode because payment processing and payout handling stay with the studio.
+                    Recommended starting retail is based on 2x the production cost for the selected artwork. When you add more than one artwork, the tool keeps artwork pricing separate and then combines the order totals below. Artist pricing is not applied in this mode because payment processing and payout handling stay with the studio.
                   </p>
                 </div>
                 <div class="field-grid">
@@ -272,6 +272,7 @@
                 </div>
                 <div class="invoice-pricing-card">
                   <p class="section-label">Invoice Pricing</p>
+                  <p id="invoicePricingContext" class="field-note is-hidden"></p>
                   <div class="invoice-pricing-grid">
                     <div class="invoice-pricing-stat">
                       <span class="pricing-label">Selected artwork cost</span>
@@ -294,12 +295,12 @@
                         placeholder="0.00"
                       >
                     </label>
-                    <div class="invoice-pricing-stat">
+                    <div id="orderProductionStat" class="invoice-pricing-stat">
                       <span class="pricing-label">Order production cost</span>
                       <strong id="orderProductionCostValue">$0.00</strong>
                       <p class="field-note">Combined Monochrome Canvas production cost for all included artworks.</p>
                     </div>
-                    <div class="invoice-pricing-stat">
+                    <div id="orderInvoiceStat" class="invoice-pricing-stat">
                       <span class="pricing-label">Order invoice total</span>
                       <strong id="orderInvoiceTotalValue">$0.00</strong>
                       <p class="field-note">Combined client invoice amount across all included artworks in this order.</p>
