@@ -46,7 +46,7 @@
       weeks: 0,
       factor: "Clean layout, adaptation, or production support",
       guideTitle: "Choose this when the visual direction is mostly set.",
-      guide: "Example: a defined flyer, simple print piece, digital graphic, or layout task with supplied copy, images, and size requirements."
+      guide: "Example: a defined flyer, simple print piece, digital graphic, or layout task with supplied copy, images, references, and size requirements."
     },
     "designed-piece": {
       label: "Designed piece with art direction",
@@ -69,8 +69,8 @@
       multiplier: 2.2,
       weeks: 4,
       factor: "Full visual direction or creative lead",
-      guideTitle: "Choose this when the project needs creative direction.",
-      guide: "Example: a brand system, packaging direction, campaign look, public-facing launch, or work that needs discovery and visual strategy."
+      guideTitle: "Choose this when a clear identity needs expansion.",
+      guide: "Example: a brand system, packaging direction, campaign look, or public-facing launch where the client already understands the business and has direction for the studio to build from."
     }
   };
 
@@ -136,10 +136,10 @@
 
   const assetProfiles = {
     ready: {
-      label: "Assets and copy are ready",
+      label: "Content, assets, and direction are ready",
       flat: 0,
       weeks: 0,
-      factor: "Assets and copy are ready"
+      factor: "Content, assets, and direction are ready"
     },
     messy: {
       label: "Some cleanup or organization needed",
@@ -148,16 +148,16 @@
       factor: "Asset cleanup or organization"
     },
     "create-assets": {
-      label: "Studio needs to create supporting assets",
+      label: "Studio needs to create supporting visual assets",
       flat: 850,
       weeks: 2,
-      factor: "Supporting asset creation"
+      factor: "Supporting visual asset creation"
     },
     strategy: {
-      label: "Discovery, strategy, or art direction needed",
+      label: "Identity expansion or art direction needed",
       flat: 1400,
       weeks: 3,
-      factor: "Discovery, strategy, or art direction"
+      factor: "Identity expansion or art direction from an existing starting point"
     }
   };
 
@@ -301,7 +301,7 @@
       "Creative depth: " + estimate.labels.complexity,
       "Visibility / rights: " + estimate.labels.usage,
       "Timeline: " + estimate.labels.timeline,
-      "Assets / copy readiness: " + estimate.labels.assetReadiness,
+      "Content / asset readiness: " + estimate.labels.assetReadiness,
       "Additional deliverables: " + deliverables,
       "",
       "Planning range: " + formatMoney(estimate.low) + " - " + formatMoney(estimate.high),
@@ -379,7 +379,7 @@
       : "";
     elements.emailLink.href =
       "mailto:" +
-      encodeURIComponent(STUDIO_EMAIL) +
+      STUDIO_EMAIL +
       "?subject=" +
       encodeURIComponent("Graphic design inquiry - " + estimate.projectLabel) +
       "&body=" +

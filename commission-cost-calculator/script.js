@@ -4,8 +4,8 @@
   const projectProfiles = {
     "private-keepsake": {
       label: "Loose personal artwork",
-      base: 500,
-      floor: 500,
+      base: 375,
+      floor: 300,
       weeks: [3, 6],
       note: "Best fit for loose drawings, minimal color, simple personal gifts, and clear references."
     },
@@ -435,7 +435,7 @@
     }
     elements.emailLink.href =
       "mailto:" +
-      encodeURIComponent(STUDIO_EMAIL) +
+      STUDIO_EMAIL +
       "?subject=" +
       encodeURIComponent("Commission inquiry - " + estimate.projectLabel) +
       "&body=" +
