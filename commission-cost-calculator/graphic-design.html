@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Graphic Design Scope Calculator | Monochrome Canvas</title>
+    <meta
+      name="description"
+      content="Estimate a selective graphic design project range for Monochrome Canvas based on scope, usage, deliverables, timeline, and production needs."
+    >
+    <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+    <link rel="stylesheet" href="./style.css">
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="hero">
+        <div class="hero-layout">
+          <a class="brand-pill" href="https://monochromecanvas.com" target="_blank" rel="noreferrer">
+            Monochrome Canvas
+          </a>
+          <nav class="tool-nav" aria-label="Planning tools">
+            <a href="./index.html">Artwork commissions</a>
+            <a href="./graphic-design.html" aria-current="page">Graphic design</a>
+          </nav>
+          <p class="eyebrow">Selective Studio Design</p>
+          <h1>Graphic Design Scope Calculator</h1>
+          <p class="hero-copy">
+            A planning tool for design projects that need art direction, visual identity, illustration, print production, or a studio-level point of view.
+          </p>
+          <div class="hero-notes">
+            <span>Accepted selectively by fit</span>
+            <span>Usage rights affect pricing</span>
+            <span>Final quotes follow studio review</span>
+          </div>
+        </div>
+      </header>
+
+      <section class="scope-intro" aria-label="Graphic design fit notes">
+        <article>
+          <h2>Best fit</h2>
+          <p>Identity, campaign, print, packaging, and design systems where the visual direction benefits from an artist's eye.</p>
+        </article>
+        <article>
+          <h2>Not a fit</h2>
+          <p>Template-only production, rushed one-off edits, speculative logo tests, or projects without room for thoughtful creative direction.</p>
+        </article>
+        <article>
+          <h2>How pricing works</h2>
+          <p>Ranges reflect scope, rights, deliverables, timeline, production risk, and the level of design authorship required.</p>
+        </article>
+      </section>
+
+      <section class="workspace" aria-labelledby="workspace-title">
+        <div class="workspace-header">
+          <div>
+            <p class="section-label">Estimate Scope</p>
+            <h2 id="workspace-title">Describe the design assignment</h2>
+          </div>
+          <p class="privacy-copy">
+            This calculator prepares a starting range and inquiry summary. It does not submit anything automatically.
+          </p>
+        </div>
+
+        <div class="workspace-grid">
+          <form id="designCalculatorForm" class="controls-pane" aria-label="Graphic design estimate controls">
+            <div class="stack-block">
+              <h3>1. Project shape</h3>
+              <div class="field-grid">
+                <label class="field field--wide">
+                  <span>Design category</span>
+                  <select id="designProjectSelect" name="projectType">
+                    <option value="design-support">Print or digital design support</option>
+                    <option value="campaign-collateral">Campaign or event collateral</option>
+                    <option value="logo-mark">Logo, mark, or identity refresh</option>
+                    <option value="identity-system">Identity system or art direction</option>
+                    <option value="packaging-public">Packaging, launch, or public-facing system</option>
+                  </select>
+                </label>
+                <label class="field">
+                  <span>Client / project details</span>
+                  <input
+                    id="designDetailsInput"
+                    name="projectDetails"
+                    type="text"
+                    placeholder="Gallery event, local brand, campaign launch..."
+                  >
+                </label>
+                <label class="field">
+                  <span>Final deliverable count</span>
+                  <input id="deliverableCountInput" name="deliverableCount" type="number" min="1" max="30" step="1" value="1" inputmode="numeric">
+                </label>
+              </div>
+            </div>
+
+            <div class="stack-block">
+              <h3>2. Design depth + use</h3>
+              <div class="field-grid">
+                <label class="field field--wide">
+                  <span>Creative depth</span>
+                  <select id="designComplexitySelect" name="complexity">
+                    <option value="production">Clean layout or production support</option>
+                    <option value="designed-piece" selected>Designed piece with art direction</option>
+                    <option value="small-system">Small coordinated system</option>
+                    <option value="full-direction">Full visual direction</option>
+                  </select>
+                </label>
+                <div id="designComplexityGuide" class="choice-guide field--wide" aria-live="polite"></div>
+                <label class="field field--wide">
+                  <span>Visibility / rights</span>
+                  <select id="designUsageSelect" name="usage">
+                    <option value="internal" selected>Internal or limited local use</option>
+                    <option value="small-public">Small business public use</option>
+                    <option value="campaign">Campaign, event, or publication use</option>
+                    <option value="packaging">Packaging, retail, or product use</option>
+                    <option value="broad-license">Broad licensing, resale, or buyout request</option>
+                  </select>
+                </label>
+              </div>
+            </div>
+
+            <div class="stack-block">
+              <h3>3. Production + timeline</h3>
+              <div class="field-grid">
+                <label class="field">
+                  <span>Timeline</span>
+                  <select id="designTimelineSelect" name="timeline">
+                    <option value="flexible">Flexible timing</option>
+                    <option value="standard" selected>Standard schedule</option>
+                    <option value="priority">Priority timeline</option>
+                    <option value="rush">Rush or fixed launch date</option>
+                  </select>
+                </label>
+                <label class="field">
+                  <span>Assets / copy readiness</span>
+                  <select id="assetReadinessSelect" name="assetReadiness">
+                    <option value="ready" selected>Assets and copy are ready</option>
+                    <option value="messy">Some cleanup or organization needed</option>
+                    <option value="create-assets">Studio needs to create supporting assets</option>
+                    <option value="strategy">Discovery, strategy, or art direction needed</option>
+                  </select>
+                </label>
+              </div>
+              <fieldset class="check-list">
+                <legend>Additional deliverables</legend>
+                <label class="toggle">
+                  <input type="checkbox" name="designDeliverables" value="print-ready">
+                  <span>Print-ready files or vendor handoff</span>
+                </label>
+                <label class="toggle">
+                  <input type="checkbox" name="designDeliverables" value="template-suite">
+                  <span>Reusable templates or layout system</span>
+                </label>
+                <label class="toggle">
+                  <input type="checkbox" name="designDeliverables" value="brand-guide">
+                  <span>Mini brand guide or usage notes</span>
+                </label>
+                <label class="toggle">
+                  <input type="checkbox" name="designDeliverables" value="artwork-integration">
+                  <span>Custom illustration, artwork, or image direction</span>
+                </label>
+              </fieldset>
+              <label class="field field--wide details-field">
+                <span>Anything important to know?</span>
+                <textarea
+                  id="designNotesInput"
+                  name="notes"
+                  rows="4"
+                  placeholder="Launch date, audience, sizes, channels, print vendor needs, existing brand materials, or why this project feels aligned."
+                ></textarea>
+              </label>
+            </div>
+          </form>
+
+          <aside class="preview-pane" aria-label="Graphic design estimate">
+            <div class="estimate-panel">
+              <p class="section-label">Planning Range</p>
+              <strong id="designEstimateRange" class="estimate-total">$0 - $0</strong>
+              <p id="designEstimateNote" class="estimate-copy">
+                Select the details to generate a planning range.
+              </p>
+              <div class="estimate-stats">
+                <div>
+                  <span>Typical deposit</span>
+                  <strong id="designDepositRange">$0 - $0</strong>
+                </div>
+                <div>
+                  <span>Likely timeline</span>
+                  <strong id="designTimelineValue">-</strong>
+                </div>
+              </div>
+            </div>
+
+            <div class="summary-panel">
+              <p class="section-label">Inquiry Summary</p>
+              <div id="designSummaryContent" class="summary-content" aria-live="polite"></div>
+              <div id="designFactorList" class="factor-list"></div>
+              <div id="designNotesPreview" class="details-preview is-hidden"></div>
+              <div class="action-row">
+                <button id="designCopyButton" class="copy-button" type="button">Copy Summary</button>
+                <a id="designEmailLink" class="send-button" href="mailto:mnchrmcnvs@gmail.com">Email Studio</a>
+              </div>
+              <p id="designCopyStatus" class="field-note" aria-live="polite"></p>
+            </div>
+
+            <div class="notice-panel">
+              <h3>Selective fit</h3>
+              <p>
+                Graphic design projects are reviewed by fit, not just availability. The strongest requests have a clear audience, defined deliverables, realistic timing, and space for considered visual direction.
+              </p>
+            </div>
+          </aside>
+        </div>
+      </section>
+    </main>
+    <script src="./graphic-design.js"></script>
+  </body>
+</html>

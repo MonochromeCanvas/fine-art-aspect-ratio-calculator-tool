@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Commission Pricing Calculator | Monochrome Canvas</title>
+    <meta
+      name="description"
+      content="Estimate a custom artwork commission range for Monochrome Canvas based on project type, complexity, usage, timeline, and deliverables."
+    >
+    <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+    <link rel="stylesheet" href="./style.css">
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="hero">
+        <div class="hero-layout">
+          <a class="brand-pill" href="https://monochromecanvas.com" target="_blank" rel="noreferrer">
+            Monochrome Canvas
+          </a>
+          <nav class="tool-nav" aria-label="Planning tools">
+            <a href="./index.html" aria-current="page">Artwork commissions</a>
+            <a href="./graphic-design.html">Graphic design</a>
+          </nav>
+          <p class="eyebrow">Commission Planning</p>
+          <h1>Commission Pricing Calculator</h1>
+          <p class="hero-copy">
+            Build a realistic starting range for a unique artwork commission before sending an inquiry to the studio.
+          </p>
+          <div class="hero-notes">
+            <span>Loose studies through fully developed artwork</span>
+            <span>Usage and deliverables included in the range</span>
+            <span>Final quotes follow studio review</span>
+          </div>
+        </div>
+      </header>
+
+      <section class="workspace" aria-labelledby="workspace-title">
+        <div class="workspace-header">
+          <div>
+            <p class="section-label">Estimate Scope</p>
+            <h2 id="workspace-title">Choose the project details</h2>
+          </div>
+          <p class="privacy-copy">
+            This calculator does not submit anything automatically. It prepares a planning range and an inquiry summary you can email.
+          </p>
+        </div>
+
+        <div class="workspace-grid">
+          <form id="calculatorForm" class="controls-pane" aria-label="Commission estimate controls">
+            <div class="stack-block">
+              <h3>1. Project type</h3>
+              <div class="field-grid">
+                <label class="field field--wide">
+                  <span>Commission category</span>
+                  <select id="projectTypeSelect" name="projectType">
+                    <option value="private-keepsake">Loose personal artwork</option>
+                    <option value="refined-portrait">Developed private commission</option>
+                    <option value="institutional-portrait">Institutional or public-facing work</option>
+                    <option value="commercial-campaign">Commercial or campaign artwork</option>
+                    <option value="public-license">Licensing, merchandise, or broad use</option>
+                  </select>
+                </label>
+                <label class="field">
+                  <span>Subject matter</span>
+                  <select id="subjectSelect" name="subject">
+                    <option value="animal">Animal or pet</option>
+                    <option value="person">Person or portrait</option>
+                    <option value="couple-family">Couple or family</option>
+                    <option value="house-building">House or building</option>
+                    <option value="place-event">Place, venue, or event</option>
+                    <option value="business-brand">Business, brand, or campaign</option>
+                    <option value="other">Something else</option>
+                  </select>
+                </label>
+                <label class="field">
+                  <span>Subject details</span>
+                  <input
+                    id="subjectDetailsInput"
+                    name="subjectDetails"
+                    type="text"
+                    placeholder="Mabel the dog, family home, founder portrait..."
+                  >
+                </label>
+                <label class="field">
+                  <span>Finished artwork count</span>
+                  <input id="artworkCountInput" name="artworkCount" type="number" min="1" max="12" step="1" value="1" inputmode="numeric">
+                </label>
+                <label class="field">
+                  <span>How large will it be shown?</span>
+                  <select id="sizeSelect" name="size">
+                    <option value="small">Small display</option>
+                    <option value="medium" selected>Standard display</option>
+                    <option value="large">Large wall piece</option>
+                    <option value="installation">Oversized or multi-format</option>
+                  </select>
+                </label>
+                <div id="sizeGuide" class="choice-guide field--wide" aria-live="polite"></div>
+              </div>
+            </div>
+
+            <div class="stack-block">
+              <h3>2. Artwork difficulty + usage</h3>
+              <div class="field-grid">
+                <label class="field field--wide">
+                  <span>How finished is the artwork?</span>
+                  <select id="complexitySelect" name="complexity">
+                    <option value="simple">Loose drawing / minimal color</option>
+                    <option value="standard" selected>Developed artwork</option>
+                    <option value="complex">Highly detailed artwork</option>
+                    <option value="custom">Concept-led or public-facing</option>
+                  </select>
+                </label>
+                <div id="complexityGuide" class="choice-guide field--wide" aria-live="polite"></div>
+                <label class="field field--wide">
+                  <span>Intended use</span>
+                  <select id="usageSelect" name="usage">
+                    <option value="personal" selected>Personal display</option>
+                    <option value="family-prints">Small private prints</option>
+                    <option value="internal-business">Internal business display</option>
+                    <option value="public-marketing">Public marketing use</option>
+                    <option value="merchandise">Merchandise or licensing</option>
+                  </select>
+                </label>
+              </div>
+            </div>
+
+            <div class="stack-block">
+              <h3>3. Deliverables + timeline</h3>
+              <div class="field-grid">
+                <label class="field">
+                  <span>Timeline</span>
+                  <select id="timelineSelect" name="timeline">
+                    <option value="flexible">Flexible timing</option>
+                    <option value="standard" selected>Standard schedule</option>
+                    <option value="priority">Priority timeline</option>
+                    <option value="rush">Rush deadline</option>
+                  </select>
+                </label>
+                <label class="field">
+                  <span>Reference readiness</span>
+                  <select id="referenceSelect" name="reference">
+                    <option value="ready" selected>References ready</option>
+                    <option value="mixed">Reference cleanup</option>
+                    <option value="research">Studio research</option>
+                    <option value="art-direction">Art direction needed</option>
+                  </select>
+                </label>
+              </div>
+              <fieldset class="check-list">
+                <legend>Additional deliverables</legend>
+                <label class="toggle">
+                  <input type="checkbox" name="deliverables" value="archival-print">
+                  <span>Archival print or printed proof</span>
+                </label>
+                <label class="toggle">
+                  <input type="checkbox" name="deliverables" value="edition-package">
+                  <span>Edition, print run, or collector package planning</span>
+                </label>
+                <label class="toggle">
+                  <input type="checkbox" name="deliverables" value="production-assets">
+                  <span>Production-ready files for campaign, publication, or vendor use</span>
+                </label>
+                <label class="toggle">
+                  <input type="checkbox" name="deliverables" value="merch-adaptation">
+                  <span>Merchandise or apparel adaptation</span>
+                </label>
+              </fieldset>
+              <label class="field field--wide details-field">
+                <span>Anything important to know?</span>
+                <textarea
+                  id="detailsInput"
+                  name="details"
+                  rows="4"
+                  placeholder="Deadline, gift occasion, subject names, reference links, where it will be displayed, or anything unusual about the project."
+                ></textarea>
+              </label>
+            </div>
+          </form>
+
+          <aside class="preview-pane" aria-label="Commission estimate">
+            <div class="estimate-panel">
+              <p class="section-label">Planning Range</p>
+              <strong id="estimateRange" class="estimate-total">$0 - $0</strong>
+              <p id="estimateNote" class="estimate-copy">
+                Select the details to generate a planning range.
+              </p>
+              <div class="estimate-stats">
+                <div>
+                  <span>Typical deposit</span>
+                  <strong id="depositRange">$0 - $0</strong>
+                </div>
+                <div>
+                  <span>Likely timeline</span>
+                  <strong id="timelineValue">-</strong>
+                </div>
+              </div>
+            </div>
+
+            <div class="summary-panel">
+              <p class="section-label">Inquiry Summary</p>
+              <div id="summaryContent" class="summary-content" aria-live="polite"></div>
+              <div id="factorList" class="factor-list"></div>
+              <div id="detailsPreview" class="details-preview is-hidden"></div>
+              <div class="action-row">
+                <button id="copyButton" class="copy-button" type="button">Copy Summary</button>
+                <a id="emailLink" class="send-button" href="mailto:mnchrmcnvs@gmail.com">Email Studio</a>
+              </div>
+              <p id="copyStatus" class="field-note" aria-live="polite"></p>
+            </div>
+
+            <div class="notice-panel">
+              <h3>Important</h3>
+              <p>
+                This is a planning estimate, not a final quote. Final pricing depends on reference review, usage rights, revision scope, production needs, and studio availability.
+              </p>
+            </div>
+          </aside>
+        </div>
+      </section>
+    </main>
+    <script src="./script.js"></script>
+  </body>
+</html>
