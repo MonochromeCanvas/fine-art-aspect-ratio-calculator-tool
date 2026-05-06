@@ -3,11 +3,43 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Commission Pricing Calculator | Monochrome Canvas</title>
+    <title>Custom Fine Art Commission Calculator | Monochrome Canvas</title>
     <meta
       name="description"
-      content="Estimate a custom artwork commission range for Monochrome Canvas based on project type, complexity, usage, timeline, and deliverables."
+      content="Estimate a custom fine art commission by Joëlle Diane Zellman of Monochrome Canvas, including commissioned paintings, illustration, portraits, pet art, architectural artwork, digital oil paintings, and print-ready artwork for collectors, families, businesses, and institutions."
     >
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Service",
+        "name": "Custom artwork commissions by Monochrome Canvas",
+        "description": "Custom commissioned fine art, illustration, portraits, pet art, house portraits, architectural artwork, digital oil paintings, and print-ready artwork by Joëlle Diane Zellman for private collectors, families, businesses, and institutions.",
+        "serviceType": [
+          "Commissioned artwork",
+          "Custom illustration",
+          "Fine art portrait",
+          "Pet portrait",
+          "House portrait",
+          "Architectural illustration",
+          "Digital oil painting",
+          "Fine art printing"
+        ],
+        "areaServed": [
+          "United States",
+          "Ohio",
+          "Northeast Ohio"
+        ],
+        "provider": {
+          "@type": "LocalBusiness",
+          "name": "Monochrome Canvas",
+          "url": "https://monochromecanvas.com/pages/commissions",
+          "founder": {
+            "@type": "Person",
+            "name": "Joëlle Diane Zellman"
+          }
+        }
+      }
+    </script>
     <link rel="icon" type="image/svg+xml" href="../favicon.svg">
     <link rel="stylesheet" href="./style.css">
   </head>
@@ -21,6 +53,7 @@
           <nav class="tool-nav" aria-label="Planning tools">
             <a href="./index.html" aria-current="page">Artwork commissions</a>
             <a href="./graphic-design.html">Graphic design</a>
+            <a href="./mural-design.html">Mural design</a>
           </nav>
           <p class="eyebrow">Commission Planning</p>
           <h1>Commission Pricing Calculator</h1>
@@ -29,6 +62,7 @@
           </p>
           <div class="hero-notes">
             <span>Loose studies through fully developed artwork</span>
+            <span>Premium scene and large-format scopes included</span>
             <span>Usage and deliverables included in the range</span>
             <span>Final quotes follow studio review</span>
           </div>
@@ -56,11 +90,14 @@
                   <select id="projectTypeSelect" name="projectType">
                     <option value="private-keepsake">Loose personal artwork</option>
                     <option value="refined-portrait">Developed private commission</option>
+                    <option value="detailed-scene">Detailed place, architecture, or scene</option>
+                    <option value="premium-scale">Premium large-scale custom artwork</option>
                     <option value="institutional-portrait">Institutional or public-facing work</option>
                     <option value="commercial-campaign">Commercial or campaign artwork</option>
                     <option value="public-license">Licensing, merchandise, or broad use</option>
                   </select>
                 </label>
+                <div id="projectTypeGuide" class="choice-guide field--wide" aria-live="polite"></div>
                 <label class="field">
                   <span>Subject matter</span>
                   <select id="subjectSelect" name="subject">
@@ -69,6 +106,9 @@
                     <option value="couple-family">Couple or family</option>
                     <option value="house-building">House or building</option>
                     <option value="place-event">Place, venue, or event</option>
+                    <option value="architecture-landscape">Architecture, landscape, town, or harbor scene</option>
+                    <option value="vehicle-boat-scene">Vehicle, boat, dock, or detailed object scene</option>
+                    <option value="mural-public-art">Mural, public art, or installation concept</option>
                     <option value="business-brand">Business, brand, or campaign</option>
                     <option value="other">Something else</option>
                   </select>
@@ -93,6 +133,7 @@
                     <option value="medium" selected>Standard display</option>
                     <option value="large">Large wall piece</option>
                     <option value="installation">Oversized or multi-format</option>
+                    <option value="exhibition-scale">Exhibition scale / about 4' x 6' or larger</option>
                   </select>
                 </label>
                 <div id="sizeGuide" class="choice-guide field--wide" aria-live="polite"></div>
@@ -100,18 +141,28 @@
             </div>
 
             <div class="stack-block">
-              <h3>2. Artwork difficulty + usage</h3>
+              <h3>2. Artwork complexity, finish + usage</h3>
               <div class="field-grid">
                 <label class="field field--wide">
-                  <span>How finished is the artwork?</span>
+                  <span>Creative complexity</span>
                   <select id="complexitySelect" name="complexity">
-                    <option value="simple">Loose drawing / minimal color</option>
+                    <option value="simple">Simple subject or direct study</option>
                     <option value="standard" selected>Developed artwork</option>
-                    <option value="complex">Highly detailed artwork</option>
+                    <option value="complex">Detailed subject, setting, or multiple elements</option>
+                    <option value="premium-scene">Premium complex scene</option>
                     <option value="custom">Concept-led or public-facing</option>
                   </select>
                 </label>
                 <div id="complexityGuide" class="choice-guide field--wide" aria-live="polite"></div>
+                <label class="field field--wide">
+                  <span>Finish direction</span>
+                  <select id="finishSelect" name="finish">
+                    <option value="loose-minimal">Loose drawing / minimal color</option>
+                    <option value="watercolor-loose" selected>Loose sketch with watercolor</option>
+                    <option value="developed-color">Developed color artwork</option>
+                    <option value="rendered-oil">Rendered digital oil painting look</option>
+                  </select>
+                </label>
                 <label class="field field--wide">
                   <span>Intended use</span>
                   <select id="usageSelect" name="usage">
@@ -142,6 +193,7 @@
                   <select id="referenceSelect" name="reference">
                     <option value="ready" selected>References ready</option>
                     <option value="mixed">Reference cleanup</option>
+                    <option value="limited-reference">Small, blurry, or incomplete reference</option>
                     <option value="research">Studio research</option>
                     <option value="art-direction">Art direction needed</option>
                   </select>
@@ -160,6 +212,10 @@
                 <label class="toggle">
                   <input type="checkbox" name="deliverables" value="production-assets">
                   <span>Production-ready files for campaign, publication, or vendor use</span>
+                </label>
+                <label class="toggle">
+                  <input type="checkbox" name="deliverables" value="large-format-production">
+                  <span>Large-format print file prep, proofing, or production coordination</span>
                 </label>
                 <label class="toggle">
                   <input type="checkbox" name="deliverables" value="merch-adaptation">
@@ -210,9 +266,9 @@
             </div>
 
             <div class="notice-panel">
-              <h3>Important</h3>
+              <h3>Please note</h3>
               <p>
-                This is a planning estimate, not a final quote. Final pricing depends on reference review, usage rights, revision scope, production needs, and studio availability.
+                This is a planning estimate, not a final quote. Premium scene work, large-format production, public use, mural concepts, weak reference material, and tight timelines require studio review and may quote above the calculator range.
               </p>
             </div>
           </aside>

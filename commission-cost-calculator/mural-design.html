@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mural Design Scope Calculator | Monochrome Canvas</title>
+    <meta
+      name="description"
+      content="Estimate a mural design, public art, or large wall artwork planning range for Monochrome Canvas."
+    >
+    <meta name="robots" content="noindex,follow">
+    <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+    <link rel="stylesheet" href="./style.css">
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="hero">
+        <div class="hero-layout">
+          <a class="brand-pill" href="https://monochromecanvas.com" target="_blank" rel="noreferrer">
+            Monochrome Canvas
+          </a>
+          <nav class="tool-nav" aria-label="Planning tools">
+            <a href="./index.html">Artwork commissions</a>
+            <a href="./graphic-design.html">Graphic design</a>
+            <a href="./mural-design.html" aria-current="page">Mural design</a>
+          </nav>
+          <p class="eyebrow">Mural + Public Art Planning</p>
+          <h1>Mural Design Scope Calculator</h1>
+          <p class="hero-copy">
+            A planning tool for mural concepts, wall artwork, public-facing installations, and large-scale visual direction.
+          </p>
+          <div class="hero-notes">
+            <span>Design and art direction first</span>
+            <span>Painting labor quoted separately</span>
+            <span>Professional teams welcome</span>
+            <span>Final quotes follow site review</span>
+          </div>
+        </div>
+      </header>
+
+      <section class="scope-intro" aria-label="Mural design fit notes">
+        <article>
+          <h2>Studio role</h2>
+          <p>Monochrome Canvas is best suited for concept design, visual direction, mural artwork files, color planning, and handoff support.</p>
+        </article>
+        <article>
+          <h2>Painting teams</h2>
+          <p>Joëlle does not typically take on physically demanding on-site mural painting. The studio can collaborate with client teams or recommend professional painters.</p>
+        </article>
+        <article>
+          <h2>Client brings</h2>
+          <p>Wall dimensions, site photos, usage needs, deadlines, approval process, budget context, and any required brand or community direction.</p>
+        </article>
+        <article>
+          <h2>Pricing</h2>
+          <p>Ranges include a site mockup once photos and dimensions are provided. Paint, prep, lifts, permits, travel, insurance, and installation labor are separate.</p>
+        </article>
+      </section>
+
+      <section class="workspace" aria-labelledby="workspace-title">
+        <div class="workspace-header">
+          <div>
+            <p class="section-label">Estimate Scope</p>
+            <h2 id="workspace-title">Describe the mural assignment</h2>
+          </div>
+          <p class="privacy-copy">
+            This calculator prepares a starting range and inquiry summary. It does not submit anything automatically.
+          </p>
+        </div>
+
+        <div class="workspace-grid">
+          <form id="muralCalculatorForm" class="controls-pane" aria-label="Mural design estimate controls">
+            <div class="stack-block">
+              <h3>1. Project role</h3>
+              <div class="field-grid">
+                <label class="field field--wide">
+                  <span>Mural design category</span>
+                  <select id="muralProjectSelect" name="projectType">
+                    <option value="concept-study">Concept study or early direction</option>
+                    <option value="mural-design-package" selected>Complete mural design package</option>
+                    <option value="art-direction-handoff">Art direction + painter handoff</option>
+                    <option value="public-art-system">Public art, campaign, or institution-scale mural</option>
+                  </select>
+                </label>
+                <label class="field">
+                  <span>Wall / site details</span>
+                  <input
+                    id="muralDetailsInput"
+                    name="siteDetails"
+                    type="text"
+                    placeholder="Cafe interior wall, exterior storefront, school hallway..."
+                  >
+                </label>
+                <label class="field">
+                  <span>Wall or panel count</span>
+                  <input id="wallCountInput" name="wallCount" type="number" min="1" max="8" step="1" value="1" inputmode="numeric">
+                </label>
+                <label class="field field--wide">
+                  <span>Wall scale</span>
+                  <select id="wallScaleSelect" name="wallScale">
+                    <option value="small">Small feature wall or accent area</option>
+                    <option value="medium" selected>Standard interior wall</option>
+                    <option value="large">Large interior or prominent business wall</option>
+                    <option value="oversized">Oversized multi-wall or large exterior</option>
+                    <option value="exterior-public">Exterior, public-facing, or high-visibility wall</option>
+                  </select>
+                </label>
+              </div>
+            </div>
+
+            <div class="stack-block">
+              <h3>2. Artwork depth + visibility</h3>
+              <div class="field-grid">
+                <label class="field field--wide">
+                  <span>Visual complexity</span>
+                  <select id="muralComplexitySelect" name="complexity">
+                    <option value="graphic">Simple graphic treatment or pattern</option>
+                    <option value="illustrative" selected>Illustrative mural concept</option>
+                    <option value="detailed-scene">Detailed scene or many elements</option>
+                    <option value="premium-public">Premium public-facing artwork</option>
+                  </select>
+                </label>
+                <div id="muralComplexityGuide" class="choice-guide field--wide" aria-live="polite"></div>
+                <label class="field field--wide">
+                  <span>Visibility / rights</span>
+                  <select id="muralUsageSelect" name="usage">
+                    <option value="private-interior" selected>Private interior or limited display</option>
+                    <option value="business-public">Business, restaurant, retail, or lobby display</option>
+                    <option value="institution">Institutional, donor, or community-facing use</option>
+                    <option value="public-art">Public art, exterior, campaign, or press-facing use</option>
+                    <option value="broad-license">Reproduction, merch, licensing, or broad usage</option>
+                  </select>
+                </label>
+              </div>
+            </div>
+
+            <div class="stack-block">
+              <h3>3. Painting path + production</h3>
+              <div class="field-grid">
+                <label class="field field--wide">
+                  <span>Painting / installation path</span>
+                  <select id="teamSelect" name="team">
+                    <option value="client-team" selected>Client has a painter or installation team</option>
+                    <option value="referral">Studio recommends a professional painting team</option>
+                    <option value="coordination">Studio coordinates with client or painting team</option>
+                    <option value="art-direction-onsite">Limited on-site art direction during painting</option>
+                  </select>
+                </label>
+                <div id="teamGuide" class="choice-guide field--wide" aria-live="polite"></div>
+                <label class="field">
+                  <span>Timeline</span>
+                  <select id="muralTimelineSelect" name="timeline">
+                    <option value="flexible">Flexible timing</option>
+                    <option value="standard" selected>Standard schedule</option>
+                    <option value="priority">Priority timeline</option>
+                    <option value="rush">Rush or fixed opening date</option>
+                  </select>
+                </label>
+                <label class="field">
+                  <span>Site readiness</span>
+                  <select id="siteReadinessSelect" name="siteReadiness">
+                    <option value="ready" selected>Measurements, photos, and direction are ready</option>
+                    <option value="measurements-needed">Measurements or wall photos needed</option>
+                    <option value="site-complex">Complex site, approvals, or production constraints</option>
+                    <option value="approval-process">Public, institutional, or committee approval process</option>
+                  </select>
+                </label>
+              </div>
+              <fieldset class="check-list">
+                <legend>Additional deliverables</legend>
+                <label class="toggle">
+                  <input type="checkbox" name="muralDeliverables" value="color-palette">
+                  <span>Color palette, paint notes, or material direction</span>
+                </label>
+                <label class="toggle">
+                  <input type="checkbox" name="muralDeliverables" value="paint-guide">
+                  <span>Detailed paint guide, grid, or installation map</span>
+                </label>
+                <label class="toggle">
+                  <input type="checkbox" name="muralDeliverables" value="vendor-files">
+                  <span>Production-ready files, projector files, or stencil/vendor handoff</span>
+                </label>
+                <label class="toggle">
+                  <input type="checkbox" name="muralDeliverables" value="installation-coordination">
+                  <span>Coordination notes for painters, vendors, or facilities teams</span>
+                </label>
+              </fieldset>
+              <label class="field field--wide details-field">
+                <span>Anything important to know?</span>
+                <textarea
+                  id="muralNotesInput"
+                  name="notes"
+                  rows="4"
+                  placeholder="Wall size, opening date, location, indoors/outdoors, painter status, brand/community direction, budget context, access constraints, or approval process."
+                ></textarea>
+              </label>
+            </div>
+          </form>
+
+          <aside class="preview-pane" aria-label="Mural design estimate">
+            <div class="estimate-panel">
+              <p class="section-label">Planning Range</p>
+              <strong id="muralEstimateRange" class="estimate-total">$0 - $0</strong>
+              <p id="muralEstimateNote" class="estimate-copy">
+                Select the details to generate a planning range.
+              </p>
+              <div class="estimate-stats">
+                <div>
+                  <span>Typical deposit</span>
+                  <strong id="muralDepositRange">$0 - $0</strong>
+                </div>
+                <div>
+                  <span>Likely timeline</span>
+                  <strong id="muralTimelineValue">-</strong>
+                </div>
+              </div>
+            </div>
+
+            <div class="summary-panel">
+              <p class="section-label">Inquiry Summary</p>
+              <div id="muralSummaryContent" class="summary-content" aria-live="polite"></div>
+              <div id="muralFactorList" class="factor-list"></div>
+              <div id="muralNotesPreview" class="details-preview is-hidden"></div>
+              <div class="action-row">
+                <button id="muralCopyButton" class="copy-button" type="button">Copy Summary</button>
+                <a id="muralEmailLink" class="send-button" href="mailto:mnchrmcnvs@gmail.com">Email Studio</a>
+              </div>
+              <p id="muralCopyStatus" class="field-note" aria-live="polite"></p>
+            </div>
+
+            <div class="notice-panel">
+              <h3>Please note</h3>
+              <p>
+                This estimate covers mural design, a site mockup based on supplied photos and dimensions, and art direction only. Painting labor, wall prep, lift or scaffold rental, materials, permits, travel, insurance, contractor fees, and installation costs are separate unless specifically scoped in a final proposal.
+              </p>
+            </div>
+          </aside>
+        </div>
+      </section>
+    </main>
+    <script src="./mural-design.js"></script>
+  </body>
+</html>

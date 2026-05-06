@@ -7,67 +7,103 @@
       base: 375,
       floor: 300,
       weeks: [3, 6],
-      note: "Best fit for loose drawings, minimal color, simple personal gifts, and clear references."
+      note: "Best fit for loose drawings, minimal color, simple personal gifts, and clear references.",
+      guideTitle: "Loose personal artwork",
+      guide: "Choose this for a lighter, personal piece with a simple subject, clear reference, and limited revision needs."
     },
     "refined-portrait": {
       label: "Developed private commission",
-      base: 1200,
+      base: 1100,
       floor: 950,
       weeks: [4, 8],
-      note: "Best fit for pets, people, homes, couples, and personal work that needs a more finished hand."
+      note: "Best fit for pets, people, homes, couples, and personal work that needs a more finished hand.",
+      guideTitle: "Developed private commission",
+      guide: "Choose this for most finished personal commissions, including portraits, pets, homes, couples, and meaningful gifts."
+    },
+    "detailed-scene": {
+      label: "Detailed place, architecture, or scene",
+      base: 4000,
+      floor: 3200,
+      weeks: [6, 10],
+      note: "Best fit for homes, harbor towns, venues, streetscapes, boats, architecture, or scenes with many important details.",
+      guideTitle: "Detailed place, architecture, or scene",
+      guide: "Choose this when the artwork has buildings, interiors, landscapes, boats, venues, streets, or many small details that need careful drawing."
+    },
+    "premium-scale": {
+      label: "Premium large-scale custom artwork",
+      base: 6500,
+      floor: 6000,
+      weeks: [10, 18],
+      note: "Best fit for oversized files, public-facing artwork, complex scenes, mural-ready concepts, and projects where scale and detail drive the fee.",
+      guideTitle: "Premium large-scale custom artwork",
+      guide: "Choose this when the file needs to hold up very large, the reference is difficult, the project is public-facing, or the scope needs a formal studio quote after review."
     },
     "institutional-portrait": {
       label: "Institutional or public-facing work",
-      base: 6500,
+      base: 7000,
       floor: 5000,
       weeks: [8, 14],
-      note: "Best fit for universities, organizations, public display, donor-facing presentation, and formal portraiture."
+      note: "Best fit for universities, organizations, public display, donor-facing presentation, and formal portraiture.",
+      guideTitle: "Institutional or public-facing work",
+      guide: "Choose this for organizations, donor-facing work, public display, formal portraits, or artwork that represents a group rather than only a private gift."
     },
     "commercial-campaign": {
       label: "Commercial or campaign artwork",
-      base: 5000,
+      base: 5600,
       floor: 4000,
       weeks: [8, 14],
-      note: "Best fit for campaign visuals, branded artwork, publication needs, and organization-wide assets."
+      note: "Best fit for campaign visuals, branded artwork, publication needs, and organization-wide assets.",
+      guideTitle: "Commercial or campaign artwork",
+      guide: "Choose this when the artwork supports a business, event, campaign, publication, brand story, or larger public communication."
     },
     "public-license": {
       label: "Licensing, merchandise, or broad use",
       base: 9000,
       floor: 7000,
       weeks: [10, 18],
-      note: "Best fit for published, reproduced, sold, or broadly distributed artwork."
+      note: "Best fit for published, reproduced, sold, or broadly distributed artwork.",
+      guideTitle: "Licensing, merchandise, or broad use",
+      guide: "Choose this when the artwork may be reproduced, sold, licensed, printed on products, used for fundraising, or distributed beyond one private display."
     }
   };
 
   const complexityProfiles = {
     simple: {
-      label: "Loose drawing / minimal color",
-      multiplier: 1,
+      label: "Simple subject or direct study",
+      multiplier: 0.9,
       weeks: 0,
-      factor: "Loose drawing, minimal color, or direct subject",
-      guideTitle: "Choose Loose when the artwork is intentionally simple.",
-      guide: "Example: one pet, one person, one house, a clean background, strong reference photos, and a lighter finish with minimal color."
+      factor: "Simple subject, direct composition, or light study",
+      guideTitle: "Choose Simple when the structure is straightforward.",
+      guide: "Example: one pet, one person, one house, a clean background, strong reference photos, and few details that need invention."
     },
     standard: {
       label: "Developed artwork",
-      multiplier: 1.35,
+      multiplier: 1.15,
       weeks: 1,
       factor: "Developed composition with a more finished hand",
       guideTitle: "Choose Developed for most private commissions.",
       guide: "Example: a portrait, pet, couple, family, or place with thoughtful composition, light cleanup, normal detail, and a finished color approach."
     },
     complex: {
-      label: "Highly detailed artwork",
-      multiplier: 1.85,
-      weeks: 3,
+      label: "Detailed subject, setting, or multiple elements",
+      multiplier: 1.45,
+      weeks: 2,
       factor: "Multiple subjects, detailed setting, or heavy refinement",
       guideTitle: "Choose Detailed when the piece has more moving parts.",
       guide: "Example: multiple people or animals, architecture, detailed setting, several reference images, heavy retouching, or a more formal finish."
     },
+    "premium-scene": {
+      label: "Premium complex scene",
+      multiplier: 1.85,
+      weeks: 3,
+      factor: "Premium scene with architecture, boats, vehicles, docks, or many important details",
+      guideTitle: "Choose Premium Scene when the artwork must be interpreted and built.",
+      guide: "Example: harbor towns, streetscapes, boats, multiple buildings, docks, interiors, or large files where weak reference material requires artist interpretation."
+    },
     custom: {
       label: "Concept-led or public-facing artwork",
-      multiplier: 2.4,
-      weeks: 5,
+      multiplier: 2.1,
+      weeks: 4,
       factor: "Concept development, narrative, or unusual scope",
       guideTitle: "Choose Concept-led when the idea still needs to be designed.",
       guide: "Example: symbolic imagery, campaign concepts, brand direction, narrative scenes, public-facing work, or anything that needs sketches and art direction before production."
@@ -102,17 +138,104 @@
       weeks: 3,
       guideTitle: "Choose Oversized when the project has production needs.",
       guide: "Example: multiple sizes, installation planning, public display, files for several formats, or artwork that needs to work beyond one framed piece."
+    },
+    "exhibition-scale": {
+      label: "Exhibition scale / about 4' x 6' or larger",
+      multiplier: 1.8,
+      weeks: 2,
+      guideTitle: "Choose Exhibition Scale when the file has to hold up very large.",
+      guide: "Example: a 4' x 6' print, mural-scale design file, large scenic artwork, or a piece where small drawing decisions become visible at full size."
     }
   };
 
   const subjectProfiles = {
-    animal: "Animal or pet",
-    person: "Person or portrait",
-    "couple-family": "Couple or family",
-    "house-building": "House or building",
-    "place-event": "Place, venue, or event",
-    "business-brand": "Business, brand, or campaign",
-    other: "Something else"
+    animal: {
+      label: "Animal or pet",
+      multiplier: 1,
+      weeks: 0,
+      factor: "Animal or pet subject"
+    },
+    person: {
+      label: "Person or portrait",
+      multiplier: 1.05,
+      weeks: 0,
+      factor: "Person or portrait subject"
+    },
+    "couple-family": {
+      label: "Couple or family",
+      multiplier: 1.18,
+      weeks: 1,
+      factor: "Couple, family, or multiple figure subject"
+    },
+    "house-building": {
+      label: "House or building",
+      multiplier: 1.16,
+      weeks: 1,
+      factor: "House, building, or architectural subject"
+    },
+    "place-event": {
+      label: "Place, venue, or event",
+      multiplier: 1.22,
+      weeks: 1,
+      factor: "Place, venue, or event subject"
+    },
+    "architecture-landscape": {
+      label: "Architecture, landscape, town, or harbor scene",
+      multiplier: 1.35,
+      weeks: 1,
+      factor: "Architecture, landscape, town, or harbor scene"
+    },
+    "vehicle-boat-scene": {
+      label: "Vehicle, boat, dock, or detailed object scene",
+      multiplier: 1.38,
+      weeks: 1,
+      factor: "Vehicle, boat, dock, or detailed object scene"
+    },
+    "mural-public-art": {
+      label: "Mural, public art, or installation concept",
+      multiplier: 1.45,
+      weeks: 2,
+      factor: "Mural, public art, or installation concept"
+    },
+    "business-brand": {
+      label: "Business, brand, or campaign",
+      multiplier: 1.3,
+      weeks: 1,
+      factor: "Business, brand, or campaign subject"
+    },
+    other: {
+      label: "Something else",
+      multiplier: 1.15,
+      weeks: 1,
+      factor: "Custom subject matter"
+    }
+  };
+
+  const finishProfiles = {
+    "loose-minimal": {
+      label: "Loose drawing / minimal color",
+      multiplier: 0.85,
+      weeks: 0,
+      factor: "Loose drawing or minimal color finish"
+    },
+    "watercolor-loose": {
+      label: "Loose sketch with watercolor",
+      multiplier: 1.05,
+      weeks: 0,
+      factor: "Loose sketch with watercolor finish"
+    },
+    "developed-color": {
+      label: "Developed color artwork",
+      multiplier: 1.25,
+      weeks: 1,
+      factor: "Developed color artwork finish"
+    },
+    "rendered-oil": {
+      label: "Rendered digital oil painting look",
+      multiplier: 1.65,
+      weeks: 3,
+      factor: "Rendered digital oil painting finish"
+    }
   };
 
   const usageProfiles = {
@@ -188,6 +311,12 @@
       weeks: 1,
       factor: "Reference cleanup or selection support"
     },
+    "limited-reference": {
+      label: "Small, blurry, or incomplete reference requiring interpretation",
+      flat: 1800,
+      weeks: 2,
+      factor: "Small, blurry, or incomplete reference requiring artist interpretation"
+    },
     research: {
       label: "Studio research or source gathering needed",
       flat: 550,
@@ -216,6 +345,11 @@
     "production-assets": {
       label: "Production-ready files for campaign, publication, or vendor use",
       flat: 900,
+      weeks: 1
+    },
+    "large-format-production": {
+      label: "Large-format print file prep, proofing, or production coordination",
+      flat: 1600,
       weeks: 1
     },
     "merch-adaptation": {
@@ -251,17 +385,25 @@
     const projectType = options.projectType || "private-keepsake";
     const profile = getProfile(projectProfiles, projectType, "private-keepsake");
     const complexity = getProfile(complexityProfiles, options.complexity, "standard");
+    const finish = getProfile(finishProfiles, options.finish, "watercolor-loose");
     const size = getProfile(sizeProfiles, options.size, "medium");
+    const subjectProfile = getProfile(subjectProfiles, options.subject, "animal");
     const usage = getProfile(usageProfiles, options.usage, "personal");
     const timeline = getProfile(timelineProfiles, options.timeline, "standard");
     const reference = getProfile(referenceProfiles, options.reference, "ready");
     const deliverables = Array.isArray(options.deliverables) ? options.deliverables : [];
-    const subject = subjectProfiles[options.subject] || subjectProfiles.animal;
+    const subject = subjectProfile.label;
     const subjectDetails = typeof options.subjectDetails === "string" ? options.subjectDetails.trim() : "";
     const details = typeof options.details === "string" ? options.details.trim() : "";
     const artworkCount = clampArtworkCount(options.artworkCount);
     const additionalArtworkMultiplier = artworkCount > 1 ? 1 + (artworkCount - 1) * 0.7 : 1;
-    const creativeBase = profile.base * complexity.multiplier * size.multiplier * additionalArtworkMultiplier;
+    const creativeBase =
+      profile.base *
+      subjectProfile.multiplier *
+      complexity.multiplier *
+      finish.multiplier *
+      size.multiplier *
+      additionalArtworkMultiplier;
     const usageAmount = Math.max(creativeBase * usage.percent, usage.flat);
     const deliverableAmount = deliverables.reduce((total, key) => {
       const deliverable = deliverableProfiles[key];
@@ -273,17 +415,33 @@
     }, 0);
     const subtotal = creativeBase + usageAmount + reference.flat + deliverableAmount;
     const adjustedSubtotal = subtotal * timeline.multiplier;
-    const low = Math.max(profile.floor, roundToIncrement(adjustedSubtotal * 0.85, 25));
-    const high = Math.max(low + 100, roundToIncrement(adjustedSubtotal * 1.25, 25));
-    const depositLow = roundToIncrement(low * 0.5, 25);
-    const depositHigh = roundToIncrement(high * 0.5, 25);
+    const increment = adjustedSubtotal >= 10000 ? 250 : adjustedSubtotal >= 2500 ? 100 : 25;
+    const depositIncrement = increment >= 250 ? 250 : 50;
+    const low = Math.max(profile.floor, roundToIncrement(adjustedSubtotal * 0.85, increment));
+    const high = Math.max(low + 100, roundToIncrement(adjustedSubtotal * 1.25, increment));
+    const depositLow = roundToIncrement(low * 0.5, depositIncrement);
+    const depositHigh = roundToIncrement(high * 0.5, depositIncrement);
     const timelineLow = Math.max(
       2,
-      profile.weeks[0] + complexity.weeks + size.weeks + reference.weeks + deliverableWeeks + timeline.weekShift[0]
+      profile.weeks[0] +
+        subjectProfile.weeks +
+        complexity.weeks +
+        finish.weeks +
+        size.weeks +
+        reference.weeks +
+        deliverableWeeks +
+        timeline.weekShift[0]
     );
     const timelineHigh = Math.max(
       timelineLow + 1,
-      profile.weeks[1] + complexity.weeks + size.weeks + reference.weeks + deliverableWeeks + timeline.weekShift[1]
+      profile.weeks[1] +
+        subjectProfile.weeks +
+        complexity.weeks +
+        finish.weeks +
+        size.weeks +
+        reference.weeks +
+        deliverableWeeks +
+        timeline.weekShift[1]
     );
     const selectedDeliverables = deliverables
       .map((key) => deliverableProfiles[key])
@@ -291,7 +449,9 @@
       .map((item) => item.label);
     const factors = [
       "Subject matter: " + (subjectDetails ? subject + " - " + subjectDetails : subject),
+      subjectProfile.factor,
       complexity.factor,
+      finish.factor,
       size.label,
       usage.factor,
       reference.factor,
@@ -303,11 +463,20 @@
     }
 
     selectedDeliverables.forEach((label) => factors.push(label));
+    const premiumScope = adjustedSubtotal >= 15000 || projectType === "premium-scale";
+
+    if (premiumScope) {
+      factors.push("Premium scope: final quote may exceed this range after studio review");
+    }
 
     return {
       projectType,
       projectLabel: profile.label,
-      projectNote: profile.note,
+      projectNote:
+        profile.note +
+        (premiumScope
+          ? " This is a premium custom scope; final pricing may move above the calculator range after reference, usage, print scale, and schedule review."
+          : ""),
       artworkCount,
       low,
       high,
@@ -320,12 +489,15 @@
       subject,
       subjectDetails,
       details,
+      projectGuideTitle: profile.guideTitle,
+      projectGuide: profile.guide,
       complexityGuideTitle: complexity.guideTitle,
       complexityGuide: complexity.guide,
       sizeGuideTitle: size.guideTitle,
       sizeGuide: size.guide,
       labels: {
         complexity: complexity.label,
+        finish: finish.label,
         size: size.label,
         usage: usage.label,
         timeline: timeline.label,
@@ -347,7 +519,8 @@
       "Subject matter: " + estimate.subject,
       "Subject details: " + (estimate.subjectDetails || "Not provided"),
       "Finished artwork count: " + estimate.artworkCount,
-      "Artwork difficulty: " + estimate.labels.complexity,
+      "Creative complexity: " + estimate.labels.complexity,
+      "Finish direction: " + estimate.labels.finish,
       "Display size: " + estimate.labels.size,
       "Intended use: " + estimate.labels.usage,
       "Timeline: " + estimate.labels.timeline,
@@ -375,6 +548,7 @@
       artworkCount: elements.artworkCountInput.value,
       size: elements.sizeSelect.value,
       complexity: elements.complexitySelect.value,
+      finish: elements.finishSelect ? elements.finishSelect.value : "watercolor-loose",
       usage: elements.usageSelect.value,
       timeline: elements.timelineSelect.value,
       reference: elements.referenceSelect.value,
@@ -416,6 +590,14 @@
         escapeHtml(estimate.complexityGuideTitle) +
         "</strong><span>" +
         escapeHtml(estimate.complexityGuide) +
+        "</span>";
+    }
+    if (elements.projectTypeGuide) {
+      elements.projectTypeGuide.innerHTML =
+        "<strong>" +
+        escapeHtml(estimate.projectGuideTitle) +
+        "</strong><span>" +
+        escapeHtml(estimate.projectGuide) +
         "</span>";
     }
     if (elements.sizeGuide) {
@@ -499,6 +681,7 @@
     return {
       form: root.document.getElementById("calculatorForm"),
       projectTypeSelect: root.document.getElementById("projectTypeSelect"),
+      projectTypeGuide: root.document.getElementById("projectTypeGuide"),
       subjectSelect: root.document.getElementById("subjectSelect"),
       subjectDetailsInput: root.document.getElementById("subjectDetailsInput"),
       artworkCountInput: root.document.getElementById("artworkCountInput"),
@@ -506,6 +689,7 @@
       sizeGuide: root.document.getElementById("sizeGuide"),
       complexitySelect: root.document.getElementById("complexitySelect"),
       complexityGuide: root.document.getElementById("complexityGuide"),
+      finishSelect: root.document.getElementById("finishSelect"),
       usageSelect: root.document.getElementById("usageSelect"),
       timelineSelect: root.document.getElementById("timelineSelect"),
       referenceSelect: root.document.getElementById("referenceSelect"),
@@ -544,6 +728,7 @@
     formatMoney,
     projectProfiles,
     subjectProfiles,
+    finishProfiles,
     usageProfiles,
     deliverableProfiles
   };

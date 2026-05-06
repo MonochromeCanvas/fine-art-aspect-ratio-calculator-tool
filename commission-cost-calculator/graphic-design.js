@@ -7,35 +7,45 @@
       base: 650,
       floor: 500,
       weeks: [2, 4],
-      note: "Best fit for a clearly defined layout, print piece, digital asset, or production-supported design task."
+      note: "Best fit for a clearly defined layout, print piece, digital asset, or production-supported design task.",
+      guideTitle: "Print or digital design support",
+      guide: "Choose this for a clearly defined design need with supplied copy, images, size requirements, and an existing direction."
     },
     "campaign-collateral": {
       label: "Campaign or event collateral",
       base: 1400,
       floor: 1000,
       weeks: [3, 6],
-      note: "Best fit for event graphics, small campaigns, announcements, posters, invitations, or coordinated public materials."
+      note: "Best fit for event graphics, small campaigns, announcements, posters, invitations, or coordinated public materials.",
+      guideTitle: "Campaign or event collateral",
+      guide: "Choose this for a poster, announcement, invitation, launch graphic, event suite, or small campaign that needs a polished visual point of view."
     },
     "logo-mark": {
       label: "Logo, mark, or identity refresh",
       base: 2500,
       floor: 1800,
       weeks: [4, 8],
-      note: "Best fit for a thoughtful mark, refinement of an existing identity, or a small visual identity foundation."
+      note: "Best fit for a thoughtful mark, refinement of an existing identity, or a small visual identity foundation.",
+      guideTitle: "Logo, mark, or identity refresh",
+      guide: "Choose this for a mark, identity cleanup, or visual refresh when the business already has clear direction, audience, and reference points."
     },
     "identity-system": {
       label: "Identity system or art direction",
       base: 5200,
       floor: 4000,
       weeks: [6, 12],
-      note: "Best fit for visual systems, brand direction, launch materials, and projects that need a considered creative lead."
+      note: "Best fit for visual systems, brand direction, launch materials, and projects that need a considered creative lead.",
+      guideTitle: "Identity system or art direction",
+      guide: "Choose this for a broader visual system, art direction, or coordinated set of materials built from a clear existing business foundation."
     },
     "packaging-public": {
       label: "Packaging, launch, or public-facing system",
       base: 7600,
       floor: 6000,
       weeks: [8, 14],
-      note: "Best fit for packaging, retail use, public campaigns, launch systems, or high-visibility design work."
+      note: "Best fit for packaging, retail use, public campaigns, launch systems, or high-visibility design work.",
+      guideTitle: "Packaging, launch, or public-facing system",
+      guide: "Choose this for packaging, retail-facing visuals, campaign systems, or design work that will carry a public launch or broader audience."
     }
   };
 
@@ -275,6 +285,8 @@
       selectedDeliverables,
       projectDetails,
       notes,
+      projectGuideTitle: profile.guideTitle,
+      projectGuide: profile.guide,
       complexityGuideTitle: complexity.guideTitle,
       complexityGuide: complexity.guide,
       labels: {
@@ -372,6 +384,14 @@
       "</strong><span>" +
       escapeHtml(estimate.complexityGuide) +
       "</span>";
+    if (elements.projectGuide) {
+      elements.projectGuide.innerHTML =
+        "<strong>" +
+        escapeHtml(estimate.projectGuideTitle) +
+        "</strong><span>" +
+        escapeHtml(estimate.projectGuide) +
+        "</span>";
+    }
     const notesPreview = estimate.notes.length > 140 ? estimate.notes.slice(0, 137) + "..." : estimate.notes;
     elements.notesPreview.classList.toggle("is-hidden", !estimate.notes);
     elements.notesPreview.innerHTML = estimate.notes
@@ -435,6 +455,7 @@
     return {
       form: root.document.getElementById("designCalculatorForm"),
       projectSelect: root.document.getElementById("designProjectSelect"),
+      projectGuide: root.document.getElementById("designProjectGuide"),
       detailsInput: root.document.getElementById("designDetailsInput"),
       deliverableCountInput: root.document.getElementById("deliverableCountInput"),
       complexitySelect: root.document.getElementById("designComplexitySelect"),
