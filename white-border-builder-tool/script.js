@@ -1,6 +1,16 @@
 (function () {
   const DPI = 300;
-  const JPEG_QUALITY = 0.95;
+  const JPEG_QUALITY = 1;
+  const EXPORT_MIME_TYPE = "image/jpeg";
+  const EXPORT_FORMAT_LABEL = "Maximum-quality Adobe RGB JPEG";
+  const ADOBE_RGB_GAMMA = 563 / 256;
+  const ADOBE_RGB_1998_ICC_BASE64 =
+    "AAACMEFEQkUCEAAAbW50clJHQiBYWVogB9AACAALABMAMwA7YWNzcEFQUEwAAAAAbm9uZQAAAAAAAAAAAAAAAAAAAAAAAPbWAAEAAAAA0y1BREJFAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAKY3BydAAAAPwAAAAyZGVzYwAAATAAAABrd3RwdAAAAZwAAAAUYmtwdAAAAbAAAAAUclRSQwAAAcQAAAAOZ1RSQwAAAdQAAAAOYlRSQwAAAeQAAAAOclhZWgAAAfQAAAAUZ1hZWgAAAggAAAAUYlhZWgAAAhwAAAAUdGV4dAAAAABDb3B5cmlnaHQgMjAwMCBBZG9iZSBTeXN0ZW1zIEluY29ycG9yYXRlZAAAAGRlc2MAAAAAAAAAEUFkb2JlIFJHQiAoMTk5OCkAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFhZWiAAAAAAAADzUQABAAAAARbMWFlaIAAAAAAAAAAAAAAAAAAAAABjdXJ2AAAAAAAAAAECMwAAY3VydgAAAAAAAAABAjMAAGN1cnYAAAAAAAAAAQIzAABYWVogAAAAAAAAnBgAAE+lAAAE/FhZWiAAAAAAAAA0jQAAoCwAAA+VWFlaIAAAAAAAACYxAAAQLwAAvpw=";
+  const SRGB_TO_ADOBE_RGB_MATRIX = [
+    [0.71516263251888, 0.2848372899140201, 0],
+    [0, 1, 0],
+    [0, 0.041170515478, 0.9588295446993599]
+  ];
   const MAX_EXPORT_SIDE = 12000;
   const MAX_EXPORT_PIXELS = 100000000;
   const CUSTOM_SIZE_REQUEST_IMPORT_QUERY_VALUE = "custom-size-request";
@@ -798,7 +808,7 @@
     summaryHtml +=
       createSummaryItem(output.mode === "even-border" ? "Crop note" : "Fit note", output.mode === "even-border" ? cropText : output.fitNote) +
       createSummaryItem("Crop zoom", zoomText) +
-      createSummaryItem("Download format", "High-quality JPEG") +
+      createSummaryItem("Download format", EXPORT_FORMAT_LABEL + " at 300 PPI") +
       createSummaryItem("Effective print quality", output.quality.effectivePpi + " PPI at the image area");
 
     elements.summaryContent.innerHTML = summaryHtml;
@@ -852,7 +862,7 @@
       showDownloadToast(
         exportResult === "shared" ? "Share sheet opened." : undefined,
         exportResult === "shared"
-          ? "Choose Save Image or Save to Photos if your phone offers it, or share the prepared JPEG wherever you need it next."
+          ? "Choose Save Image or Save to Photos if your phone offers it, or share the prepared Adobe RGB JPEG wherever you need it next."
           : undefined
       );
     } catch (error) {
@@ -1009,7 +1019,12 @@
     exportCanvas.width = state.output.finalPixelWidth;
     exportCanvas.height = state.output.finalPixelHeight;
 
-    const ctx = exportCanvas.getContext("2d");
+    const ctx = exportCanvas.getContext("2d", { willReadFrequently: true });
+
+    if (!ctx) {
+      throw new Error("Canvas export is unavailable");
+    }
+
     ctx.fillStyle = "#ffffff";
     ctx.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
     ctx.imageSmoothingEnabled = true;
@@ -1037,7 +1052,7 @@
     }
 
     return {
-      blob: await canvasToJpegBlob(exportCanvas, JPEG_QUALITY),
+      blob: await createAdobeRgbJpegBlob(exportCanvas, ctx, JPEG_QUALITY),
       filename: buildDownloadName(),
       createdAt: Date.now(),
       finalWidth: state.output.finalWidth,
@@ -1275,6 +1290,74 @@
     });
   }
 
+  async function createAdobeRgbJpegBlob(canvas, ctx, quality) {
+    convertCanvasPixelsToAdobeRgb(ctx, canvas.width, canvas.height);
+    const jpegBlob = await canvasToJpegBlob(canvas, quality);
+    return addAdobeRgbJpegMetadata(jpegBlob);
+  }
+
+  function convertCanvasPixelsToAdobeRgb(ctx, width, height) {
+    const targetPixelsPerBatch = 1500000;
+    const rowsPerBatch = Math.max(1, Math.floor(targetPixelsPerBatch / width));
+
+    for (let y = 0; y < height; y += rowsPerBatch) {
+      const batchHeight = Math.min(rowsPerBatch, height - y);
+      const imageData = ctx.getImageData(0, y, width, batchHeight);
+      const data = imageData.data;
+
+      for (let index = 0; index < data.length; index += 4) {
+        const red = srgbChannelToLinear(data[index] / 255);
+        const green = srgbChannelToLinear(data[index + 1] / 255);
+        const blue = srgbChannelToLinear(data[index + 2] / 255);
+        const adobeRed = clampUnit(
+          SRGB_TO_ADOBE_RGB_MATRIX[0][0] * red +
+          SRGB_TO_ADOBE_RGB_MATRIX[0][1] * green +
+          SRGB_TO_ADOBE_RGB_MATRIX[0][2] * blue
+        );
+        const adobeGreen = clampUnit(
+          SRGB_TO_ADOBE_RGB_MATRIX[1][0] * red +
+          SRGB_TO_ADOBE_RGB_MATRIX[1][1] * green +
+          SRGB_TO_ADOBE_RGB_MATRIX[1][2] * blue
+        );
+        const adobeBlue = clampUnit(
+          SRGB_TO_ADOBE_RGB_MATRIX[2][0] * red +
+          SRGB_TO_ADOBE_RGB_MATRIX[2][1] * green +
+          SRGB_TO_ADOBE_RGB_MATRIX[2][2] * blue
+        );
+
+        data[index] = linearAdobeRgbChannelToByte(adobeRed);
+        data[index + 1] = linearAdobeRgbChannelToByte(adobeGreen);
+        data[index + 2] = linearAdobeRgbChannelToByte(adobeBlue);
+      }
+
+      ctx.putImageData(imageData, 0, y);
+    }
+  }
+
+  function srgbChannelToLinear(value) {
+    if (value <= 0.04045) {
+      return value / 12.92;
+    }
+
+    return Math.pow((value + 0.055) / 1.055, 2.4);
+  }
+
+  function linearAdobeRgbChannelToByte(value) {
+    return Math.round(Math.pow(clampUnit(value), 1 / ADOBE_RGB_GAMMA) * 255);
+  }
+
+  function clampUnit(value) {
+    if (value <= 0) {
+      return 0;
+    }
+
+    if (value >= 1) {
+      return 1;
+    }
+
+    return value;
+  }
+
   function canvasToJpegBlob(canvas, quality) {
     return new Promise((resolve, reject) => {
       canvas.toBlob(
@@ -1285,10 +1368,184 @@
           }
           resolve(blob);
         },
-        "image/jpeg",
+        EXPORT_MIME_TYPE,
         quality
       );
     });
+  }
+
+  async function addAdobeRgbJpegMetadata(blob) {
+    const bytes = new Uint8Array(await blob.arrayBuffer());
+
+    if (!isJpegBytes(bytes)) {
+      return blob;
+    }
+
+    const output = [];
+    output.push(bytes.subarray(0, 2));
+    output.push(createJfifSegment(DPI, DPI));
+    output.push(createIccSegment(base64ToBytes(ADOBE_RGB_1998_ICC_BASE64)));
+
+    let offset = 2;
+    while (offset < bytes.length) {
+      const markerStart = findNextMarkerStart(bytes, offset);
+
+      if (markerStart < 0) {
+        output.push(bytes.subarray(offset));
+        break;
+      }
+
+      if (markerStart > offset) {
+        output.push(bytes.subarray(offset, markerStart));
+      }
+
+      const marker = bytes[markerStart + 1];
+
+      if (marker === 0xda || marker === 0xd9) {
+        output.push(bytes.subarray(markerStart));
+        break;
+      }
+
+      if (isStandaloneJpegMarker(marker)) {
+        output.push(bytes.subarray(markerStart, markerStart + 2));
+        offset = markerStart + 2;
+        continue;
+      }
+
+      if (markerStart + 4 > bytes.length) {
+        output.push(bytes.subarray(markerStart));
+        break;
+      }
+
+      const segmentLength = readUint16(bytes, markerStart + 2);
+      const segmentEnd = markerStart + 2 + segmentLength;
+
+      if (segmentEnd > bytes.length || segmentLength < 2) {
+        output.push(bytes.subarray(markerStart));
+        break;
+      }
+
+      if (!shouldReplaceJpegSegment(bytes, marker, markerStart + 4, segmentEnd)) {
+        output.push(bytes.subarray(markerStart, segmentEnd));
+      }
+
+      offset = segmentEnd;
+    }
+
+    return new Blob(output, { type: EXPORT_MIME_TYPE });
+  }
+
+  function isJpegBytes(bytes) {
+    return bytes.length > 4 && bytes[0] === 0xff && bytes[1] === 0xd8;
+  }
+
+  function findNextMarkerStart(bytes, offset) {
+    for (let index = offset; index < bytes.length - 1; index += 1) {
+      if (bytes[index] === 0xff && bytes[index + 1] !== 0x00 && bytes[index + 1] !== 0xff) {
+        return index;
+      }
+    }
+
+    return -1;
+  }
+
+  function shouldReplaceJpegSegment(bytes, marker, payloadStart, segmentEnd) {
+    if (marker === 0xe0 && startsWithAscii(bytes, payloadStart, segmentEnd, "JFIF\u0000")) {
+      return true;
+    }
+
+    if (marker === 0xe2 && startsWithAscii(bytes, payloadStart, segmentEnd, "ICC_PROFILE\u0000")) {
+      return true;
+    }
+
+    return false;
+  }
+
+  function isStandaloneJpegMarker(marker) {
+    return marker === 0x01 || (marker >= 0xd0 && marker <= 0xd7);
+  }
+
+  function createJfifSegment(xDensity, yDensity) {
+    return new Uint8Array([
+      0xff,
+      0xe0,
+      0x00,
+      0x10,
+      0x4a,
+      0x46,
+      0x49,
+      0x46,
+      0x00,
+      0x01,
+      0x02,
+      0x01,
+      (xDensity >> 8) & 0xff,
+      xDensity & 0xff,
+      (yDensity >> 8) & 0xff,
+      yDensity & 0xff,
+      0x00,
+      0x00
+    ]);
+  }
+
+  function createIccSegment(profileBytes) {
+    const signature = asciiToBytes("ICC_PROFILE\u0000");
+    const segmentLength = 2 + signature.length + 2 + profileBytes.length;
+    const segment = new Uint8Array(2 + segmentLength);
+
+    segment[0] = 0xff;
+    segment[1] = 0xe2;
+    writeUint16(segment, 2, segmentLength);
+    segment.set(signature, 4);
+    segment[4 + signature.length] = 1;
+    segment[5 + signature.length] = 1;
+    segment.set(profileBytes, 6 + signature.length);
+
+    return segment;
+  }
+
+  function startsWithAscii(bytes, offset, end, text) {
+    if (offset + text.length > end) {
+      return false;
+    }
+
+    for (let index = 0; index < text.length; index += 1) {
+      if (bytes[offset + index] !== text.charCodeAt(index)) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  function asciiToBytes(text) {
+    const bytes = new Uint8Array(text.length);
+
+    for (let index = 0; index < text.length; index += 1) {
+      bytes[index] = text.charCodeAt(index);
+    }
+
+    return bytes;
+  }
+
+  function base64ToBytes(base64) {
+    const binary = window.atob(base64);
+    const bytes = new Uint8Array(binary.length);
+
+    for (let index = 0; index < binary.length; index += 1) {
+      bytes[index] = binary.charCodeAt(index);
+    }
+
+    return bytes;
+  }
+
+  function readUint16(bytes, offset) {
+    return (bytes[offset] << 8) | bytes[offset + 1];
+  }
+
+  function writeUint16(bytes, offset, value) {
+    bytes[offset] = (value >> 8) & 0xff;
+    bytes[offset + 1] = value & 0xff;
   }
 
   function prefersNativeFileShare() {
@@ -1307,7 +1564,7 @@
 
   function configureDownloadButtonCopy() {
     if (canUseNativeFileShare()) {
-      elements.downloadButton.textContent = "Save / Share print-ready JPEG";
+      elements.downloadButton.textContent = "Save / Share Adobe RGB JPEG";
     }
   }
 
@@ -1324,7 +1581,7 @@
 
   async function shareOrDownloadBlob(blob, filename) {
     if (canUseNativeFileShare()) {
-      const exportFile = new File([blob], filename, { type: "image/jpeg" });
+      const exportFile = new File([blob], filename, { type: EXPORT_MIME_TYPE });
       const shareData = {
         files: [exportFile],
         title: filename
