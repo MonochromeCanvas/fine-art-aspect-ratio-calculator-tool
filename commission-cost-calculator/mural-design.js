@@ -14,21 +14,21 @@
       base: 2600,
       floor: 1800,
       weeks: [4, 7],
-      note: "Best fit for a fully designed mural concept with enough direction for a painter or production team to execute."
+      note: "Best fit for a fully designed mural concept, wall-photo mockup, and clear direction for a painter or production team."
     },
     "art-direction-handoff": {
-      label: "Art direction + painter handoff",
-      base: 4200,
-      floor: 3000,
+      label: "Mural design + production handoff",
+      base: 3400,
+      floor: 2600,
       weeks: [6, 10],
-      note: "Best fit when the studio is shaping the visual direction and preparing a painter, vendor, or facilities team for execution."
+      note: "Best fit when Joëlle is creating the mural artwork and preparing a painter, vendor, or facilities team to execute it."
     },
     "public-art-system": {
       label: "Public art, campaign, or institution-scale mural",
-      base: 5500,
-      floor: 5000,
+      base: 5200,
+      floor: 4200,
       weeks: [8, 14],
-      note: "Best fit for public-facing walls, exterior work, institutional review, press visibility, community projects, or high-stakes creative direction."
+      note: "Best fit for exterior work, institutional review, community projects, press visibility, or murals with a formal approval process."
     }
   };
 
@@ -58,10 +58,10 @@
       factor: "Oversized multi-wall or large exterior"
     },
     "exterior-public": {
-      label: "Exterior, public-facing, or high-visibility wall",
+      label: "Exterior or high-visibility wall",
       multiplier: 1.25,
       weeks: 3,
-      factor: "Exterior, public-facing, or high-visibility wall"
+      factor: "Exterior or high-visibility wall"
     }
   };
 
@@ -91,47 +91,47 @@
       guide: "Example: multiple subjects, architecture, community references, layered storytelling, perspective, vehicles, buildings, or many details that need to work at scale."
     },
     "premium-public": {
-      label: "Premium public-facing artwork",
+      label: "Narrative concept or complex mural system",
       multiplier: 1.25,
       weeks: 3,
-      factor: "Premium public-facing artwork or complex creative direction",
-      guideTitle: "Choose Premium for high-visibility work.",
-      guide: "Example: exterior public art, press-facing campaigns, institutional projects, landmark walls, committee review, or artwork expected to carry a major public space."
+      factor: "Narrative concept, layered composition, or complex creative direction",
+      guideTitle: "Choose Narrative when the mural has a larger idea to solve.",
+      guide: "Example: community references, symbolic imagery, donor or institutional storytelling, multiple review voices, or a mural expected to carry a major space."
     }
   };
 
   const teamProfiles = {
     "client-team": {
-      label: "Client has a painter or installation team",
+      label: "Work with client's painter or production team",
       flat: 0,
       weeks: 0,
-      factor: "Client has a painter or installation team",
-      guideTitle: "Client has a painter or installation team",
-      guide: "Choose this when someone else is responsible for painting, wall prep, materials, access, and installation."
+      factor: "Working with client's painter or production team",
+      guideTitle: "Work with client's painter or production team",
+      guide: "Choose this when the client already has the person or team responsible for wall prep, materials, access, and painting."
     },
     referral: {
-      label: "Studio recommends a professional painting team",
-      flat: 450,
-      weeks: 1,
-      factor: "Studio recommends a professional painting team",
-      guideTitle: "Studio recommends a professional painting team",
-      guide: "Choose this if you want the studio to suggest painters or fabricators who may be a good fit. Their labor and materials are quoted separately."
+      label: "Studio recommends a production team",
+      flat: 250,
+      weeks: 0,
+      factor: "Studio recommendation for an outside production team",
+      guideTitle: "Studio recommends a production team",
+      guide: "Choose this if you want Joëlle to suggest painters or fabricators who may be a good fit. Their labor, materials, and site costs are quoted separately."
     },
     coordination: {
-      label: "Studio coordinates with client or painting team",
-      flat: 900,
+      label: "Studio coordinates an outside production team",
+      flat: 950,
       weeks: 2,
-      factor: "Studio coordination with client or painting team",
-      guideTitle: "Studio coordinates with client or painting team",
-      guide: "Choose this when the studio should help clarify files, color notes, handoff details, or execution questions with the person or team painting the mural."
+      factor: "Studio coordination for an outside production team",
+      guideTitle: "Studio coordinates an outside production team",
+      guide: "Choose this when Joëlle should help coordinate the painter or production team. Team pricing varies by vendor, wall prep, access, materials, schedule, and site conditions, so production costs are estimated separately."
     },
     "art-direction-onsite": {
-      label: "Limited on-site art direction during painting",
-      flat: 1800,
-      weeks: 3,
-      factor: "Limited on-site art direction during painting",
-      guideTitle: "Limited on-site art direction during painting",
-      guide: "Choose this when Joëlle is not the mural painter, but may be present for a limited site visit or scheduled check-in to guide placement, color, and interpretation during execution."
+      label: "On-site direction is added hourly below",
+      flat: 0,
+      weeks: 0,
+      factor: "On-site direction is added hourly below",
+      guideTitle: "On-site direction is added hourly",
+      guide: "Use the on-site direction hours field for scheduled site visits or painting check-ins. Joëlle does not provide on-site painting labor."
     }
   };
 
@@ -155,10 +155,10 @@
       factor: "Institutional, donor, or community-facing use"
     },
     "public-art": {
-      label: "Public art, exterior, campaign, or press-facing use",
+      label: "Exterior, campaign, or press-visible display",
       percent: 0.15,
       flat: 1500,
-      factor: "Public art, exterior, campaign, or press-facing use"
+      factor: "Exterior, campaign, or press-visible display"
     },
     "broad-license": {
       label: "Reproduction, merch, licensing, or broad usage",
@@ -224,7 +224,7 @@
 
   const deliverableProfiles = {
     "site-mockup": {
-      label: "Site mockup based on supplied photos and dimensions",
+      label: "Wall-photo site mockup based on supplied photos and dimensions",
       flat: 0,
       weeks: 0
     },
@@ -245,10 +245,12 @@
     },
     "installation-coordination": {
       label: "Coordination notes for painters, vendors, or facilities teams",
-      flat: 900,
+      flat: 850,
       weeks: 1
     }
   };
+
+  const ON_SITE_DIRECTION_RATE = 100;
 
   function clampWallCount(value) {
     const parsed = Number.parseInt(value, 10);
@@ -258,6 +260,16 @@
     }
 
     return Math.min(Math.max(parsed, 1), 8);
+  }
+
+  function clampOnSiteHours(value) {
+    const parsed = Number.parseFloat(value);
+
+    if (Number.isNaN(parsed)) {
+      return 0;
+    }
+
+    return Math.min(Math.max(parsed, 0), 80);
   }
 
   function roundToIncrement(value, increment) {
@@ -285,6 +297,9 @@
     const siteDetails = typeof options.siteDetails === "string" ? options.siteDetails.trim() : "";
     const notes = typeof options.notes === "string" ? options.notes.trim() : "";
     const wallCount = clampWallCount(options.wallCount);
+    const onSiteHours = clampOnSiteHours(options.onSiteHours);
+    const onSiteDirectionAmount = onSiteHours * ON_SITE_DIRECTION_RATE;
+    const onSiteDirectionWeeks = onSiteHours > 0 ? 1 : 0;
     const wallCountMultiplier = wallCount > 1 ? 1 + (wallCount - 1) * 0.15 : 1;
     const creativeBase = profile.base * wallScale.multiplier * complexity.multiplier * wallCountMultiplier;
     const usageAmount = Math.max(creativeBase * usage.percent, usage.flat);
@@ -297,10 +312,11 @@
       return total + (deliverable ? deliverable.weeks : 0);
     }, 0);
     const subtotal = creativeBase + usageAmount + team.flat + site.flat + deliverableAmount;
-    const adjustedSubtotal = subtotal * timeline.multiplier;
+    const adjustedDesignSubtotal = subtotal * timeline.multiplier;
+    const adjustedSubtotal = adjustedDesignSubtotal + onSiteDirectionAmount;
     const increment = adjustedSubtotal >= 10000 ? 250 : adjustedSubtotal >= 2500 ? 100 : 50;
-    const low = Math.max(profile.floor, roundToIncrement(adjustedSubtotal * 0.85, increment));
-    const high = Math.max(low + 250, roundToIncrement(adjustedSubtotal * 1.25, increment));
+    const low = Math.max(profile.floor, roundToIncrement(adjustedDesignSubtotal * 0.85 + onSiteDirectionAmount, increment));
+    const high = Math.max(low + 250, roundToIncrement(adjustedDesignSubtotal * 1.25 + onSiteDirectionAmount, increment));
     const depositLow = roundToIncrement(low * 0.5, increment);
     const depositHigh = roundToIncrement(high * 0.5, increment);
     const timelineLow = Math.max(
@@ -311,6 +327,7 @@
         team.weeks +
         site.weeks +
         deliverableWeeks +
+        onSiteDirectionWeeks +
         timeline.weekShift[0]
     );
     const timelineHigh = Math.max(
@@ -321,6 +338,7 @@
         team.weeks +
         site.weeks +
         deliverableWeeks +
+        onSiteDirectionWeeks +
         timeline.weekShift[1]
     );
     const selectedDeliverables = deliverables
@@ -330,7 +348,7 @@
     const factors = [
       siteDetails ? "Site details: " + siteDetails : "Site details not provided yet",
       wallCount > 1 ? wallCount + " walls or panels" : "1 wall or panel",
-      "Site mockup included with supplied photos and dimensions",
+      "Wall-photo site mockup included when wall photos and dimensions are supplied",
       wallScale.factor,
       complexity.factor,
       team.factor,
@@ -340,6 +358,19 @@
     ];
 
     selectedDeliverables.forEach((label) => factors.push(label));
+
+    if (onSiteHours > 0) {
+      factors.push(
+        "On-site direction: " +
+          onSiteHours +
+          " hour" +
+          (onSiteHours === 1 ? "" : "s") +
+          " at " +
+          formatMoney(ON_SITE_DIRECTION_RATE) +
+          "/hour"
+      );
+      factors.push("Travel and accommodations may apply outside 35 miles of Akron, Ohio");
+    }
 
     return {
       projectType,
@@ -352,6 +383,8 @@
       depositHigh,
       timelineLow,
       timelineHigh,
+      onSiteHours,
+      onSiteDirectionAmount,
       factors,
       selectedDeliverables,
       siteDetails,
@@ -386,6 +419,14 @@
       "Wall scale: " + estimate.labels.wallScale,
       "Visual complexity: " + estimate.labels.complexity,
       "Painting / installation path: " + estimate.labels.team,
+      "On-site direction hours: " +
+        estimate.onSiteHours +
+        " at " +
+        formatMoney(ON_SITE_DIRECTION_RATE) +
+        "/hour" +
+        (estimate.onSiteHours > 0
+          ? " (" + formatMoney(estimate.onSiteDirectionAmount) + ")"
+          : ""),
       "Visibility / rights: " + estimate.labels.usage,
       "Timeline: " + estimate.labels.timeline,
       "Site readiness: " + estimate.labels.siteReadiness,
@@ -396,7 +437,7 @@
       "Likely timeline: " + estimate.timelineLow + "-" + estimate.timelineHigh + " weeks",
       "",
       "Please note:",
-      "This estimate covers mural design, a site mockup based on supplied photos and dimensions, and art direction only. Painting labor, wall prep, lift or scaffold rental, materials, permits, travel, insurance, contractor fees, and installation costs are separate unless specifically scoped in a final proposal.",
+      "This estimate covers mural design, a wall-photo site mockup when wall photos and dimensions are supplied, production handoff, and selected on-site direction hours only. Joëlle does not provide on-site painting labor. Painting labor, wall prep, lift or scaffold rental, materials, permits, insurance, contractor fees, and installation costs are separate. Travel and accommodations may apply outside 35 miles of Akron, Ohio.",
       "",
       "Additional details:",
       estimate.notes || ""
@@ -416,6 +457,7 @@
       complexity: elements.complexitySelect.value,
       usage: elements.usageSelect.value,
       team: elements.teamSelect.value,
+      onSiteHours: elements.onSiteHoursInput ? elements.onSiteHoursInput.value : 0,
       timeline: elements.timelineSelect.value,
       siteReadiness: elements.siteReadinessSelect.value,
       deliverables: checkedDeliverables,
@@ -492,6 +534,30 @@
     elements.form.addEventListener("input", () => render(elements));
     elements.form.addEventListener("change", () => render(elements));
     elements.copyButton.addEventListener("click", () => copySummary(elements));
+    bindInfoDialog();
+  }
+
+  function bindInfoDialog() {
+    const dialog = root.document.getElementById("muralProcessDialog");
+    const openButton = root.document.querySelector('[data-modal-open="muralProcessDialog"]');
+    const closeButton = dialog ? dialog.querySelector("[data-modal-close]") : null;
+
+    if (!dialog || !openButton || !closeButton) {
+      return;
+    }
+
+    openButton.addEventListener("click", () => {
+      if (dialog.showModal) {
+        dialog.showModal();
+      }
+    });
+
+    closeButton.addEventListener("click", () => dialog.close());
+    dialog.addEventListener("click", (event) => {
+      if (event.target === dialog) {
+        dialog.close();
+      }
+    });
   }
 
   function copySummary(elements) {
@@ -543,6 +609,7 @@
       usageSelect: root.document.getElementById("muralUsageSelect"),
       teamSelect: root.document.getElementById("teamSelect"),
       teamGuide: root.document.getElementById("teamGuide"),
+      onSiteHoursInput: root.document.getElementById("onSiteHoursInput"),
       timelineSelect: root.document.getElementById("muralTimelineSelect"),
       siteReadinessSelect: root.document.getElementById("siteReadinessSelect"),
       notesInput: root.document.getElementById("muralNotesInput"),
