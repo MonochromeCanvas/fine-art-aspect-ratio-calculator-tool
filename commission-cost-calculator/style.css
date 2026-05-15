@@ -183,46 +183,70 @@ h3 {
   line-height: 1.55;
 }
 
-.hero-actions {
-  display: flex;
-  flex-wrap: wrap;
+.hero-path {
+  display: grid;
+  grid-template-columns: minmax(220px, 300px) minmax(220px, 320px);
   gap: 12px;
-  margin-top: 22px;
+  margin-top: 24px;
 }
 
-.primary-link,
-.secondary-link {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 40px;
-  padding: 10px 15px;
+.hero-start,
+.hero-process {
+  display: grid;
+  gap: 5px;
+  align-content: center;
+  min-height: 76px;
+  padding: 15px 17px;
   border-radius: 8px;
   font-family: Arial, Helvetica, sans-serif;
-  font-size: 14px;
-  font-weight: 700;
+  text-align: left;
   text-decoration: none;
   cursor: pointer;
 }
 
-.primary-link {
+.hero-start {
   border: 1px solid var(--accent);
   background: var(--accent);
   color: #fffdf9;
+  box-shadow: 0 16px 30px rgba(31, 48, 51, 0.14);
 }
 
-.secondary-link {
-  border: 1px solid rgba(31, 48, 51, 0.22);
-  background: rgba(255, 253, 249, 0.62);
-  color: var(--ink-soft);
+.hero-process {
+  border: 1px solid rgba(31, 48, 51, 0.18);
+  background: rgba(255, 253, 249, 0.66);
+  color: var(--ink);
+  appearance: none;
 }
 
-.primary-link:hover,
-.primary-link:focus-visible,
-.secondary-link:hover,
-.secondary-link:focus-visible {
+.hero-start span,
+.hero-process span {
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+}
+
+.hero-start small,
+.hero-process small {
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.hero-start small {
+  color: rgba(255, 253, 249, 0.76);
+}
+
+.hero-process small {
+  color: var(--ink-muted);
+}
+
+.hero-start:hover,
+.hero-start:focus-visible,
+.hero-process:hover,
+.hero-process:focus-visible {
   outline: 3px solid rgba(60, 88, 100, 0.18);
   outline-offset: 2px;
+  transform: translateY(-1px);
 }
 
 .info-dialog {
@@ -694,9 +718,8 @@ h3 {
     grid-template-columns: 1fr;
   }
 
-  .primary-link,
-  .secondary-link {
-    width: 100%;
+  .hero-path {
+    grid-template-columns: 1fr;
   }
 
   .estimate-panel,
