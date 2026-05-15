@@ -25,35 +25,57 @@
             <a href="./mural-design.html" aria-current="page">Mural design</a>
           </nav>
           <p class="eyebrow">Mural + Public Art Planning</p>
-          <h1>Mural Design Scope Calculator</h1>
+          <h1>Plan a mural people remember.</h1>
           <p class="hero-copy">
-            A planning tool for mural concepts, wall artwork, public-facing installations, and large-scale visual direction.
+            Explore the first shape of a premium wall artwork, from concept and mockup to painter-ready direction.
           </p>
-          <div class="hero-notes">
-            <span>Design and art direction first</span>
-            <span>Painting labor quoted separately</span>
-            <span>Professional teams welcome</span>
-            <span>Final quotes follow site review</span>
+          <div class="hero-actions">
+            <a class="primary-link" href="#workspace-title">Build the scope</a>
+            <button class="secondary-link" type="button" data-modal-open="muralProcessDialog">
+              How mural projects work
+            </button>
           </div>
         </div>
       </header>
 
+      <dialog id="muralProcessDialog" class="info-dialog" aria-labelledby="muralProcessTitle">
+        <div class="info-dialog__content">
+          <button class="dialog-close" type="button" data-modal-close aria-label="Close">Close</button>
+          <p class="section-label">Mural Process</p>
+          <h2 id="muralProcessTitle">A designed wall, with a clear production path.</h2>
+          <div class="dialog-grid">
+            <article>
+              <h3>Design</h3>
+              <p>Joëlle develops the concept, composition, wall-photo mockup, color direction, and production-ready guidance.</p>
+            </article>
+            <article>
+              <h3>Production</h3>
+              <p>Your painter, installer, or outside production team handles wall prep, materials, access, and painting labor.</p>
+            </article>
+            <article>
+              <h3>Direction</h3>
+              <p>On-site direction can be added at $100/hour, with travel and accommodations added outside 35 miles of Akron, Ohio.</p>
+            </article>
+          </div>
+        </div>
+      </dialog>
+
       <section class="scope-intro" aria-label="Mural design fit notes">
         <article>
           <h2>Studio role</h2>
-          <p>Monochrome Canvas is best suited for concept design, visual direction, mural artwork files, color planning, and handoff support.</p>
+          <p>Monochrome Canvas turns walls, rooms, brands, and public spaces into composed artwork with a strong point of view.</p>
         </article>
         <article>
-          <h2>Painting teams</h2>
-          <p>Joëlle does not typically take on physically demanding on-site mural painting. The studio can collaborate with client teams or recommend professional painters.</p>
+          <h2>Painting role</h2>
+          <p>The physical painting is handled by your painter, installer, or an outside production team, with clear files and direction from the studio.</p>
         </article>
         <article>
-          <h2>Client brings</h2>
-          <p>Wall dimensions, site photos, usage needs, deadlines, approval process, budget context, and any required brand or community direction.</p>
+          <h2>Team path</h2>
+          <p>Bring a team you trust, or ask the studio to help coordinate one. Production pricing is estimated separately by project needs.</p>
         </article>
         <article>
-          <h2>Pricing</h2>
-          <p>Ranges include a site mockup once photos and dimensions are provided. Paint, prep, lifts, permits, travel, insurance, and installation labor are separate.</p>
+          <h2>Site direction</h2>
+          <p>Wall-photo mockups are included when photos and dimensions are supplied. On-site direction can be added for key painting moments.</p>
         </article>
       </section>
 
@@ -78,7 +100,7 @@
                   <select id="muralProjectSelect" name="projectType">
                     <option value="concept-study">Concept study or early direction</option>
                     <option value="mural-design-package" selected>Complete mural design package</option>
-                    <option value="art-direction-handoff">Art direction + painter handoff</option>
+                    <option value="art-direction-handoff">Mural design + production handoff</option>
                     <option value="public-art-system">Public art, campaign, or institution-scale mural</option>
                   </select>
                 </label>
@@ -102,7 +124,7 @@
                     <option value="medium" selected>Standard interior wall</option>
                     <option value="large">Large interior or prominent business wall</option>
                     <option value="oversized">Oversized multi-wall or large exterior</option>
-                    <option value="exterior-public">Exterior, public-facing, or high-visibility wall</option>
+                    <option value="exterior-public">Exterior or high-visibility wall</option>
                   </select>
                 </label>
               </div>
@@ -117,7 +139,7 @@
                     <option value="graphic">Simple graphic treatment or pattern</option>
                     <option value="illustrative" selected>Illustrative mural concept</option>
                     <option value="detailed-scene">Detailed scene or many elements</option>
-                    <option value="premium-public">Premium public-facing artwork</option>
+                    <option value="premium-public">Narrative concept or complex mural system</option>
                   </select>
                 </label>
                 <div id="muralComplexityGuide" class="choice-guide field--wide" aria-live="polite"></div>
@@ -127,7 +149,7 @@
                     <option value="private-interior" selected>Private interior or limited display</option>
                     <option value="business-public">Business, restaurant, retail, or lobby display</option>
                     <option value="institution">Institutional, donor, or community-facing use</option>
-                    <option value="public-art">Public art, exterior, campaign, or press-facing use</option>
+                    <option value="public-art">Exterior, campaign, or press-visible display</option>
                     <option value="broad-license">Reproduction, merch, licensing, or broad usage</option>
                   </select>
                 </label>
@@ -140,13 +162,26 @@
                 <label class="field field--wide">
                   <span>Painting / installation path</span>
                   <select id="teamSelect" name="team">
-                    <option value="client-team" selected>Client has a painter or installation team</option>
-                    <option value="referral">Studio recommends a professional painting team</option>
-                    <option value="coordination">Studio coordinates with client or painting team</option>
-                    <option value="art-direction-onsite">Limited on-site art direction during painting</option>
+                    <option value="client-team" selected>Work with client's painter or production team</option>
+                    <option value="referral">Studio recommends a production team</option>
+                    <option value="coordination">Studio coordinates an outside production team</option>
                   </select>
                 </label>
                 <div id="teamGuide" class="choice-guide field--wide" aria-live="polite"></div>
+                <label class="field">
+                  <span>On-site direction hours</span>
+                  <input
+                    id="onSiteHoursInput"
+                    name="onSiteHours"
+                    type="number"
+                    min="0"
+                    max="80"
+                    step="0.5"
+                    value="0"
+                    inputmode="decimal"
+                  >
+                  <small>$100/hour. Travel and accommodations may apply outside 35 miles of Akron, Ohio.</small>
+                </label>
                 <label class="field">
                   <span>Timeline</span>
                   <select id="muralTimelineSelect" name="timeline">
@@ -156,7 +191,7 @@
                     <option value="rush">Rush or fixed opening date</option>
                   </select>
                 </label>
-                <label class="field">
+                <label class="field field--wide">
                   <span>Site readiness</span>
                   <select id="siteReadinessSelect" name="siteReadiness">
                     <option value="ready" selected>Measurements, photos, and direction are ready</option>
@@ -191,7 +226,7 @@
                   id="muralNotesInput"
                   name="notes"
                   rows="4"
-                  placeholder="Wall size, opening date, location, indoors/outdoors, painter status, brand/community direction, budget context, access constraints, or approval process."
+                  placeholder="Wall size, opening date, location, indoors/outdoors, painter status, team coordination needs, brand/community direction, budget context, access constraints, or approval process."
                 ></textarea>
               </label>
             </div>
@@ -229,9 +264,9 @@
             </div>
 
             <div class="notice-panel">
-              <h3>Please note</h3>
+              <h3>Scope clarity</h3>
               <p>
-                This estimate covers mural design, a site mockup based on supplied photos and dimensions, and art direction only. Painting labor, wall prep, lift or scaffold rental, materials, permits, travel, insurance, contractor fees, and installation costs are separate unless specifically scoped in a final proposal.
+                Your estimate covers mural design, a wall-photo mockup when photos and dimensions are supplied, production handoff, and selected on-site direction hours. Painting labor, wall prep, lift or scaffold rental, materials, permits, insurance, contractor fees, travel, and installation costs are quoted separately when needed.
               </p>
             </div>
           </aside>
