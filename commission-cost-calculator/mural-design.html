@@ -10,11 +10,12 @@
     >
     <meta name="robots" content="noindex,follow">
     <link rel="icon" type="image/svg+xml" href="../favicon.svg">
-    <link rel="stylesheet" href="./style.css">
+    <link rel="stylesheet" href="./style.css?v=20260515-mural-lure">
+    <link rel="stylesheet" href="./mural-polish.css?v=20260515-mural-lure">
   </head>
   <body>
     <main class="app-shell">
-      <header class="hero">
+      <header class="hero hero--mural">
         <div class="hero-layout">
           <a class="brand-pill" href="https://monochromecanvas.com" target="_blank" rel="noreferrer">
             Monochrome Canvas
@@ -27,14 +28,21 @@
           <p class="eyebrow">Mural + Public Art Planning</p>
           <h1>Plan a mural people remember.</h1>
           <p class="hero-copy">
-            Explore the first shape of a premium wall artwork, from concept and mockup to painter-ready direction.
+            Turn a blank wall into a composed, painter-ready artwork for a room, storefront, campus, or public space with a point of view.
           </p>
-          <div class="hero-actions">
-            <a class="primary-link" href="#workspace-title">Build the scope</a>
-            <button class="secondary-link" type="button" data-modal-open="muralProcessDialog">
-              How mural projects work
+          <div class="hero-path">
+            <a class="hero-start" href="#workspace-title">
+              <span>Start the mural scope</span>
+              <small>Shape the wall, budget, and creative direction</small>
+            </a>
+            <button class="hero-process" type="button" data-modal-open="muralProcessDialog">
+              <span>See the studio role</span>
+              <small>Design, production handoff, and site direction</small>
             </button>
           </div>
+          <p class="hero-assurance">
+            Wall-photo mockup included when photos and dimensions are supplied.
+          </p>
         </div>
       </header>
 
@@ -42,7 +50,7 @@
         <div class="info-dialog__content">
           <button class="dialog-close" type="button" data-modal-close aria-label="Close">Close</button>
           <p class="section-label">Mural Process</p>
-          <h2 id="muralProcessTitle">A designed wall, with a clear production path.</h2>
+          <h2 id="muralProcessTitle">A designed wall, with a clear path to production.</h2>
           <div class="dialog-grid">
             <article>
               <h3>Design</h3>
@@ -60,7 +68,22 @@
         </div>
       </dialog>
 
-      <section class="scope-intro" aria-label="Mural design fit notes">
+      <section class="mural-showcase" aria-label="Mural design promise">
+        <div class="mural-showcase__visual" aria-hidden="true">
+          <span class="mural-plane mural-plane--one"></span>
+          <span class="mural-plane mural-plane--two"></span>
+          <span class="mural-plane mural-plane--three"></span>
+        </div>
+        <div class="mural-showcase__copy">
+          <p class="section-label">Designed before it is painted</p>
+          <h2>Composition, color, scale, and painter-ready direction in one studio-led scope.</h2>
+          <p>
+            Bring your own team, or ask Monochrome Canvas to coordinate production support. The first step should feel clear, elevated, and genuinely exciting.
+          </p>
+        </div>
+      </section>
+
+      <section class="scope-intro scope-intro--mural" aria-label="Mural design fit notes">
         <article>
           <h2>Studio role</h2>
           <p>Monochrome Canvas turns walls, rooms, brands, and public spaces into composed artwork with a strong point of view.</p>
