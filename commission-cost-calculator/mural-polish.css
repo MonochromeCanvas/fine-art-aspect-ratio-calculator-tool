@@ -112,6 +112,16 @@ h1 {
   box-shadow: none;
 }
 
+.hero-start span,
+.hero-process span {
+  font-weight: inherit;
+}
+
+.hero-start small,
+.hero-process small {
+  display: none;
+}
+
 .hero-start {
   border: 1px solid var(--accent);
   background: var(--accent);
