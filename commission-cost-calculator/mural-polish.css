@@ -1,184 +1,207 @@
-.hero--mural {
-  padding-bottom: 18px;
+@import url("https://fonts.googleapis.com/css2?family=Arapey:ital@0;1&family=Gloock&display=swap");
+
+:root {
+  --paper: #eee5d9;
+  --paper-strong: #fffdf9;
+  --ink: #1c3635;
+  --ink-soft: rgba(28, 54, 53, 0.78);
+  --ink-muted: rgba(28, 54, 53, 0.58);
+  --accent: #3f725c;
+  --copper: #a07a5d;
 }
 
-.hero--mural .hero-path {
-  grid-template-columns: minmax(250px, 340px) minmax(230px, 330px);
-  gap: 12px;
-  margin-top: 26px;
-}
-
-.hero--mural .hero-start,
-.hero--mural .hero-process {
-  position: relative;
-  min-height: 82px;
-  padding: 16px 18px 16px 20px;
-  overflow: hidden;
-  transition:
-    transform 160ms ease,
-    border-color 160ms ease,
-    box-shadow 160ms ease,
-    background 160ms ease;
-}
-
-.hero--mural .hero-start::before,
-.hero--mural .hero-process::before {
-  content: "";
-  position: absolute;
-  inset: 0 auto 0 0;
-  width: 5px;
-  background: var(--copper);
-}
-
-.hero--mural .hero-start {
-  border: 1px solid rgba(31, 48, 51, 0.92);
+body {
   background:
-    linear-gradient(135deg, #1f3033 0%, #314e47 64%, #8d5d3d 100%);
-  box-shadow: 0 18px 34px rgba(31, 48, 51, 0.18);
+    radial-gradient(circle at 22% 18%, rgba(255, 253, 249, 0.78), transparent 28rem),
+    linear-gradient(180deg, #f6f1e9 0%, #eee5d9 54%, #e4d7c8 100%);
+  font-family: "Arapey", Georgia, "Times New Roman", serif;
 }
 
-.hero--mural .hero-process {
-  border: 1px solid rgba(31, 48, 51, 0.22);
-  background:
-    linear-gradient(135deg, rgba(255, 253, 249, 0.9), rgba(238, 243, 238, 0.62));
+.app-shell {
+  max-width: 1160px;
 }
 
-.hero--mural .hero-start span,
-.hero--mural .hero-process span,
-.hero--mural .hero-start small,
-.hero--mural .hero-process small {
-  position: relative;
+h1,
+h2,
+h3,
+strong {
+  font-family: "Gloock", Georgia, "Times New Roman", serif;
+  font-weight: 400;
 }
 
-.hero--mural .hero-start:hover,
-.hero--mural .hero-start:focus-visible,
-.hero--mural .hero-process:hover,
-.hero--mural .hero-process:focus-visible {
-  outline: 3px solid rgba(141, 93, 61, 0.18);
-  transform: translateY(-1px);
+.brand-pill,
+.tool-nav,
+.eyebrow,
+.section-label,
+.field span,
+.check-list legend,
+.estimate-stats span,
+.copy-button,
+.send-button,
+.field small,
+.field-note {
+  font-family: inherit;
 }
 
-.hero--mural .hero-start:hover,
-.hero--mural .hero-start:focus-visible {
-  box-shadow: 0 22px 42px rgba(31, 48, 51, 0.22);
+.hero {
+  max-width: 920px;
+  padding-top: 28px;
 }
 
-.hero--mural .hero-process:hover,
-.hero--mural .hero-process:focus-visible {
-  border-color: rgba(49, 78, 71, 0.44);
-  background:
-    linear-gradient(135deg, rgba(255, 253, 249, 0.98), rgba(220, 229, 221, 0.72));
+.hero-layout {
+  max-width: 900px;
 }
 
-.hero-assurance {
-  margin: 14px 0 0;
-  color: var(--ink-muted);
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 13px;
-  font-weight: 700;
-  line-height: 1.45;
+.brand-pill {
+  border-radius: 0;
+  background: rgba(255, 253, 249, 0.58);
+  letter-spacing: 0.18em;
 }
 
-.mural-showcase {
-  display: grid;
-  grid-template-columns: minmax(280px, 0.72fr) minmax(0, 1fr);
-  gap: 30px;
-  align-items: center;
-  margin: 8px 0 28px;
-  padding: 30px 0;
-  border-top: 1px solid rgba(31, 48, 51, 0.13);
-  border-bottom: 1px solid rgba(31, 48, 51, 0.13);
+.tool-nav a {
+  border-radius: 0;
+  background: rgba(255, 253, 249, 0.72);
+  font-size: 15px;
+  letter-spacing: 0;
 }
 
-.mural-showcase__visual {
-  display: grid;
-  grid-template-columns: 1.1fr 0.68fr 0.92fr;
-  gap: 10px;
-  align-items: end;
-  min-height: 210px;
+.tool-nav a[aria-current="page"] {
+  background: var(--accent);
 }
 
-.mural-plane {
-  display: block;
-  min-width: 0;
-  border: 1px solid rgba(31, 48, 51, 0.2);
-  border-radius: 2px;
-  box-shadow: 0 18px 34px rgba(31, 48, 51, 0.1);
+.eyebrow,
+.section-label {
+  letter-spacing: 0.16em;
 }
 
-.mural-plane--one {
-  height: 148px;
-  background:
-    linear-gradient(140deg, transparent 0 38%, rgba(255, 253, 249, 0.86) 38% 46%, transparent 46% 100%),
-    linear-gradient(180deg, #314e47 0 24%, #d4ded5 24% 57%, #8d5d3d 57% 100%);
-}
-
-.mural-plane--two {
-  height: 204px;
-  background:
-    linear-gradient(90deg, rgba(31, 48, 51, 0.18) 0 2px, transparent 2px 100%),
-    linear-gradient(180deg, #fffdf9 0 25%, #8d5d3d 25% 46%, #1f3033 46% 100%);
-}
-
-.mural-plane--three {
-  height: 170px;
-  background:
-    linear-gradient(150deg, #d4ded5 0 31%, #fffdf9 31% 47%, #3c5864 47% 69%, #8d5d3d 69% 100%);
-}
-
-.mural-showcase__copy h2 {
-  max-width: 760px;
-  margin-top: 7px;
-  font-size: clamp(32px, 4.4vw, 58px);
+h1 {
+  max-width: 860px;
+  margin-top: 10px;
+  font-size: clamp(42px, 6.2vw, 74px);
   line-height: 0.98;
 }
 
-.mural-showcase__copy p:not(.section-label) {
+.hero-copy {
+  max-width: 760px;
+  color: rgba(28, 54, 53, 0.86);
+  font-size: clamp(22px, 2.2vw, 27px);
+  line-height: 1.42;
+}
+
+.hero-path {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 30px;
+}
+
+.hero-start,
+.hero-process {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60px;
+  min-width: 210px;
+  padding: 16px 24px;
+  border-radius: 0;
+  font-size: 18px;
+  line-height: 1.2;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: none;
+}
+
+.hero-start {
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: #fffdf9;
+}
+
+.hero-process {
+  border: 1px solid rgba(28, 54, 53, 0.22);
+  background: rgba(255, 255, 255, 0.92);
+  color: rgba(43, 54, 52, 0.86);
+  appearance: none;
+}
+
+.hero-start:hover,
+.hero-start:focus-visible,
+.hero-process:hover,
+.hero-process:focus-visible {
+  outline: 2px solid rgba(63, 114, 92, 0.22);
+  outline-offset: 3px;
+  transform: none;
+}
+
+.hero-assurance {
   max-width: 620px;
-  margin: 14px 0 0;
-  color: var(--ink-soft);
-  font-size: 17px;
-  line-height: 1.56;
+  margin: 18px 0 0;
+  color: var(--ink-muted);
+  font-size: 18px;
+  line-height: 1.42;
 }
 
-.scope-intro--mural {
-  margin-top: 0;
+.mural-showcase {
+  display: none !important;
 }
 
-@media (max-width: 960px) {
-  .mural-showcase {
-    grid-template-columns: 1fr;
-    gap: 22px;
-  }
+.scope-intro {
+  margin-top: 18px;
+}
+
+.scope-intro article {
+  border-top-color: rgba(28, 54, 53, 0.18);
+}
+
+.scope-intro h2 {
+  font-size: 26px;
+}
+
+.scope-intro p,
+.privacy-copy,
+.field-note,
+.estimate-copy,
+.summary-content,
+.factor-list,
+.notice-panel p {
+  color: rgba(28, 54, 53, 0.72);
+  font-size: 18px;
+}
+
+.workspace,
+.stack-block,
+.estimate-panel,
+.summary-panel,
+.notice-panel {
+  border-radius: 0;
+  background: rgba(255, 253, 249, 0.7);
+}
+
+.workspace {
+  border-top-color: var(--accent);
+}
+
+.field input,
+.field select,
+.field textarea,
+.choice-guide,
+.toggle,
+.estimate-stats div,
+.factor-list span,
+.details-preview {
+  border-radius: 0;
+}
+
+.copy-button,
+.send-button {
+  border-radius: 0;
+  font-size: 16px;
 }
 
 @media (max-width: 640px) {
-  .hero--mural .hero-path {
-    grid-template-columns: 1fr;
-  }
-
-  .hero--mural .hero-start,
-  .hero--mural .hero-process {
-    min-height: 74px;
-  }
-
-  .mural-showcase {
-    padding: 22px 0;
-  }
-
-  .mural-showcase__visual {
-    min-height: 160px;
-  }
-
-  .mural-plane--one {
-    height: 116px;
-  }
-
-  .mural-plane--two {
-    height: 156px;
-  }
-
-  .mural-plane--three {
-    height: 132px;
+  .hero-start,
+  .hero-process {
+    width: 100%;
   }
 }
