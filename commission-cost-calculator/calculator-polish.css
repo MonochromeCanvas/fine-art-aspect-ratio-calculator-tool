@@ -1,0 +1,220 @@
+@import url("https://fonts.googleapis.com/css2?family=Arapey:ital@0;1&family=Gloock&display=swap");
+
+:root {
+  --paper: #eee5d9;
+  --paper-strong: #fffdf9;
+  --ink: #1c3635;
+  --ink-soft: rgba(28, 54, 53, 0.78);
+  --ink-muted: rgba(28, 54, 53, 0.58);
+  --accent: #3f725c;
+  --copper: #a07a5d;
+}
+
+body {
+  background:
+    radial-gradient(circle at 22% 18%, rgba(255, 253, 249, 0.78), transparent 28rem),
+    linear-gradient(180deg, #f6f1e9 0%, #eee5d9 54%, #e4d7c8 100%);
+  font-family: "Arapey", Georgia, "Times New Roman", serif;
+}
+
+.app-shell {
+  max-width: 1160px;
+}
+
+h1,
+h2,
+h3,
+strong {
+  font-family: "Gloock", Georgia, "Times New Roman", serif;
+  font-weight: 400;
+}
+
+.brand-pill,
+.tool-nav,
+.eyebrow,
+.section-label,
+.field span,
+.check-list legend,
+.estimate-stats span,
+.copy-button,
+.send-button,
+.field small,
+.field-note {
+  font-family: inherit;
+}
+
+.hero {
+  max-width: 920px;
+  padding-top: 28px;
+}
+
+.hero-layout {
+  max-width: 900px;
+}
+
+.brand-pill {
+  border-radius: 0;
+  background: rgba(255, 253, 249, 0.58);
+  letter-spacing: 0.18em;
+}
+
+.tool-nav a {
+  border-radius: 0;
+  background: rgba(255, 253, 249, 0.72);
+  font-size: 15px;
+  letter-spacing: 0;
+}
+
+.tool-nav a[aria-current="page"] {
+  background: var(--accent);
+}
+
+.eyebrow,
+.section-label {
+  letter-spacing: 0.16em;
+}
+
+h1 {
+  max-width: 860px;
+  margin-top: 10px;
+  font-size: clamp(42px, 6.2vw, 74px);
+  line-height: 0.98;
+}
+
+.hero-copy,
+.hero-invite {
+  max-width: 760px;
+  color: rgba(28, 54, 53, 0.86);
+  font-size: clamp(22px, 2.2vw, 27px);
+  line-height: 1.42;
+}
+
+.hero-invite {
+  margin-top: 12px;
+  color: rgba(28, 54, 53, 0.66);
+  font-size: clamp(19px, 1.9vw, 23px);
+}
+
+.hero-path {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 30px;
+}
+
+.hero-start,
+.hero-process {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60px;
+  min-width: 210px;
+  padding: 16px 24px;
+  border-radius: 0;
+  font-size: 18px;
+  line-height: 1.2;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: none;
+}
+
+.hero-start span,
+.hero-process span {
+  font-weight: inherit;
+}
+
+.hero-start small,
+.hero-process small {
+  display: none;
+}
+
+.hero-start {
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: #fffdf9;
+}
+
+.hero-process {
+  border: 1px solid rgba(28, 54, 53, 0.22);
+  background: rgba(255, 255, 255, 0.92);
+  color: rgba(43, 54, 52, 0.86);
+  appearance: none;
+}
+
+.hero-start:hover,
+.hero-start:focus-visible,
+.hero-process:hover,
+.hero-process:focus-visible {
+  outline: 2px solid rgba(63, 114, 92, 0.22);
+  outline-offset: 3px;
+  transform: none;
+}
+
+.hero-assurance {
+  max-width: 620px;
+  margin: 18px 0 0;
+  color: var(--ink-muted);
+  font-size: 18px;
+  line-height: 1.42;
+}
+
+.scope-intro {
+  margin-top: 18px;
+}
+
+.scope-intro article {
+  border-top-color: rgba(28, 54, 53, 0.18);
+}
+
+.scope-intro h2 {
+  font-size: 26px;
+}
+
+.scope-intro p,
+.privacy-copy,
+.field-note,
+.estimate-copy,
+.summary-content,
+.factor-list,
+.notice-panel p {
+  color: rgba(28, 54, 53, 0.72);
+  font-size: 18px;
+}
+
+.workspace,
+.stack-block,
+.estimate-panel,
+.summary-panel,
+.notice-panel {
+  border-radius: 0;
+  background: rgba(255, 253, 249, 0.7);
+}
+
+.workspace {
+  border-top-color: var(--accent);
+}
+
+.field input,
+.field select,
+.field textarea,
+.choice-guide,
+.toggle,
+.estimate-stats div,
+.factor-list span,
+.details-preview {
+  border-radius: 0;
+}
+
+.copy-button,
+.send-button {
+  border-radius: 0;
+  font-size: 16px;
+}
+
+@media (max-width: 640px) {
+  .hero-start,
+  .hero-process {
+    width: 100%;
+  }
+}
