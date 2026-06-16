@@ -48,6 +48,23 @@ test("defined design support keeps the studio floor", () => {
   assert.equal(estimate.depositLow, 250);
 });
 
+test("focused logo marks can stay near the one-thousand dollar range", () => {
+  const calculator = loadCalculator();
+  const estimate = calculator.calculateEstimate({
+    projectType: "logo-mark",
+    deliverableCount: 1,
+    complexity: "production",
+    usage: "internal",
+    timeline: "standard",
+    assetReadiness: "ready",
+    deliverables: []
+  });
+
+  assert.equal(estimate.low, 1000);
+  assert.ok(estimate.high <= 1300);
+  assert.match(estimate.projectNote, /focused mark/i);
+});
+
 test("public packaging and broad usage move into a higher range", () => {
   const calculator = loadCalculator();
   const internal = calculator.calculateEstimate({
@@ -72,6 +89,7 @@ test("public packaging and broad usage move into a higher range", () => {
   assert.ok(packaging.low > internal.low * 8);
   assert.ok(packaging.high > internal.high * 8);
   assert.ok(packaging.selectedDeliverables.includes("Mini brand guide or usage notes"));
+  assert.ok(packaging.selectedDeliverables.includes("Expanded print-ready files or vendor handoff"));
 });
 
 test("summary includes design scope and pricing range", () => {
