@@ -21,13 +21,13 @@
       guide: "Choose this for a poster, announcement, invitation, launch graphic, event suite, or small campaign that needs a polished visual point of view."
     },
     "logo-mark": {
-      label: "Logo, mark, or identity refresh",
-      base: 2500,
-      floor: 1800,
-      weeks: [4, 8],
-      note: "Best fit for a thoughtful mark, refinement of an existing identity, or a small visual identity foundation.",
-      guideTitle: "Logo, mark, or identity refresh",
-      guide: "Choose this for a mark, identity cleanup, or visual refresh when the business already has clear direction, audience, and reference points."
+      label: "Focused logo mark or identity refresh",
+      base: 950,
+      floor: 1000,
+      weeks: [2, 5],
+      note: "Best fit for a focused mark, small identity refresh, or single visual concept when the client already has clear direction. Includes final vector mark files prepared for small and large applications.",
+      guideTitle: "Focused logo mark or identity refresh",
+      guide: "Choose this for a small mark, identity cleanup, or narrow visual refresh when the business already has a name, audience, rough direction, and useful reference points. Includes a polished final vector mark and basic file handoff, not a full identity system."
     },
     "identity-system": {
       label: "Identity system or art direction",
@@ -173,7 +173,7 @@
 
   const deliverableProfiles = {
     "print-ready": {
-      label: "Print-ready files or vendor handoff",
+      label: "Expanded print-ready files or vendor handoff",
       flat: 250,
       weeks: 0
     },
