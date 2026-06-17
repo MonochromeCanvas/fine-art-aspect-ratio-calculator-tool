@@ -3,11 +3,12 @@
 
   const projectProfiles = {
     "concept-study": {
-      label: "Concept study or early direction",
-      base: 900,
-      floor: 900,
-      weeks: [3, 5],
-      note: "Best fit for early mural ideas, visual exploration, and deciding whether a wall concept should move forward."
+      label: "Mural first look",
+      base: 400,
+      floor: 300,
+      spread: 150,
+      weeks: [1, 2],
+      note: "Best fit for exploring a wall direction before committing to a full mural design package. This is an early visual read, not final artwork or painter-ready production direction."
     },
     "mural-design-package": {
       label: "Complete mural design package",
@@ -302,12 +303,13 @@
     const onSiteDirectionWeeks = onSiteHours > 0 ? 1 : 0;
     const wallCountMultiplier = wallCount > 1 ? 1 + (wallCount - 1) * 0.15 : 1;
     const creativeBase = profile.base * wallScale.multiplier * complexity.multiplier * wallCountMultiplier;
-    const usageAmount = Math.max(creativeBase * usage.percent, usage.flat);
-    const deliverableAmount = deliverables.reduce((total, key) => {
+    const isExploratory = projectType === "concept-study";
+    const usageAmount = isExploratory ? 0 : Math.max(creativeBase * usage.percent, usage.flat);
+    const deliverableAmount = isExploratory ? 0 : deliverables.reduce((total, key) => {
       const deliverable = deliverableProfiles[key];
       return total + (deliverable ? deliverable.flat : 0);
     }, 0);
-    const deliverableWeeks = deliverables.reduce((total, key) => {
+    const deliverableWeeks = isExploratory ? 0 : deliverables.reduce((total, key) => {
       const deliverable = deliverableProfiles[key];
       return total + (deliverable ? deliverable.weeks : 0);
     }, 0);
@@ -315,8 +317,9 @@
     const adjustedDesignSubtotal = subtotal * timeline.multiplier;
     const adjustedSubtotal = adjustedDesignSubtotal + onSiteDirectionAmount;
     const increment = adjustedSubtotal >= 10000 ? 250 : adjustedSubtotal >= 2500 ? 100 : 50;
+    const spread = profile.spread || 250;
     const low = Math.max(profile.floor, roundToIncrement(adjustedDesignSubtotal * 0.85 + onSiteDirectionAmount, increment));
-    const high = Math.max(low + 250, roundToIncrement(adjustedDesignSubtotal * 1.25 + onSiteDirectionAmount, increment));
+    const high = Math.max(low + spread, roundToIncrement(adjustedDesignSubtotal * 1.25 + onSiteDirectionAmount, increment));
     const depositLow = roundToIncrement(low * 0.5, increment);
     const depositHigh = roundToIncrement(high * 0.5, increment);
     const timelineLow = Math.max(
@@ -348,16 +351,22 @@
     const factors = [
       siteDetails ? "Site details: " + siteDetails : "Site details not provided yet",
       wallCount > 1 ? wallCount + " walls or panels" : "1 wall or panel",
-      "Wall-photo site mockup included when wall photos and dimensions are supplied",
+      isExploratory
+        ? "First-look concept only; full wall-photo mockup begins with the complete mural design package"
+        : "Wall-photo site mockup included when wall photos and dimensions are supplied",
       wallScale.factor,
       complexity.factor,
       team.factor,
-      usage.factor,
+      isExploratory ? "Exploratory direction only; usage rights and production files begin with an approved design package" : usage.factor,
       site.factor,
       timeline.factor
     ];
 
-    selectedDeliverables.forEach((label) => factors.push(label));
+    if (isExploratory && selectedDeliverables.length > 0) {
+      factors.push("Production deliverables are priced with the full mural design package");
+    } else {
+      selectedDeliverables.forEach((label) => factors.push(label));
+    }
 
     if (onSiteHours > 0) {
       factors.push(
