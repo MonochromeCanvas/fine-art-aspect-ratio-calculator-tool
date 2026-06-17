@@ -8,28 +8,28 @@
       floor: 300,
       spread: 150,
       weeks: [1, 2],
-      note: "Best fit for exploring a wall direction before committing to a full mural design package. This is an early visual read, not final artwork or painter-ready production direction."
+      note: "Best fit when you want a low-commitment visual read before choosing the full mural design package. It explores mood, composition, and potential; final artwork and painter-ready files begin after an approved package."
     },
     "mural-design-package": {
       label: "Complete mural design package",
       base: 2800,
       floor: 2200,
       weeks: [4, 7],
-      note: "Best fit for a fully designed mural concept, wall-photo mockup, and clear direction for a painter or production team."
+      note: "Best fit when the direction is chosen and the wall is ready to become a polished concept, wall-photo mockup, and clear path for a painter or production team."
     },
     "art-direction-handoff": {
       label: "Mural artwork + painter-ready handoff",
       base: 3800,
       floor: 3200,
       weeks: [6, 10],
-      note: "Best fit when Joëlle is creating the mural artwork and preparing a painter, vendor, or facilities team to execute it."
+      note: "Best fit when Joëlle is creating the mural artwork and turning it into a confident execution plan for your painter, vendor, or facilities team."
     },
     "public-art-system": {
       label: "Public art, campaign, or institution-scale mural",
       base: 6500,
       floor: 5500,
       weeks: [8, 14],
-      note: "Best fit for exterior work, institutional review, community projects, press visibility, or murals with a formal approval process."
+      note: "Best fit for walls that need to carry a public moment: exterior visibility, institutional review, community meaning, press exposure, or a formal approval path."
     }
   };
 
@@ -116,7 +116,7 @@
       weeks: 0,
       factor: "Studio recommendation for an outside production team",
       guideTitle: "Studio recommends a production team",
-      guide: "Choose this if you want Joëlle to suggest painters or fabricators who may be a good fit. Their labor, materials, and site costs are quoted separately."
+      guide: "Choose this if you want Joëlle to suggest painters or fabricators who may be a good fit for the wall. Their labor, materials, and site costs are quoted separately."
     },
     coordination: {
       label: "Studio coordinates an outside production team",
@@ -124,7 +124,7 @@
       weeks: 2,
       factor: "Studio coordination for an outside production team",
       guideTitle: "Studio coordinates an outside production team",
-      guide: "Choose this when Joëlle should help coordinate the painter or production team. Team pricing varies by vendor, wall prep, access, materials, schedule, and site conditions, so production costs are estimated separately."
+      guide: "Choose this when Joëlle should help coordinate the painter or production team so the design has a clearer path into the space. Team pricing varies by vendor, wall prep, access, materials, schedule, and site conditions, so production costs are estimated separately."
     },
     "art-direction-onsite": {
       label: "On-site direction is added hourly below",
@@ -352,12 +352,12 @@
       siteDetails ? "Site details: " + siteDetails : "Site details not provided yet",
       wallCount > 1 ? wallCount + " walls or panels" : "1 wall or panel",
       isExploratory
-        ? "First-look concept only; full wall-photo mockup begins with the complete mural design package"
+        ? "First look is a low-commitment direction test; full wall-photo mockup begins with the complete mural design package"
         : "Wall-photo site mockup included when wall photos and dimensions are supplied",
       wallScale.factor,
       complexity.factor,
       team.factor,
-      isExploratory ? "Exploratory direction only; usage rights and production files begin with an approved design package" : usage.factor,
+      isExploratory ? "Use this to choose the direction; usage rights and production files begin with an approved design package" : usage.factor,
       site.factor,
       timeline.factor
     ];
@@ -418,6 +418,10 @@
       estimate.selectedDeliverables.length > 0
         ? estimate.selectedDeliverables.join(", ")
         : "No additional deliverables selected";
+    const scopeNote =
+      estimate.projectType === "concept-study"
+        ? "This estimate covers an exploratory mural first look only. It is meant to help choose a direction before commissioning the full mural design package; final artwork, wall-photo mockup, production files, usage rights, painting labor, wall prep, access equipment, materials, permits, insurance, travel, and installation costs are separate or quoted later."
+        : "This estimate covers mural design, a wall-photo site mockup when wall photos and dimensions are supplied, production handoff, and selected on-site direction hours only. Joëlle does not provide on-site painting labor. Painting labor, wall prep, lift or scaffold rental, materials, permits, insurance, contractor fees, and installation costs are separate. Travel and accommodations may apply outside 35 miles of Akron, Ohio.";
 
     return [
       "Mural design inquiry estimate",
@@ -446,7 +450,7 @@
       "Likely timeline: " + estimate.timelineLow + "-" + estimate.timelineHigh + " weeks",
       "",
       "Please note:",
-      "This estimate covers mural design, a wall-photo site mockup when wall photos and dimensions are supplied, production handoff, and selected on-site direction hours only. Joëlle does not provide on-site painting labor. Painting labor, wall prep, lift or scaffold rental, materials, permits, insurance, contractor fees, and installation costs are separate. Travel and accommodations may apply outside 35 miles of Akron, Ohio.",
+      scopeNote,
       "",
       "Additional details:",
       estimate.notes || ""
@@ -499,12 +503,19 @@
     setText(elements.depositRange, depositRange);
     setText(elements.timelineValue, timelineValue);
     setText(elements.estimateNote, estimate.projectNote);
+    const summaryLine =
+      estimate.projectType === "concept-study"
+        ? estimateRange +
+          " first-look range with a typical " +
+          depositRange +
+          " deposit. Use it to test direction before a full mural package."
+        : estimateRange + " planning range with a typical " + depositRange + " deposit.";
     elements.summaryContent.innerHTML =
       "<strong>" +
       escapeHtml(estimate.projectLabel) +
       "</strong>" +
       "<span>" +
-      escapeHtml(estimateRange + " planning range with a typical " + depositRange + " deposit.") +
+      escapeHtml(summaryLine) +
       "</span>";
     elements.factorList.innerHTML = estimate.factors
       .map((factor) => "<span>" + escapeHtml(factor) + "</span>")
