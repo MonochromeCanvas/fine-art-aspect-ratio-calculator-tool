@@ -11,22 +11,22 @@
     },
     "mural-design-package": {
       label: "Complete mural design package",
-      base: 2600,
-      floor: 1800,
+      base: 2800,
+      floor: 2200,
       weeks: [4, 7],
       note: "Best fit for a fully designed mural concept, wall-photo mockup, and clear direction for a painter or production team."
     },
     "art-direction-handoff": {
-      label: "Mural design + production handoff",
-      base: 3400,
-      floor: 2600,
+      label: "Mural artwork + painter-ready handoff",
+      base: 3800,
+      floor: 3200,
       weeks: [6, 10],
       note: "Best fit when Joëlle is creating the mural artwork and preparing a painter, vendor, or facilities team to execute it."
     },
     "public-art-system": {
       label: "Public art, campaign, or institution-scale mural",
-      base: 5200,
-      floor: 4200,
+      base: 6500,
+      floor: 5500,
       weeks: [8, 14],
       note: "Best fit for exterior work, institutional review, community projects, press visibility, or murals with a formal approval process."
     }
@@ -119,7 +119,7 @@
     },
     coordination: {
       label: "Studio coordinates an outside production team",
-      flat: 950,
+      flat: 1250,
       weeks: 2,
       factor: "Studio coordination for an outside production team",
       guideTitle: "Studio coordinates an outside production team",
@@ -144,26 +144,26 @@
     },
     "business-public": {
       label: "Business, restaurant, retail, or lobby display",
-      percent: 0.08,
-      flat: 500,
+      percent: 0.1,
+      flat: 600,
       factor: "Business, restaurant, retail, or lobby display"
     },
     institution: {
       label: "Institutional, donor, or community-facing use",
-      percent: 0.12,
-      flat: 900,
+      percent: 0.18,
+      flat: 1200,
       factor: "Institutional, donor, or community-facing use"
     },
     "public-art": {
       label: "Exterior, campaign, or press-visible display",
-      percent: 0.15,
-      flat: 1500,
+      percent: 0.25,
+      flat: 2000,
       factor: "Exterior, campaign, or press-visible display"
     },
     "broad-license": {
       label: "Reproduction, merch, licensing, or broad usage",
-      percent: 0.35,
-      flat: 2500,
+      percent: 0.6,
+      flat: 3500,
       factor: "Reproduction, merchandise, licensing, or broad usage"
     }
   };
