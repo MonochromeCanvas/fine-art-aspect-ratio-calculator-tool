@@ -25,18 +25,18 @@
       base: 850,
       floor: 850,
       weeks: [2, 4],
-      note: "Best fit for one focused mark when the client already has a name, audience, and clear direction. Includes a polished final vector mark and basic file handoff for small and large applications.",
+      note: "Best fit for a focused mark when the name and direction are already clear: one polished vector logo that can scale from social avatar to signage.",
       guideTitle: "Focused logo mark",
-      guide: "Choose this for a single logo mark with a clear starting point. It includes one polished vector mark and basic file handoff, not naming, tagline writing, multiple concept routes, signage systems, or a full identity system."
+      guide: "Choose this when the client needs a refined mark, not a full identity exploration. It includes final vector files and a basic handoff; color systems, typography, launch materials, and expanded usage can grow into a starter identity kit."
     },
     "identity-kit": {
       label: "Logo + starter identity kit",
       base: 2400,
       floor: 1900,
       weeks: [3, 6],
-      note: "Best fit for a logo refinement plus a small set of identity choices such as color, type direction, a lockup, and basic usage notes.",
+      note: "Best fit when a new mark needs a small visual world around it: color, type direction, a lockup, and basic usage notes.",
       guideTitle: "Logo + starter identity kit",
-      guide: "Choose this when the project needs more than a single mark but does not need a full brand system. Good for a small business launch with clear positioning, a confirmed name, and a limited set of practical handoff pieces."
+      guide: "Choose this when the project needs more than a single mark but does not need a full brand system. Good for a small business launch with clear positioning, a confirmed name, and a polished set of practical handoff pieces."
     },
     "identity-system": {
       label: "Identity system or art direction",
@@ -52,7 +52,7 @@
       base: 6500,
       floor: 5500,
       weeks: [8, 14],
-      note: "Best fit for packaging, retail use, public campaigns, launch systems, or high-visibility design work.",
+      note: "Best fit for packaging, retail use, public campaigns, launch systems, or design work that has to earn attention in public.",
       guideTitle: "Packaging, launch, or public-facing system",
       guide: "Choose this for packaging, retail-facing visuals, campaign systems, or design work that will carry a public launch or broader audience."
     }
@@ -382,7 +382,7 @@
       escapeHtml(estimate.projectLabel) +
       "</strong>" +
       "<span>" +
-      escapeHtml(estimateRange + " planning range with a typical " + depositRange + " deposit.") +
+      escapeHtml(estimateRange + " starting range with a typical " + depositRange + " deposit.") +
       "</span>";
     elements.factorList.innerHTML = estimate.factors
       .map((factor) => "<span>" + escapeHtml(factor) + "</span>")
