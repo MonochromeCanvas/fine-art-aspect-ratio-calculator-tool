@@ -4,44 +4,53 @@
   const projectProfiles = {
     "design-support": {
       label: "Print or digital design support",
-      base: 650,
-      floor: 500,
-      weeks: [2, 4],
+      base: 750,
+      floor: 650,
+      weeks: [1, 3],
       note: "Best fit for a clearly defined layout, print piece, digital asset, or production-supported design task.",
       guideTitle: "Print or digital design support",
       guide: "Choose this for a clearly defined design need with supplied copy, images, size requirements, and an existing direction."
     },
     "campaign-collateral": {
       label: "Campaign or event collateral",
-      base: 1400,
-      floor: 1000,
-      weeks: [3, 6],
+      base: 1600,
+      floor: 1200,
+      weeks: [2, 5],
       note: "Best fit for event graphics, small campaigns, announcements, posters, invitations, or coordinated public materials.",
       guideTitle: "Campaign or event collateral",
       guide: "Choose this for a poster, announcement, invitation, launch graphic, event suite, or small campaign that needs a polished visual point of view."
     },
     "logo-mark": {
-      label: "Focused logo mark or identity refresh",
-      base: 950,
-      floor: 1000,
-      weeks: [2, 5],
-      note: "Best fit for a focused mark, small identity refresh, or single visual concept when the client already has clear direction. Includes final vector mark files prepared for small and large applications.",
-      guideTitle: "Focused logo mark or identity refresh",
-      guide: "Choose this for a small mark, identity cleanup, or narrow visual refresh when the business already has a name, audience, rough direction, and useful reference points. Includes a polished final vector mark and basic file handoff, not a full identity system."
+      label: "Focused logo mark",
+      base: 850,
+      floor: 850,
+      weeks: [2, 4],
+      note: "Best fit for one focused mark when the client already has a name, audience, and clear direction. Includes a polished final vector mark and basic file handoff for small and large applications.",
+      guideTitle: "Focused logo mark",
+      guide: "Choose this for a single logo mark with a clear starting point. It includes one polished vector mark and basic file handoff, not naming, tagline writing, multiple concept routes, signage systems, or a full identity system."
+    },
+    "identity-kit": {
+      label: "Logo + starter identity kit",
+      base: 2400,
+      floor: 1900,
+      weeks: [3, 6],
+      note: "Best fit for a logo refinement plus a small set of identity choices such as color, type direction, a lockup, and basic usage notes.",
+      guideTitle: "Logo + starter identity kit",
+      guide: "Choose this when the project needs more than a single mark but does not need a full brand system. Good for a small business launch with clear positioning, a confirmed name, and a limited set of practical handoff pieces."
     },
     "identity-system": {
       label: "Identity system or art direction",
-      base: 5200,
-      floor: 4000,
-      weeks: [6, 12],
+      base: 4600,
+      floor: 3500,
+      weeks: [5, 10],
       note: "Best fit for visual systems, brand direction, launch materials, and projects that need a considered creative lead.",
       guideTitle: "Identity system or art direction",
       guide: "Choose this for a broader visual system, art direction, or coordinated set of materials built from a clear existing business foundation."
     },
     "packaging-public": {
       label: "Packaging, launch, or public-facing system",
-      base: 7600,
-      floor: 6000,
+      base: 6500,
+      floor: 5500,
       weeks: [8, 14],
       note: "Best fit for packaging, retail use, public campaigns, launch systems, or high-visibility design work.",
       guideTitle: "Packaging, launch, or public-facing system",
@@ -52,7 +61,7 @@
   const complexityProfiles = {
     production: {
       label: "Clean layout or production support",
-      multiplier: 0.9,
+      multiplier: 0.85,
       weeks: 0,
       factor: "Clean layout, adaptation, or production support",
       guideTitle: "Choose this when the visual direction is mostly set.",
@@ -60,7 +69,7 @@
     },
     "designed-piece": {
       label: "Designed piece with art direction",
-      multiplier: 1.18,
+      multiplier: 1.1,
       weeks: 1,
       factor: "Designed piece with art direction",
       guideTitle: "Choose this for a designed piece that needs taste and judgment.",
@@ -68,7 +77,7 @@
     },
     "small-system": {
       label: "Small coordinated system",
-      multiplier: 1.62,
+      multiplier: 1.35,
       weeks: 2,
       factor: "Small coordinated design system",
       guideTitle: "Choose this when the project has multiple related parts.",
@@ -76,7 +85,7 @@
     },
     "full-direction": {
       label: "Full visual direction",
-      multiplier: 2.2,
+      multiplier: 1.85,
       weeks: 4,
       factor: "Full visual direction or creative lead",
       guideTitle: "Choose this when a clear identity needs expansion.",
@@ -93,27 +102,27 @@
     },
     "small-public": {
       label: "Small business public use",
-      percent: 0.18,
-      flat: 250,
+      percent: 0.15,
+      flat: 350,
       factor: "Small business public use"
     },
     campaign: {
       label: "Campaign, event, or publication use",
-      percent: 0.42,
-      flat: 750,
+      percent: 0.35,
+      flat: 700,
       factor: "Campaign, event, publication, or public promotion"
     },
     packaging: {
       label: "Packaging, retail, or product use",
-      percent: 0.72,
-      flat: 1500,
+      percent: 0.55,
+      flat: 1200,
       factor: "Packaging, retail, or product use"
     },
     "broad-license": {
-      label: "Broad licensing, resale, or buyout request",
-      percent: 1.35,
-      flat: 3000,
-      factor: "Broad licensing, resale, or buyout request"
+      label: "Broad licensing, resale, or buyout review",
+      percent: 0.95,
+      flat: 2500,
+      factor: "Broad licensing, resale, or buyout review"
     }
   };
 
@@ -153,19 +162,19 @@
     },
     messy: {
       label: "Some cleanup or organization needed",
-      flat: 250,
+      flat: 200,
       weeks: 1,
       factor: "Asset cleanup or organization"
     },
     "create-assets": {
       label: "Studio needs to create supporting visual assets",
-      flat: 850,
+      flat: 750,
       weeks: 2,
       factor: "Supporting visual asset creation"
     },
     strategy: {
       label: "Identity expansion or art direction needed",
-      flat: 1400,
+      flat: 1200,
       weeks: 3,
       factor: "Identity expansion or art direction from an existing starting point"
     }
@@ -174,17 +183,17 @@
   const deliverableProfiles = {
     "print-ready": {
       label: "Expanded print-ready files or vendor handoff",
-      flat: 250,
+      flat: 300,
       weeks: 0
     },
     "template-suite": {
       label: "Reusable templates or layout system",
-      flat: 750,
+      flat: 650,
       weeks: 1
     },
     "brand-guide": {
       label: "Mini brand guide or usage notes",
-      flat: 1100,
+      flat: 850,
       weeks: 1
     },
     "artwork-integration": {
@@ -227,7 +236,7 @@
     const projectDetails = typeof options.projectDetails === "string" ? options.projectDetails.trim() : "";
     const notes = typeof options.notes === "string" ? options.notes.trim() : "";
     const deliverableCount = clampCount(options.deliverableCount);
-    const deliverableMultiplier = deliverableCount > 1 ? 1 + (deliverableCount - 1) * 0.28 : 1;
+    const deliverableMultiplier = deliverableCount > 1 ? 1 + (deliverableCount - 1) * 0.18 : 1;
     const creativeBase = profile.base * complexity.multiplier * deliverableMultiplier;
     const usageAmount = Math.max(creativeBase * usage.percent, usage.flat);
     const deliverableAmount = deliverables.reduce((total, key) => {
@@ -309,7 +318,7 @@
       "",
       "Project type: " + estimate.projectLabel,
       "Project details: " + (estimate.projectDetails || "Not provided"),
-      "Final deliverable count: " + estimate.deliverableCount,
+      "Distinct final pieces: " + estimate.deliverableCount,
       "Creative depth: " + estimate.labels.complexity,
       "Visibility / rights: " + estimate.labels.usage,
       "Timeline: " + estimate.labels.timeline,
