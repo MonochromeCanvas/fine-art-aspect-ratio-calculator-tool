@@ -1,5 +1,16 @@
 (function (root) {
   const STUDIO_EMAIL = "mnchrmcnvs@gmail.com";
+  const summaryPrompt = {
+    title: "Build your mural inquiry",
+    intro: "Choose the mural role to start. Your answers will collect here as a clear brief for direction, mockup, and production handoff.",
+    steps: [
+      "Mural design category",
+      "Wall / site details",
+      "Artwork depth + visibility",
+      "Painting path + site readiness",
+      "Direction hours / notes"
+    ]
+  };
 
   const projectProfiles = {
     "concept-study": {
@@ -493,6 +504,7 @@
   }
 
   function render(elements) {
+    const summaryStarted = elements.form.dataset.summaryStarted === "true";
     const estimate = calculateEstimate(getFormOptions(elements));
     const summary = buildSummary(estimate);
     const estimateRange = formatMoney(estimate.low) + " - " + formatMoney(estimate.high);
@@ -503,6 +515,12 @@
     setText(elements.depositRange, depositRange);
     setText(elements.timelineValue, timelineValue);
     setText(elements.estimateNote, estimate.projectNote);
+
+    if (!summaryStarted) {
+      renderSummaryPrompt(elements);
+      return;
+    }
+
     const summaryLine =
       estimate.projectType === "concept-study"
         ? estimateRange +
@@ -547,12 +565,50 @@
       "&body=" +
       encodeURIComponent(summary);
     elements.copyButton.dataset.summary = summary;
+    elements.copyButton.disabled = false;
+    elements.emailLink.classList.remove("is-disabled");
+    elements.emailLink.removeAttribute("aria-disabled");
+    if (elements.summaryAvailability) {
+      elements.summaryAvailability.classList.remove("is-hidden");
+    }
     setText(elements.copyStatus, "");
   }
 
+  function renderSummaryPrompt(elements) {
+    setText(elements.estimateRange, "Select scope");
+    setText(elements.depositRange, "Pending");
+    setText(elements.timelineValue, "Pending");
+    setText(elements.estimateNote, "Choose the mural role first; the range updates as the site and production path become clearer.");
+    elements.summaryContent.innerHTML =
+      "<strong>" +
+      escapeHtml(summaryPrompt.title) +
+      "</strong><span>" +
+      escapeHtml(summaryPrompt.intro) +
+      "</span>";
+    elements.factorList.innerHTML = summaryPrompt.steps
+      .map((step) => "<span class=\"summary-empty-step\">" + escapeHtml(step) + "</span>")
+      .join("");
+    elements.notesPreview.classList.add("is-hidden");
+    elements.notesPreview.innerHTML = "";
+    elements.copyButton.dataset.summary = "";
+    elements.copyButton.disabled = true;
+    elements.emailLink.removeAttribute("href");
+    elements.emailLink.classList.add("is-disabled");
+    elements.emailLink.setAttribute("aria-disabled", "true");
+    if (elements.summaryAvailability) {
+      elements.summaryAvailability.classList.add("is-hidden");
+    }
+    setText(elements.copyStatus, "Choose a mural detail to begin the inquiry summary.");
+  }
+
   function bindEvents(elements) {
-    elements.form.addEventListener("input", () => render(elements));
-    elements.form.addEventListener("change", () => render(elements));
+    const startSummary = () => {
+      elements.form.dataset.summaryStarted = "true";
+      render(elements);
+    };
+
+    elements.form.addEventListener("input", startSummary);
+    elements.form.addEventListener("change", startSummary);
     elements.copyButton.addEventListener("click", () => copySummary(elements));
     bindInfoDialog();
   }
@@ -639,6 +695,7 @@
       timelineValue: root.document.getElementById("muralTimelineValue"),
       summaryContent: root.document.getElementById("muralSummaryContent"),
       factorList: root.document.getElementById("muralFactorList"),
+      summaryAvailability: root.document.querySelector(".summary-availability"),
       notesPreview: root.document.getElementById("muralNotesPreview"),
       copyButton: root.document.getElementById("muralCopyButton"),
       emailLink: root.document.getElementById("muralEmailLink"),
