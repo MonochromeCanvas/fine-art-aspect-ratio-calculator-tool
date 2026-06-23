@@ -390,6 +390,15 @@ h1 {
   transform: translateY(-2px);
 }
 
+.summary-panel .factor-list span.summary-empty-step {
+  color: rgba(248, 239, 226, 0.52);
+}
+
+.summary-panel .factor-list span.summary-empty-step::before {
+  border: 1px solid rgba(210, 166, 126, 0.72);
+  background: transparent;
+}
+
 .summary-availability {
   margin: 18px 0 0;
   padding-top: 16px;
@@ -424,6 +433,18 @@ h1 {
   border-color: var(--champagne);
   background: var(--champagne);
   color: var(--summary-ink);
+}
+
+.summary-panel .copy-button:disabled,
+.summary-panel .send-button.is-disabled {
+  border-color: rgba(248, 239, 226, 0.24);
+  background: transparent;
+  color: rgba(248, 239, 226, 0.42);
+  cursor: not-allowed;
+}
+
+.summary-panel .send-button.is-disabled {
+  pointer-events: none;
 }
 
 .notice-panel {
