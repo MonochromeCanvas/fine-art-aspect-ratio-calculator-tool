@@ -598,17 +598,31 @@
     if (elements.summaryAvailability) {
       elements.summaryAvailability.classList.add("is-hidden");
     }
-    setText(elements.copyStatus, "Choose a mural detail to begin the inquiry summary.");
+    setText(elements.copyStatus, "Choose a mural design category to begin the inquiry summary.");
   }
 
   function bindEvents(elements) {
+    const shouldStartSummary = (event) => {
+      const target = event.target;
+      return target && (target.tagName === "SELECT" || target.type === "checkbox");
+    };
     const startSummary = () => {
       elements.form.dataset.summaryStarted = "true";
       render(elements);
     };
+    const updateIfStarted = (event) => {
+      if (elements.form.dataset.summaryStarted === "true") {
+        render(elements);
+        return;
+      }
 
-    elements.form.addEventListener("input", startSummary);
-    elements.form.addEventListener("change", startSummary);
+      if (shouldStartSummary(event)) {
+        startSummary();
+      }
+    };
+
+    elements.form.addEventListener("input", updateIfStarted);
+    elements.form.addEventListener("change", updateIfStarted);
     elements.copyButton.addEventListener("click", () => copySummary(elements));
     bindInfoDialog();
   }
