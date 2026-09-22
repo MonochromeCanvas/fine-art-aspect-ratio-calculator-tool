@@ -10,6 +10,7 @@
     >
     <link rel="icon" type="image/svg+xml" href="../favicon.svg">
     <link rel="stylesheet" href="./style.css">
+    <link rel="stylesheet" href="./quote-next-step.css?v=20260922-quote-cta">
   </head>
   <body>
     <main class="app-shell">
@@ -22,7 +23,7 @@
             <p class="eyebrow">Print Prep Tool</p>
             <h1>White Border Builder</h1>
             <p class="hero-copy">
-              Upload your artwork, choose the kind of border setup you need, and download a high-quality Adobe RGB JPEG you can use when ordering.
+              Upload your artwork, choose the kind of border setup you need, and download a print-ready JPEG you can use when ordering.
             </p>
             <div class="hero-notes">
               <span>Built for 300 PPI print prep</span>
@@ -210,19 +211,23 @@
             <div class="stack-block">
               <h3>Download</h3>
               <p class="support-copy">
-                The exported file is a maximum-quality Adobe RGB JPEG sized to your chosen print dimensions at 300 PPI. Download it here if you just want the finished file, or send it straight into the Custom Size Request if you want a quote next.
+                The exported file is a maximum-quality Adobe RGB JPEG sized to your chosen print dimensions at 300 PPI.
               </p>
               <div class="download-actions">
                 <button id="downloadButton" class="download-button" type="button" disabled>
                   Download print-ready JPEG
                 </button>
-                <button id="sendToQuoteButton" class="send-button" type="button" disabled>
-                  Use this file for a custom quote
+              </div>
+              <div class="quote-next-step">
+                <p class="section-label">Ready To Price It?</p>
+                <h4>Send this prepared file into a custom quote.</h4>
+                <p>
+                  We will open the quote tool in a new tab with this 300 PPI file already loaded, so the final size and file prep carry over cleanly.
+                </p>
+                <button id="sendToQuoteButton" class="send-button send-button--primary" type="button" disabled>
+                  Continue to custom quote
                 </button>
               </div>
-              <p class="field-note">
-                Both paths stay available. Download keeps the process here. The custom quote option opens the quote tool in a new tab with this prepared file loaded in.
-              </p>
               <div class="tool-jump">
                 <span>Need to go straight to the price estimator?</span>
                 <a class="tool-jump-link" href="../custom-size-request/index.html">
