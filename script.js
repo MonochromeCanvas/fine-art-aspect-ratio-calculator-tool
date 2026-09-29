@@ -420,6 +420,8 @@ document.addEventListener("DOMContentLoaded", function () {
     postHeight();
   }
 
+  const aspectExplanation = document.getElementById("aspectExplanation");
+  const defaultAspectExplanation = aspectExplanation.textContent;
   let uploadSequence = 0;
   function loadArtwork(file) {
     const sequence = ++uploadSequence;
@@ -431,6 +433,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const preview = document.getElementById("artworkPreview");
     const status = document.getElementById("uploadStatus");
     summary.hidden = true;
+    aspectExplanation.textContent = defaultAspectExplanation;
     preview.removeAttribute("src");
     document.getElementById("clearArtwork").hidden = !file;
     elements.qualityWidth.value = "";
@@ -471,11 +474,14 @@ document.addEventListener("DOMContentLoaded", function () {
       const sizes = STANDARD_SIZES.map(size => width > height ? { width: size.height, height: size.width } : size)
         .filter(size => Math.abs(width * size.height - height * size.width) < 0.001 && width / size.width >= 300 && height / size.height >= 300)
         .map(size => formatSize(size.width, size.height) + " in");
-      const closest = getClosestRatio(width / height);
-      const gap = ratioDifference(Math.min(width / height, height / width), closest.ratio);
-      document.getElementById("uploadRatioHint").textContent = gap < EXACT_RATIO_THRESHOLD
-        ? "Matches the " + closest.label + " family in either orientation."
-        : "Closest common family: " + closest.label + ". It is not an exact match; those proportions need a crop or borders.";
+      const shape = width === height ? "Your picture is square." : width > height
+        ? "Your picture is wider than it is tall." : "Your picture is taller than it is wide.";
+      document.getElementById("uploadRatioHint").textContent = shape + " Keeping that shape lets you print the whole picture without stretching it or cutting off the edges.";
+      const examples = sizes.slice(-2).map(size => size.replace(" x ", " × ").replace(" in", " inches"));
+      aspectExplanation.textContent = shape + " " + (examples.length
+        ? "For this file, " + examples.join(" or ") + " would keep the whole picture and meet the 300 PPI target. "
+        : "The print size shown with your image keeps the whole picture and meets the 300 PPI target. ") +
+        "If you choose a frame with a different shape, you can either trim some of the picture’s edges or add white space around it to keep everything visible.";
       const sizeList = document.getElementById("uploadSizes");
       if (sizes.length) renderChips(sizeList, sizes);
       else sizeList.textContent = "No exact common-size match at 300 PPI. Use the proportional print size above, add borders, or request a custom size.";
