@@ -10,8 +10,10 @@
     >
     <link rel="icon" type="image/svg+xml" href="../favicon.svg">
     <link rel="stylesheet" href="./style.css">
-  </head>
-  <body>
+    <link rel="stylesheet" href="../studio-tools.css?v=20260930">
+</head>
+  <body class="mc-tools">
+    <a class="studio-skip" href="#workspace-title">Skip to the tool</a>
     <main class="app-shell">
       <header class="hero">
         <div class="hero-layout">
@@ -19,7 +21,7 @@
             <a class="brand-pill" href="https://monochromecanvas.com" target="_blank" rel="noreferrer">
               Monochrome Canvas
             </a>
-            <p class="eyebrow">Print Tool</p>
+            <p class="eyebrow">A free tool from our Akron, Ohio print studio</p>
             <h1>Custom Size Request</h1>
             <p class="hero-copy">
               Upload your artwork, enter the finished size and quantity, and create a clear quote request for Monochrome Canvas.
@@ -31,12 +33,17 @@
           </div>
         </div>
       </header>
+<nav class="studio-navigation" aria-label="Monochrome Canvas tools and shop">
+ <a class="studio-shop-link" href="https://monochromecanvas.com/collections/order-giclee-prints?utm_source=studio_tools&amp;utm_medium=tool" target="_blank" rel="noopener">Print shop ↗</a>
+ <a href="https://monochromecanvas.com/pages/contact" target="_blank" rel="noopener">Ask the studio ↗</a>
+ <details class="studio-tool-menu"><summary>More studio tools</summary><div class="studio-tool-list"><a href="../index.html" target="_blank" rel="noopener">Print size helper ↗</a><a href="../white-border-builder-tool/index.html" target="_blank" rel="noopener">White Border Builder ↗</a><a href="index.html" aria-current="page">Custom Size Request</a><a href="../invoice-my-client/index.html" target="_blank" rel="noopener">Invoice My Client ↗</a><a href="../commission-cost-calculator/index.html" target="_blank" rel="noopener">Artwork commissions ↗</a><a href="../commission-cost-calculator/graphic-design.html" target="_blank" rel="noopener">Graphic design ↗</a><a href="../commission-cost-calculator/mural-design.html" target="_blank" rel="noopener">Mural design ↗</a><p>Other tools open in a new tab so you can keep your work here.</p></div></details>
+</nav>
 
       <section class="workspace" aria-labelledby="workspace-title">
         <div class="workspace-header">
           <div>
             <p class="section-label">Request A Quote</p>
-            <h2 id="workspace-title">Build your custom print request</h2>
+            <h2 id="workspace-title" tabindex="-1">Build your custom print request</h2>
           </div>
           <p class="privacy-copy">
             Your file stays in your browser while you prepare the request. Final pricing is confirmed after the studio reviews the file.
