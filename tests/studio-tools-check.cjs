@@ -14,9 +14,9 @@ const routes=['index.html','white-border-builder-tool/index.html','custom-size-r
    assert.match(await page.locator('h1').evaluate(e=>getComputedStyle(e).fontFamily),/Gloock/);
    assert.match(await page.locator('.hero,.hero-card').first().evaluate(e=>getComputedStyle(e).backgroundImage),/nav-bg.jpg/);
    await page.locator('.studio-tool-menu summary').click();
-   assert.equal(await page.locator('.studio-tool-list a').count(),4);
-   assert.equal(await page.locator('.studio-tool-list [aria-current=page]').count(),i<4?1:0);
-   assert.equal(await page.locator('.studio-tool-list a[target=_blank]').count(),i<4?3:4);
+   assert.equal(await page.locator('.studio-tool-list a').count(),i<4?4:3);
+   assert.equal(await page.locator('.studio-tool-list [aria-current=page]').count(),1);
+   assert.equal(await page.locator('.studio-tool-list a[target=_blank]').count(),i<4?3:2);
    await page.locator('.studio-tool-menu summary').click();
    await page.screenshot({path:'/tmp/studio-tool-'+i+'-desktop.png'});
    for(const width of [390,320]) {
@@ -38,7 +38,9 @@ const routes=['index.html','white-border-builder-tool/index.html','custom-size-r
    }
    if(i>=4){
     const total=page.locator('#planningRange');assert.equal(await total.innerText(),'Let’s talk');
-    assert.equal(await page.locator('.creative-navigation a').count(),3);
+    assert.deepEqual(await page.locator('.studio-tool-list a').allTextContents(),['Artwork Commissions','Graphic Design','Mural Design']);
+    assert.match(await page.locator('.hero-invite').innerText(),/hiring Joëlle Diane Zellman/);
+    assert.equal(await page.locator('.artist-fit a').getAttribute('href'),'https://monochromecanvas.com/pages/commissions');
     for(const card of await page.locator('.starting-card').all()) {
      const key=await card.getAttribute('data-project');await card.click();
      assert.equal(await page.locator('#project').inputValue(),key);
