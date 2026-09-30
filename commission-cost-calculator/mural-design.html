@@ -12,23 +12,20 @@
     <link rel="icon" type="image/svg+xml" href="../favicon.svg">
     <link rel="stylesheet" href="./style.css?v=20260518-brand-align">
     <link rel="stylesheet" href="./calculator-polish.css?v=20260623-luxury-summary">
-  </head>
-  <body>
+    <link rel="stylesheet" href="../studio-tools.css?v=20260930">
+</head>
+  <body class="mc-tools">
+    <a class="studio-skip" href="#workspace-title">Skip to the tool</a>
     <main class="app-shell">
       <header class="hero">
         <div class="hero-layout">
           <a class="brand-pill" href="https://monochromecanvas.com" target="_blank" rel="noreferrer">
             Monochrome Canvas
           </a>
-          <nav class="tool-nav" aria-label="Planning tools">
-            <a href="./index.html">Artwork commissions</a>
-            <a href="./graphic-design.html">Graphic design</a>
-            <a href="./mural-design.html" aria-current="page">Mural design</a>
-          </nav>
-          <p class="eyebrow">Mural + Public Art Planning</p>
-          <h1>Make the wall people remember.</h1>
+          <p class="eyebrow">A free tool from our Akron, Ohio print studio</p>
+          <h1>Mural Design Planning Calculator</h1>
           <p class="hero-copy">
-            Turn a blank surface into the part of the space people photograph, talk about, and come back to.
+            Plan artwork for a wall or public space. Tell us about the project to explore a design package and estimated price range.
           </p>
           <div class="hero-path">
             <a class="hero-start" href="#workspace-title">
@@ -39,10 +36,15 @@
             </button>
           </div>
           <p class="hero-assurance">
-            Start with a first look to test the spark. When the direction feels right, the full package turns it into a wall-photo mockup and production-ready handoff.
+            Start with an initial concept, or plan a fuller design package with a wall mockup and files for production. The studio will confirm the scope and quote with you.
           </p>
         </div>
       </header>
+<nav class="studio-navigation" aria-label="Monochrome Canvas tools and shop">
+ <a class="studio-shop-link" href="https://monochromecanvas.com/collections/order-giclee-prints?utm_source=studio_tools&amp;utm_medium=tool" target="_blank" rel="noopener">Print shop ↗</a>
+ <a href="https://monochromecanvas.com/pages/contact" target="_blank" rel="noopener">Ask the studio ↗</a>
+ <details class="studio-tool-menu"><summary>More studio tools</summary><div class="studio-tool-list"><a href="../index.html" target="_blank" rel="noopener">Print size helper ↗</a><a href="../white-border-builder-tool/index.html" target="_blank" rel="noopener">White Border Builder ↗</a><a href="../custom-size-request/index.html" target="_blank" rel="noopener">Custom Size Request ↗</a><a href="../invoice-my-client/index.html" target="_blank" rel="noopener">Invoice My Client ↗</a><a href="index.html" target="_blank" rel="noopener">Artwork commissions ↗</a><a href="graphic-design.html" target="_blank" rel="noopener">Graphic design ↗</a><a href="mural-design.html" aria-current="page">Mural design</a><p>Other tools open in a new tab so you can keep your work here.</p></div></details>
+</nav>
 
       <dialog id="muralProcessDialog" class="info-dialog" aria-labelledby="muralProcessTitle">
         <div class="info-dialog__content">
@@ -89,7 +91,7 @@
         <div class="workspace-header">
           <div>
             <p class="section-label">Estimate Scope</p>
-            <h2 id="workspace-title">Describe the mural assignment</h2>
+            <h2 id="workspace-title" tabindex="-1">Describe the mural assignment</h2>
           </div>
           <p class="privacy-copy">
             This calculator prepares a starting range and inquiry summary. It does not submit anything automatically.
