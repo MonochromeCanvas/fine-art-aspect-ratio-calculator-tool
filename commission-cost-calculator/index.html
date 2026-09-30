@@ -3,11 +3,8 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Custom Fine Art Commission Calculator | Monochrome Canvas</title>
-    <meta
-      name="description"
-      content="Estimate a custom fine art commission by Joëlle Diane Zellman of Monochrome Canvas, including commissioned paintings, illustration, portraits, pet art, architectural artwork, digital oil paintings, and print-ready artwork for collectors, families, businesses, and institutions."
-    >
+    <title>Artwork commissions & illustration | Monochrome Canvas</title>
+    <meta name="description" content="A pet, a person, a place—or a whole world for a card deck. Explore custom artwork by Joëlle Diane Zellman, an Akron artist working across traditional and digital media.">
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -42,8 +39,9 @@
     </script>
     <link rel="icon" type="image/svg+xml" href="../favicon.svg">
     <link rel="stylesheet" href="./style.css?v=20260518-brand-align">
-    <link rel="stylesheet" href="./calculator-polish.css?v=20260623-luxury-summary">
+    <link rel="stylesheet" href="./calculator-polish.css?v=20260930-pricing">
     <link rel="stylesheet" href="../studio-tools.css?v=20260930-logo-right">
+<link rel="stylesheet" href="./pricing-planner.css?v=20260930-pricing">
 </head>
   <body class="mc-tools">
     <a class="studio-skip" href="#workspace-title">Skip to the tool</a>
@@ -54,230 +52,59 @@
               <img class="studio-logo" src="https://monochromecanvas.com/cdn/shop/files/logo-bw.png?v=1697491251&amp;width=600" alt="Monochrome Canvas" width="457" height="261" decoding="async">
             </a>
           <p class="eyebrow">A free tool from our Akron, Ohio print studio</p>
-          <h1>Commission Pricing Calculator</h1>
-          <p class="hero-copy">
-            Explore a starting price range for a custom painting, portrait, or illustration. Choose a few project details to get started.
-          </p>
-          <p class="hero-invite">
-            You can send your project summary to the studio when you’re ready. We’ll review the details and confirm a quote.
-          </p>
+          <h1>Artwork commissions & illustration</h1>
+          <p class="hero-copy">A pet, a person, a place—or a whole world for a card deck. Explore custom artwork by Joëlle Diane Zellman, an Akron artist working across traditional and digital media.</p>
+          <p class="hero-invite">A starting point, not a commitment. You don’t need a finished brief to say hello.</p>
         </div>
       </header>
 <nav class="studio-navigation" aria-label="Monochrome Canvas tools and shop">
  <a class="studio-shop-link" href="https://monochromecanvas.com/collections/order-giclee-prints?utm_source=studio_tools&amp;utm_medium=tool" target="_blank" rel="noopener">Print shop ↗</a>
  <a href="https://monochromecanvas.com/pages/contact" target="_blank" rel="noopener">Ask the studio ↗</a>
- <details class="studio-tool-menu"><summary>More studio tools</summary><div class="studio-tool-list"><a href="../index.html" target="_blank" rel="noopener">Print size helper ↗</a><a href="../white-border-builder-tool/index.html" target="_blank" rel="noopener">White Border Builder ↗</a><a href="../custom-size-request/index.html" target="_blank" rel="noopener">Custom Size Request ↗</a><a href="../invoice-my-client/index.html" target="_blank" rel="noopener">Invoice My Client ↗</a><a href="index.html" aria-current="page">Artwork commissions</a><a href="graphic-design.html" target="_blank" rel="noopener">Graphic design ↗</a><a href="mural-design.html" target="_blank" rel="noopener">Mural design ↗</a><p>Other tools open in a new tab so you can keep your work here.</p></div></details>
+ <details class="studio-tool-menu"><summary>More studio tools</summary><div class="studio-tool-list"><a href="../index.html" target="_blank" rel="noopener">Print size helper ↗</a><a href="../white-border-builder-tool/index.html" target="_blank" rel="noopener">White Border Builder ↗</a><a href="../custom-size-request/index.html" target="_blank" rel="noopener">Custom Size Request ↗</a><a href="../invoice-my-client/index.html" target="_blank" rel="noopener">Invoice My Client ↗</a><p>Other tools open in a new tab so you can keep your work here.</p></div></details>
 </nav>
-
-      <section class="workspace" aria-labelledby="workspace-title">
-        <div class="workspace-header">
-          <div>
-            <p class="section-label">Estimate Scope</p>
-            <h2 id="workspace-title" tabindex="-1">Choose the project details</h2>
-          </div>
-          <p class="privacy-copy">
-            This calculator does not submit anything automatically. It prepares a planning range and an inquiry summary you can email.
-          </p>
-        </div>
-
-        <div class="workspace-grid">
-          <form id="calculatorForm" class="controls-pane" aria-label="Commission estimate controls">
-            <div class="stack-block">
-              <h3>1. Project type</h3>
-              <div class="field-grid">
-                <label class="field field--wide">
-                  <span>Commission category</span>
-                  <select id="projectTypeSelect" name="projectType">
-                    <option value="private-keepsake">Loose personal artwork</option>
-                    <option value="refined-portrait">Developed private commission</option>
-                    <option value="detailed-scene">Detailed place, architecture, or scene</option>
-                    <option value="premium-scale">Premium large-scale custom artwork</option>
-                    <option value="institutional-portrait">Institutional or public-facing work</option>
-                    <option value="commercial-campaign">Commercial or campaign artwork</option>
-                    <option value="public-license">Licensing, merchandise, or broad use</option>
-                  </select>
-                </label>
-                <div id="projectTypeGuide" class="choice-guide field--wide" aria-live="polite"></div>
-                <label class="field">
-                  <span>Subject matter</span>
-                  <select id="subjectSelect" name="subject">
-                    <option value="animal">Animal or pet</option>
-                    <option value="person">Person or portrait</option>
-                    <option value="couple-family">Couple or family</option>
-                    <option value="house-building">House or building</option>
-                    <option value="place-event">Place, venue, or event</option>
-                    <option value="architecture-landscape">Architecture, landscape, town, or harbor scene</option>
-                    <option value="vehicle-boat-scene">Vehicle, boat, dock, or detailed object scene</option>
-                    <option value="mural-public-art">Mural, public art, or installation concept</option>
-                    <option value="business-brand">Business, brand, or campaign</option>
-                    <option value="other">Something else</option>
-                  </select>
-                </label>
-                <label class="field">
-                  <span>Subject details</span>
-                  <input
-                    id="subjectDetailsInput"
-                    name="subjectDetails"
-                    type="text"
-                    placeholder="Mabel the dog, family home, founder portrait..."
-                  >
-                </label>
-                <label class="field">
-                  <span>Finished artwork count</span>
-                  <input id="artworkCountInput" name="artworkCount" type="number" min="1" max="12" step="1" value="1" inputmode="numeric">
-                </label>
-                <label class="field">
-                  <span>How large will it be shown?</span>
-                  <select id="sizeSelect" name="size">
-                    <option value="small">Small display</option>
-                    <option value="medium" selected>Standard display</option>
-                    <option value="large">Large wall piece</option>
-                    <option value="installation">Oversized or multi-format</option>
-                    <option value="exhibition-scale">Exhibition scale / about 4' x 6' or larger</option>
-                  </select>
-                </label>
-                <div id="sizeGuide" class="choice-guide field--wide" aria-live="polite"></div>
-              </div>
-            </div>
-
-            <div class="stack-block">
-              <h3>2. Artwork complexity, finish + usage</h3>
-              <div class="field-grid">
-                <label class="field field--wide">
-                  <span>Creative complexity</span>
-                  <select id="complexitySelect" name="complexity">
-                    <option value="simple">Simple subject or direct study</option>
-                    <option value="standard" selected>Developed artwork</option>
-                    <option value="complex">Detailed subject, setting, or multiple elements</option>
-                    <option value="premium-scene">Premium complex scene</option>
-                    <option value="custom">Concept-led or public-facing</option>
-                  </select>
-                </label>
-                <div id="complexityGuide" class="choice-guide field--wide" aria-live="polite"></div>
-                <label class="field field--wide">
-                  <span>Finish direction</span>
-                  <select id="finishSelect" name="finish">
-                    <option value="loose-minimal">Loose drawing / minimal color</option>
-                    <option value="watercolor-loose" selected>Loose sketch with watercolor</option>
-                    <option value="developed-color">Developed color artwork</option>
-                    <option value="rendered-oil">Rendered digital oil painting look</option>
-                  </select>
-                </label>
-                <label class="field field--wide">
-                  <span>Intended use</span>
-                  <select id="usageSelect" name="usage">
-                    <option value="personal" selected>Personal display</option>
-                    <option value="family-prints">Small private prints</option>
-                    <option value="internal-business">Internal business display</option>
-                    <option value="public-marketing">Public marketing use</option>
-                    <option value="merchandise">Merchandise or licensing</option>
-                  </select>
-                </label>
-              </div>
-            </div>
-
-            <div class="stack-block">
-              <h3>3. Deliverables + timeline</h3>
-              <div class="field-grid">
-                <label class="field">
-                  <span>Timeline</span>
-                  <select id="timelineSelect" name="timeline">
-                    <option value="flexible">Flexible timing</option>
-                    <option value="standard" selected>Standard schedule</option>
-                    <option value="priority">Priority timeline</option>
-                    <option value="rush">Rush deadline</option>
-                  </select>
-                </label>
-                <label class="field">
-                  <span>Reference readiness</span>
-                  <select id="referenceSelect" name="reference">
-                    <option value="ready" selected>References ready</option>
-                    <option value="mixed">Reference cleanup</option>
-                    <option value="limited-reference">Small, blurry, or incomplete reference</option>
-                    <option value="research">Studio research</option>
-                    <option value="art-direction">Art direction needed</option>
-                  </select>
-                </label>
-              </div>
-              <fieldset class="check-list">
-                <legend>Additional deliverables</legend>
-                <label class="toggle">
-                  <input type="checkbox" name="deliverables" value="archival-print">
-                  <span>Archival print or printed proof</span>
-                </label>
-                <label class="toggle">
-                  <input type="checkbox" name="deliverables" value="edition-package">
-                  <span>Edition, print run, or collector package planning</span>
-                </label>
-                <label class="toggle">
-                  <input type="checkbox" name="deliverables" value="production-assets">
-                  <span>Production-ready files for campaign, publication, or vendor use</span>
-                </label>
-                <label class="toggle">
-                  <input type="checkbox" name="deliverables" value="large-format-production">
-                  <span>Large-format print file prep, proofing, or production coordination</span>
-                </label>
-                <label class="toggle">
-                  <input type="checkbox" name="deliverables" value="merch-adaptation">
-                  <span>Merchandise or apparel adaptation</span>
-                </label>
-              </fieldset>
-              <label class="field field--wide details-field">
-                <span>Anything important to know?</span>
-                <textarea
-                  id="detailsInput"
-                  name="details"
-                  rows="4"
-                  placeholder="Deadline, gift occasion, subject names, reference links, where it will be displayed, or anything unusual about the project."
-                ></textarea>
-              </label>
-            </div>
-          </form>
-
-          <aside class="preview-pane" aria-label="Commission estimate">
-            <div class="estimate-panel">
-              <p class="section-label">Planning Range</p>
-              <strong id="estimateRange" class="estimate-total">$0 - $0</strong>
-              <p id="estimateNote" class="estimate-copy">
-                Select the details to generate a planning range.
-              </p>
-              <div class="estimate-stats">
-                <div>
-                  <span>Typical deposit</span>
-                  <strong id="depositRange">$0 - $0</strong>
-                </div>
-                <div>
-                  <span>Likely timeline</span>
-                  <strong id="timelineValue">-</strong>
-                </div>
-              </div>
-            </div>
-
-            <div class="summary-panel">
-              <p class="section-label">Inquiry Summary</p>
-              <div id="summaryContent" class="summary-content" aria-live="polite"></div>
-              <div id="factorList" class="factor-list"></div>
-              <p class="summary-availability">
-                Studio calendar note: clear subjects, strong references, and meaningful dates help best-fit commissions move into review sooner.
-              </p>
-              <div id="detailsPreview" class="details-preview is-hidden"></div>
-              <div class="action-row">
-                <button id="copyButton" class="copy-button" type="button">Copy Summary</button>
-                <a id="emailLink" class="send-button" href="mailto:mnchrmcnvs@gmail.com">Email Studio</a>
-              </div>
-              <p id="copyStatus" class="field-note" aria-live="polite"></p>
-            </div>
-
-            <div class="notice-panel">
-              <h3>Please note</h3>
-              <p>
-                This is a planning estimate, not a final quote. Premium scene work, large-format production, public use, mural concepts, weak reference material, and tight timelines require studio review and may quote above the calculator range.
-              </p>
-            </div>
-          </aside>
-        </div>
-      </section>
-    </main>
-    <script src="./script.js?v=20260623-guided-inquiry2"></script>
-  </body>
-</html>
+<nav class="creative-navigation" aria-label="Work with Joëlle"><strong>Work with Joëlle</strong><a href="index.html" aria-current="page">Artwork commissions</a><a href="graphic-design.html">Graphic design</a><a href="mural-design.html">Mural design</a></nav>
+<section class="starting-points" aria-labelledby="starting-title">
+ <p class="section-label">A few places to start</p><h2 id="starting-title">What do you have in mind?</h2>
+ <p>These are examples for a defined scope. If your idea or budget looks different, let’s talk about what could work.</p>
+ <div class="starting-grid"><button type="button" class="starting-card" data-project="illustration"><span>Small illustration</span><strong>$100–$800</strong><span>One line drawing or illustration; detail, color and intended use shape the quote.</span><span class="card-action">Explore this project →</span></button>
+<button type="button" class="starting-card" data-project="personal"><span>Personal artwork</span><strong>$300–$1,400</strong><span>From a loose personal piece to a developed portrait. Explore the two starting options below.</span><span class="card-action">Explore this project →</span></button>
+<button type="button" class="starting-card" data-project="custom"><span>Something more ambitious</span><strong>Let’s talk</strong><span>A detailed scene, large artwork, public commission or coordinated collection deserves its own brief.</span><span class="card-action">Explore this project →</span></button>
+</div>
+ <p class="starting-footnote">Framing, printing, shipping and any expanded use rights are discussed separately. A small illustration is not the same scope as a fully developed painting.</p>
+ <p><a href="https://monochromecanvas.com/pages/commissions" target="_blank" rel="noopener">See Joëlle’s work &amp; commission process ↗</a> · <a href="mailto:mnchrmcnvs@gmail.com?subject=Project%20idea%20for%20Jo%C3%ABlle">Just start a conversation →</a></p>
+</section>
+<section class="workspace planner-workspace" aria-labelledby="workspace-title">
+ <h2 id="workspace-title" tabindex="-1">Tell me a little about your idea</h2>
+ <p>You can leave the details open. Nothing is sent until you choose to email.</p>
+ <div class="workspace-grid">
+  <form id="plannerForm" class="controls-pane">
+   <label class="field"><span>What would you like to make?</span><select id="project"><option value="custom">I’m not sure yet / something else</option></select></label>
+   <label class="field" id="quantityField" hidden><span>How many illustrations? <small>(optional)</small></span><input id="quantity" type="number" min="1" max="500" step="1" value="1" inputmode="numeric"><small>Count distinct images, not printed copies. A series is discussed as a whole project.</small></label>
+<label class="field" id="paymentField" hidden><span>How might we work together?</span><select id="payment"><option value="flat">Upfront fee, without royalties</option><option value="royalty">Let’s discuss a fee + royalties</option><option value="unsure">I’m not sure yet</option></select></label>
+   <label class="field"><span>Where will it be used?</span><select id="usage"><option value="unsure">Let’s work that out together</option><option value="personal">Personal artwork or a gift</option><option value="commercial">A product, publication or business</option><option value="broad">Exclusive use, resale or a rights buyout</option></select><small id="usageHelp">This helps shape the conversation. It does not add an automatic fee.</small></label>
+   <label class="field"><span>Do you have a deadline? <small>(optional)</small></span><input id="deadline" type="text" maxlength="120" placeholder="No rush, a launch date, a special occasion…"><small>Availability and any rush work are confirmed together.</small></label>
+   <label class="field"><span>Budget you have in mind <small>(optional)</small></span><input id="budget" type="text" maxlength="120" placeholder="A range is fine—or leave this open"><small>This helps Joëlle suggest a suitable scope. It does not change the estimate.</small></label>
+   <label class="field"><span>A little about your idea <small>(optional)</small></span><textarea id="brief" rows="5" maxlength="2500" placeholder="What you’re imagining, size, style, references, or any questions…"></textarea></label>
+  </form>
+  <aside class="preview-pane" aria-label="Your project starting point">
+   <div class="estimate-panel">
+    <p class="section-label" id="rangeLabel">Your starting point</p>
+    <div role="status" aria-live="polite" aria-atomic="true"><strong id="planningRange" class="estimate-total">Let’s talk</strong><p id="rangeNote" class="estimate-copy">Choose a starting point, or tell Joëlle what you have in mind.</p></div>
+    <p id="scopeNote"></p><p id="collectionNote" hidden></p><p id="rightsNote"></p>
+    <p class="conversation-note">The next step is a conversation. Joëlle will confirm the scope, revisions, timing, rights and price with you before work begins.</p>
+    <a id="emailLink" class="send-button" href="mailto:mnchrmcnvs@gmail.com">Talk with Joëlle →</a>
+    <button id="copyButton" type="button" class="secondary-button">Copy my project notes</button><p id="copyStatus" role="status"></p>
+   </div>
+  </aside>
+ </div>
+</section>
+<section class="pricing-questions" aria-label="About these starting prices">
+ <details><summary>What if I’m not sure what I need—or my budget is different?</summary><p>That’s a good reason to get in touch. Tell Joëlle what matters most. A simpler approach, fewer pieces or a different format may be a better starting point. There’s no need to make every decision here.</p></details>
+ <details><summary>How are the starting prices put together?</summary><p>The ranges reflect Monochrome Canvas’s starting scopes, not a universal rate card. Your final quote depends on the actual work and how you plan to use it. Choosing a deadline or describing commercial use here never stacks hidden percentage fees.</p><p>The Graphic Artists Guild’s pricing guidance makes a useful point: “no two jobs are exactly alike.” Its framework considers the work, intended use, budget and timing. <a href="https://mitpress.mit.edu/how-should-one-price-a-commissioned-project/" target="_blank" rel="noopener">Read the publisher’s excerpt from the Handbook, 16th edition</a>, or <a href="https://graphicartistsguild.org/the-graphic-artists-guild-handbook-pricing-ethical-guidelines/" target="_blank" rel="noopener">explore the current 17th edition</a>. These are professional references, not the source of the dollar amounts shown here or an endorsement of this calculator.</p></details>
+ <details><summary>Can we discuss royalties for a deck, book or product?</summary><p>Yes. An upfront fee plus royalties may be worth exploring. The number of images, planned use, royalty terms and reporting all need a conversation. Selecting royalties here does not promise a discount or a particular agreement.</p></details>
+</section>
+<noscript><p>The starting examples above are still available. <a href="mailto:mnchrmcnvs@gmail.com">Email Joëlle with your idea</a>; the interactive planner needs JavaScript.</p></noscript>
+</main>
+<script src="./pricing-planner.js?v=20260930-pricing"></script>
+<script src="./script.js?v=20260930-pricing"></script>
+</body></html>
