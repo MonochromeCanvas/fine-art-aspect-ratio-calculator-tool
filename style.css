@@ -533,3 +533,6 @@ summary { cursor: pointer; font-size: 1.15rem; line-height: 1.5; }
 .skip-link:focus { top: 12px; }
 @media (max-width: 600px) { .order-card { padding: 18px; } .order-actions { align-items: stretch; flex-direction: column; } }
 @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; transition: none !important; } }
+
+#standardSuggestion { margin-bottom: 20px; }
+#standardSuggestion .button { margin: 16px 0; text-decoration: none; }
