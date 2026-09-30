@@ -52,3 +52,5 @@
 .service-choices a:hover {outline:2px solid #3f725c;outline-offset:2px}
 .service-choices a:focus-visible {outline:3px solid #3f725c;outline-offset:4px}
 @media(max-width:650px) {.service-choices {grid-template-columns:1fr;gap:10px}.service-choices a {padding:15px 18px;gap:4px}.service-choices strong {font-size:23px}}
+
+.mc-tools .service-choices a[aria-current="page"] strong {color:#fffaf2}
