@@ -49,8 +49,12 @@ const routes=['index.html','white-border-builder-tool/index.html','custom-size-r
     }
     await page.locator('.starting-card').first().click();
     assert.match(await total.innerText(),/\$/);
-    await page.locator('#budget').fill('$450');await page.locator('#brief').fill('<b>A thoughtful project</b>');
+    await page.locator('#projectNotes').fill('Specific size & café reference');await page.locator('#usageNotes').fill('A deck and a small print run');await page.locator('#budget').fill('$450');await page.locator('#brief').fill('<b>A thoughtful project</b>');
     const mail=decodeURIComponent(await page.locator('#emailLink').getAttribute('href'));
+    assert.ok(mail.includes('Project specifics: Specific size & café reference')&&mail.includes('Usage details: A deck and a small print run'));
+    await page.evaluate(()=>Object.defineProperty(navigator,'clipboard',{value:{writeText:async text=>{window.copiedProject=text}},configurable:true}));
+    await page.locator('#copyButton').click();
+    assert.equal(await page.evaluate(()=>window.copiedProject),new URL(await page.locator('#emailLink').getAttribute('href')).searchParams.get('body'));
     assert.ok(mail.includes('Budget: $450')&&mail.includes('<b>A thoughtful project</b>'));
     assert.equal(await page.locator('.estimate-panel b').count(),0);
     if(i===4){
@@ -58,11 +62,15 @@ const routes=['index.html','white-border-builder-tool/index.html','custom-size-r
      await page.locator('#quantity').fill('78');
      assert.match(await page.locator('#collectionNote').innerText(),/78 distinct/);
      assert.equal(await total.innerText(),'$100–$800');
-     await page.locator('#payment').selectOption('royalty');assert.equal(await total.innerText(),'Let’s discuss terms');
+     await page.locator('#paymentNotes').fill('Can we discuss a royalty on deck sales?');await page.locator('#payment').selectOption('royalty');assert.equal(await total.innerText(),'Let’s discuss terms');
      assert.ok(decodeURIComponent(await page.locator('#emailLink').getAttribute('href')).includes('fee + royalties'));
      await page.locator('#project').selectOption('portrait');assert.equal(await page.locator('#payment').isVisible(),false);
      assert.equal(await total.innerText(),'$950–$1,400');
      assert.equal(await page.locator('#collectionNote').isVisible(),false);
+     assert.ok(!decodeURIComponent(await page.locator('#emailLink').getAttribute('href')).includes('royalty on deck sales'));
+     await page.locator('#project').selectOption('illustration');
+     assert.equal(await page.locator('#paymentNotes').inputValue(),'Can we discuss a royalty on deck sales?');
+     assert.ok(decodeURIComponent(await page.locator('#emailLink').getAttribute('href')).includes('Payment questions or details: Can we discuss a royalty on deck sales?'));
     }
     await page.screenshot({path:'/tmp/studio-tool-'+i+'-selected-mobile.png',fullPage:true});
    }
