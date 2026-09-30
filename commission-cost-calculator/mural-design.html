@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="./style.css?v=20260518-brand-align">
     <link rel="stylesheet" href="./calculator-polish.css?v=20260930-pricing">
     <link rel="stylesheet" href="../studio-tools.css?v=20260930-logo-right">
-<link rel="stylesheet" href="./pricing-planner.css?v=20260930-joelle">
+<link rel="stylesheet" href="./pricing-planner.css?v=20260930-comments">
 </head>
   <body class="mc-tools">
     <a class="studio-skip" href="#workspace-title">Skip to the tool</a>
@@ -50,12 +50,14 @@
  <p>You can leave the details open. Nothing is sent until you choose to email.</p>
  <div class="workspace-grid">
   <form id="plannerForm" class="controls-pane">
-   <label class="field"><span>What would you like to make?</span><select id="project"><option value="custom">I’m not sure yet / something else</option></select></label>
+   <label class="field"><span>Which starting point is closest to your project?</span><select id="project"><option value="custom">Something else / help me choose</option></select><small>Choose the closest fit. You can describe a different or more specific idea below.</small></label>
+   <label class="field"><span>Project specifics <small>(optional)</small></span><textarea id="projectNotes" rows="2" maxlength="800" placeholder="Location, wall size, indoor or outdoor, and whether you have a painter…"></textarea></label>
 
-   <label class="field"><span>Where will it be used?</span><select id="usage"><option value="unsure">Let’s work that out together</option><option value="site">Display at the commissioned site</option><option value="broad">Also on merchandise or in other locations</option></select><small id="usageHelp">This helps shape the conversation. It does not add an automatic fee.</small></label>
-   <label class="field"><span>Do you have a deadline? <small>(optional)</small></span><input id="deadline" type="text" maxlength="120" placeholder="No rush, a launch date, a special occasion…"><small>Availability and any rush work are confirmed together.</small></label>
+   <label class="field"><span>How do you plan to use the finished work?</span><select id="usage"><option value="unsure">Let’s work that out together</option><option value="site">On the wall or site we’re designing for</option><option value="broad">Also on merchandise or in other locations</option></select><small id="usageHelp">Choose the closest answer, or leave it open. No automatic fee is added.</small></label>
+   <label class="field"><span>More about how it will be used <small>(optional)</small></span><textarea id="usageNotes" rows="2" maxlength="800" placeholder="The site or sites, who will see it, or other places you want to use the design…"></textarea></label>
+   <label class="field"><span>Do you have a deadline? <small>(optional)</small></span><input id="deadline" type="text" maxlength="120" placeholder="No rush, a launch date, a special occasion…"><small>Rush projects are subject to Joëlle’s availability. If she can accommodate your deadline, rush fees apply and will be confirmed before work begins.</small></label>
    <label class="field"><span>Budget you have in mind <small>(optional)</small></span><input id="budget" type="text" maxlength="120" placeholder="A range is fine—or leave this open"><small>This helps Joëlle suggest a suitable scope. It does not change the estimate.</small></label>
-   <label class="field"><span>A little about your idea <small>(optional)</small></span><textarea id="brief" rows="5" maxlength="2500" placeholder="What you’re imagining, size, style, references, or any questions…"></textarea></label>
+   <label class="field"><span>Anything else you’d like Joëlle to know? <small>(optional)</small></span><textarea id="brief" rows="5" maxlength="2500" placeholder="Links to references, questions, or anything the answers above don’t cover…"></textarea></label>
   </form>
   <aside class="preview-pane" aria-label="Your project starting point">
    <div class="estimate-panel">
@@ -76,6 +78,6 @@
 </section>
 <noscript><p>The starting examples above are still available. <a href="mailto:joelle@monochromecanvas.com">Email Joëlle with your idea</a>; the interactive planner needs JavaScript.</p></noscript>
 </main>
-<script src="./pricing-planner.js?v=20260930-email"></script>
+<script src="./pricing-planner.js?v=20260930-comments"></script>
 <script src="./mural-design.js?v=20260930-pricing"></script>
 </body></html>
