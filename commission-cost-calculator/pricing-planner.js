@@ -93,7 +93,7 @@
       byId('collectionNote').hidden = !e.collectionNote;
       byId('collectionNote').textContent = e.collectionNote;
       summary = buildSummary(e, options);
-      byId('emailLink').href = 'mailto:mnchrmcnvs@gmail.com?subject=' + encodeURIComponent('Project idea — ' + e.label) + '&body=' + encodeURIComponent(summary);
+      byId('emailLink').href = 'mailto:joelle@monochromecanvas.com?subject=' + encodeURIComponent('Project idea — ' + e.label) + '&body=' + encodeURIComponent(summary);
       byId('copyStatus').textContent = '';
       for (const card of doc.querySelectorAll('[data-project]')) card.setAttribute('aria-pressed', String(card.dataset.project === e.key));
     }
