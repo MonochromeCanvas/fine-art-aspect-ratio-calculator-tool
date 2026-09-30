@@ -75,3 +75,8 @@ body.mc-tools {
 @media(max-width:600px) {
  .mc-tools .estimate-total { font-size: clamp(1.9rem,8vw,2.6rem); overflow-wrap: anywhere; }
 }
+
+/* Original textured shop logo; keep its proportions and transparent background. */
+.mc-tools .studio-logo-link { display: inline-flex; align-items: center; max-width: 100%; text-decoration: none; border-radius: 4px; }
+.mc-tools .studio-logo { display: block; width: 180px; max-width: 100%; height: auto; }
+@media(max-width:600px) { .mc-tools .studio-logo { width: 150px; } }
