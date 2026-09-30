@@ -42,3 +42,13 @@
 @media(max-width:600px) {.artist-fit {padding:20px}.artist-fit h2 {font-size:23px}}
 
 .payment-fields {display:grid;gap:18px}
+
+.service-choices {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:24px 0}
+.service-choices a {display:flex;flex-direction:column;gap:8px;padding:20px;border:1px solid #9bab9d;border-radius:14px;background:#fffaf2;text-decoration:none;line-height:1.4}
+.service-choices strong {font-size:25px}
+.service-choices span {font-size:17px}
+.service-choices small {font-size:15px;margin-top:auto;text-decoration:underline;text-underline-offset:4px}
+.service-choices a[aria-current="page"] {background:#24483d;color:#fffaf2;border-color:#24483d}
+.service-choices a:hover {outline:2px solid #3f725c;outline-offset:2px}
+.service-choices a:focus-visible {outline:3px solid #3f725c;outline-offset:4px}
+@media(max-width:650px) {.service-choices {grid-template-columns:1fr;gap:10px}.service-choices a {padding:15px 18px;gap:4px}.service-choices strong {font-size:23px}}
