@@ -40,3 +40,5 @@
 .artist-fit a {text-underline-offset:4px}
 .creative-navigation .studio-tool-list a {padding:10px 14px}
 @media(max-width:600px) {.artist-fit {padding:20px}.artist-fit h2 {font-size:23px}}
+
+.payment-fields {display:grid;gap:18px}
