@@ -22,13 +22,25 @@
       custom: { label: 'Multiple walls, public art or another idea', scope: 'Share your space, approximate size and any team or approval needs. Joëlle will help shape a design scope with you.' }
     }
   };
+  const artworkTypes = {
+    unsure: {label: 'Not sure yet', help: 'Choose the kind of piece you’re drawn to. You can discuss the medium and finish with Joëlle.'},
+    line: {label: 'Line drawing', help: 'An image built around drawn lines. Tell Joëlle about the subject, detail and any color you have in mind.'},
+    watercolor: {label: 'Watercolor', help: 'A watercolor piece. Share the subject, approximate size and examples of Joëlle’s work you like.'},
+    'digital-oil': {label: 'Digital oil painting', help: 'Artwork created digitally with the look and texture of an oil painting. Printing and framing are discussed separately.'},
+    embellished: {label: 'Hand-embellished digital painting', help: 'A printed digital painting finished with details added by hand. Size, surface and embellishment are quoted individually.', custom: true},
+    acrylic: {label: 'Physical acrylic painting', help: 'An original physical painting made with acrylic paint. This is the highest-priced option; size, surface and detail determine your custom quote.', custom: true},
+    other: {label: 'Another type of artwork', help: 'Describe the medium or finish you have in mind in Project specifics. Joëlle will help confirm what’s possible.', custom: true}
+  };
   const money = value => '$' + value.toLocaleString('en-US');
   const range = p => p.low == null ? 'Let’s talk' : money(p.low) + '–' + money(p.high);
   function calculateEstimate(kind, options = {}) {
     const catalog = projects[kind];
     if (!catalog) throw new Error('Unknown planner');
     const key = Object.prototype.hasOwnProperty.call(catalog, options.project) ? options.project : 'custom';
-    const project = catalog[key];
+    const baseProject = catalog[key];
+    const artworkType = kind === 'artwork' ? (Object.prototype.hasOwnProperty.call(artworkTypes, options.artworkType) ? artworkTypes[options.artworkType] : artworkTypes.unsure) : null;
+    const mediumQuote = !!artworkType?.custom;
+    const project = mediumQuote ? {...baseProject, low: null, high: null, scope: artworkType.help} : baseProject;
     const parsed = Number(options.quantity);
     const quantityValid = Number.isInteger(parsed) && parsed >= 1 && parsed <= 500;
     const quantity = key === 'illustration' && quantityValid ? parsed : 1;
@@ -38,19 +50,20 @@
       : kind === 'mural'
         ? 'Use at the agreed mural site is part of the design brief. Reproduction or merchandise use is discussed separately.'
         : 'We’ll agree where and how you can use the work. Commercial use does not automatically mean a large campaign fee.';
-    return { kind, key, label: project.label, low: project.low ?? null, high: project.high ?? null,
-      range: royalty ? 'Let’s discuss terms' : range(project),
+    return { kind, key, artworkType, mediumQuote, label: project.label, low: project.low ?? null, high: project.high ?? null,
+      range: mediumQuote ? 'Custom quote' : royalty ? 'Let’s discuss terms' : range(project),
       referenceRange: range(project), quantity, quantityValid: key !== 'illustration' || quantityValid,
       royalty, unit: project.unit || 'for this starting scope', scope: project.scope, rightsNote,
       collectionNote: key === 'illustration' && quantity > 1
-        ? quantity + ' distinct illustrations noted. The range above is per illustration, not the whole collection. Joëlle will quote the series together, including any shared design work and royalty terms.' : '',
-      note: royalty
+        ? mediumQuote ? quantity + ' pieces noted. Joëlle will quote the selected medium and collection together.' : quantity + ' distinct illustrations noted. The range above is per illustration, not the whole collection. Joëlle will quote the series together, including any shared design work and royalty terms.' : '',
+      note: mediumQuote ? 'This artwork type needs a custom quote rather than the example range for the selected starting scope.' + (royalty ? ' Any royalty arrangement is discussed separately.' : '') : royalty
         ? 'Without royalties, the starting reference is $100–$800 per illustration. An upfront fee + royalties is negotiated for the whole project; no discount is assumed here.'
         : project.low == null ? 'You don’t need a finished brief. Start with your idea.' : 'A planning range, not a final quote. ' + (project.unit ? 'Price shown ' + project.unit + '.' : 'Price shown for the scope below.')
     };
   }
   function buildSummary(e, options = {}) {
     return [ 'Project idea for Joëlle', '', 'Project: ' + e.label,
+      e.artworkType ? 'Artwork type: ' + e.artworkType.label : '',
       options.projectNotes ? 'Project specifics: ' + options.projectNotes : '',
       'Starting point: ' + e.range + (e.low != null && !e.royalty ? ' (' + e.unit + ')' : ''),
       e.scope, e.note, e.collectionNote,
@@ -80,12 +93,13 @@
     let summary = '';
     function render() {
       const options = { project: projectSelect.value, quantity: byId('quantity')?.value ?? 1,
-        payment: byId('payment')?.value, usage: byId('usage').value,
+        artworkType: byId('artworkType')?.value, payment: byId('payment')?.value, usage: byId('usage').value,
         projectNotes: byId('projectNotes').value.trim(), usageNotes: byId('usageNotes').value.trim(),
         paymentNotes: byId('paymentNotes')?.value.trim() || '',
         usageLabel: byId('usage').selectedOptions[0].textContent,
         deadline: byId('deadline').value.trim(), budget: byId('budget').value.trim(), brief: byId('brief').value.trim() };
       const e = calculateEstimate(kind, options);
+      if (byId('artworkTypeHelp')) byId('artworkTypeHelp').textContent = e.artworkType.help;
       if (byId('quantityField')) {
         byId('quantityField').hidden = e.key !== 'illustration';
         byId('paymentField').hidden = e.key !== 'illustration';
@@ -93,7 +107,7 @@
         byId('payment').disabled = e.key !== 'illustration';
         byId('paymentNotes').disabled = e.key !== 'illustration';
       }
-      byId('rangeLabel').textContent = e.key === 'illustration' ? 'Starting point · per illustration' : 'Your starting point';
+      byId('rangeLabel').textContent = e.key === 'illustration' && !e.mediumQuote ? 'Starting point · per illustration' : 'Your starting point';
       if (byId('planningRange').textContent !== e.range) byId('planningRange').textContent = e.range;
       if (byId('rangeNote').textContent !== e.note) byId('rangeNote').textContent = e.note;
       byId('scopeNote').textContent = e.scope;
