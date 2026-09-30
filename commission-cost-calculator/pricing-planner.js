@@ -51,13 +51,18 @@
   }
   function buildSummary(e, options = {}) {
     return [ 'Project idea for Joëlle', '', 'Project: ' + e.label,
+      options.projectNotes ? 'Project specifics: ' + options.projectNotes : '',
       'Starting point: ' + e.range + (e.low != null && !e.royalty ? ' (' + e.unit + ')' : ''),
       e.scope, e.note, e.collectionNote,
       e.key === 'illustration' ? 'Distinct illustrations: ' + (e.quantityValid ? e.quantity : 'To confirm') : '',
       e.key === 'illustration' ? 'Payment preference: ' + ({flat:'Upfront fee, without royalties', royalty:'Discuss a fee + royalties', unsure:'Not sure yet'}[options.payment] || 'Not sure yet') : '',
-      'Intended use: ' + (options.usageLabel || 'To discuss'), e.rightsNote,
-      'Deadline: ' + (options.deadline || 'Open'), 'Budget: ' + (options.budget || 'Open'),
-      'My idea: ' + (options.brief || 'I’d like help choosing a starting point.'), '',
+      e.key === 'illustration' && options.paymentNotes ? 'Payment questions or details: ' + options.paymentNotes : '',
+      'Intended use: ' + (options.usageLabel || 'To discuss'),
+      options.usageNotes ? 'Usage details: ' + options.usageNotes : '', e.rightsNote,
+      'Deadline: ' + (options.deadline || 'Open'),
+      'Rush projects are subject to Joëlle’s availability. If she can accommodate your deadline, rush fees apply and will be confirmed before work begins.',
+      'Budget: ' + (options.budget || 'Open'),
+      'Additional notes: ' + (options.brief || 'None added'), '',
       'Scope, revisions, timing, rights and final price to be confirmed before work begins.'
     ].filter(line => line !== '').join('\n');
   }
@@ -76,6 +81,8 @@
     function render() {
       const options = { project: projectSelect.value, quantity: byId('quantity')?.value ?? 1,
         payment: byId('payment')?.value, usage: byId('usage').value,
+        projectNotes: byId('projectNotes').value.trim(), usageNotes: byId('usageNotes').value.trim(),
+        paymentNotes: byId('paymentNotes')?.value.trim() || '',
         usageLabel: byId('usage').selectedOptions[0].textContent,
         deadline: byId('deadline').value.trim(), budget: byId('budget').value.trim(), brief: byId('brief').value.trim() };
       const e = calculateEstimate(kind, options);
@@ -84,6 +91,7 @@
         byId('paymentField').hidden = e.key !== 'illustration';
         byId('quantity').disabled = e.key !== 'illustration';
         byId('payment').disabled = e.key !== 'illustration';
+        byId('paymentNotes').disabled = e.key !== 'illustration';
       }
       byId('rangeLabel').textContent = e.key === 'illustration' ? 'Starting point · per illustration' : 'Your starting point';
       if (byId('planningRange').textContent !== e.range) byId('planningRange').textContent = e.range;
