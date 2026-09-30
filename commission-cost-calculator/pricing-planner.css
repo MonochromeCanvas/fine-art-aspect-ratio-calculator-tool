@@ -1,0 +1,35 @@
+.creative-navigation {display:flex;flex-wrap:wrap;align-items:center;gap:12px 24px;padding:18px 0 26px;border-bottom:1px solid var(--line);margin-bottom:30px}
+.creative-navigation strong {font-size:20px;margin-right:auto}
+.creative-navigation a {text-underline-offset:5px;padding:8px 0}
+.creative-navigation [aria-current] {font-weight:bold;color:var(--accent)}
+.starting-points {margin:30px 0 42px}
+.starting-points h2,.planner-workspace h2 {font-size:clamp(26px,3vw,36px);margin:10px 0 14px}
+.starting-points p,.planner-workspace>p {font-size:19px;line-height:1.5;max-width:850px}
+.starting-grid {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;margin:24px 0}
+.starting-card {background:#fffaf2;border:1px solid #b8c8be;border-radius:18px;padding:24px;text-align:left;color:var(--ink);display:flex;flex-direction:column;gap:16px;cursor:pointer;min-width:0;line-height:1.45;transition:background .15s}
+.starting-card:hover,.starting-card[aria-pressed=true] {background:#e7eee5;border-color:#3f725c}
+.starting-card strong {font-size:clamp(25px,3vw,33px)}
+.starting-card>span:first-child {font-size:21px}
+.starting-card .card-action {margin-top:auto;text-decoration:underline;text-underline-offset:4px}
+.starting-footnote {color:#40564b}
+.planner-workspace .workspace-grid {margin-top:28px;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);align-items:start}
+.planner-workspace .controls-pane {display:grid;gap:24px;min-width:0}
+.planner-workspace .field {gap:10px}
+.planner-workspace .field>span {font-size:18px;letter-spacing:0;text-transform:none}
+.planner-workspace .field small {font-family:inherit;font-size:16px;color:#40564b;line-height:1.4}
+.planner-workspace input,.planner-workspace select,.planner-workspace textarea {width:100%;min-height:48px;font-size:18px;min-width:0}
+.planner-workspace .estimate-total {display:block;font-size:clamp(30px,3.5vw,43px);overflow-wrap:anywhere}
+.planner-workspace .estimate-panel p {font-size:18px;line-height:1.5}
+.planner-workspace .estimate-panel {padding:28px}
+.planner-workspace .conversation-note {border-top:1px solid #718477;padding-top:18px}
+.planner-workspace .send-button {display:block;text-align:center;margin-top:24px}
+.planner-workspace .secondary-button {width:100%;margin-top:12px;min-height:46px;background:transparent;color:inherit;border:1px solid currentColor;border-radius:10px;cursor:pointer}
+.planner-workspace [hidden] {display:none!important}
+.pricing-questions {margin-top:36px}
+.pricing-questions details {border-top:1px solid var(--line);padding:20px 0;font-size:19px;line-height:1.5}
+.pricing-questions summary {cursor:pointer;min-height:40px;padding:5px 0}
+.pricing-questions p {max-width:850px}
+.starting-card:focus-visible,.creative-navigation a:focus-visible,.pricing-questions summary:focus-visible {outline:3px solid #3f725c;outline-offset:4px}
+@media(max-width:800px) {.starting-grid {grid-template-columns:1fr}.starting-card {padding:20px;gap:10px}.planner-workspace .workspace-grid {grid-template-columns:1fr}.creative-navigation {gap:10px 20px}.creative-navigation strong {width:100%}.planner-workspace .estimate-panel {padding:22px}}
+
+.planner-workspace .field>span {color:#344d42}

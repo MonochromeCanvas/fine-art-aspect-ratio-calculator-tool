@@ -14,9 +14,9 @@ const routes=['index.html','white-border-builder-tool/index.html','custom-size-r
    assert.match(await page.locator('h1').evaluate(e=>getComputedStyle(e).fontFamily),/Gloock/);
    assert.match(await page.locator('.hero,.hero-card').first().evaluate(e=>getComputedStyle(e).backgroundImage),/nav-bg.jpg/);
    await page.locator('.studio-tool-menu summary').click();
-   assert.equal(await page.locator('.studio-tool-list a').count(),7);
-   assert.equal(await page.locator('.studio-tool-list [aria-current=page]').count(),1);
-   assert.equal(await page.locator('.studio-tool-list a[target=_blank]').count(),6);
+   assert.equal(await page.locator('.studio-tool-list a').count(),4);
+   assert.equal(await page.locator('.studio-tool-list [aria-current=page]').count(),i<4?1:0);
+   assert.equal(await page.locator('.studio-tool-list a[target=_blank]').count(),i<4?3:4);
    await page.locator('.studio-tool-menu summary').click();
    await page.screenshot({path:'/tmp/studio-tool-'+i+'-desktop.png'});
    for(const width of [390,320]) {
@@ -36,7 +36,34 @@ const routes=['index.html','white-border-builder-tool/index.html','custom-size-r
     await page.waitForFunction(()=>document.body.innerText.includes('1200')||document.body.innerText.includes('1,200'));
     if(i===1){await page.locator('[data-mode=even-border]').click();assert.equal(await page.locator('#evenBorder').isVisible(),true);await page.locator('#evenBorder').fill('0');assert.equal(await page.locator('#downloadButton').isEnabled(),true);}
    }
-   if(i>=4){const total=page.locator(i===4?'#estimateRange':i===5?'#designEstimateRange':'#muralEstimateRange');assert.ok((await total.innerText()).trim().length > 0);const select=page.locator('select').first();const options=await select.locator('option').evaluateAll(es=>es.filter(e=>!e.disabled).map(e=>e.value));if(options.length>1)await select.selectOption(options[1]);assert.ok((await total.innerText()).trim().length > 0);}
+   if(i>=4){
+    const total=page.locator('#planningRange');assert.equal(await total.innerText(),'Let’s talk');
+    assert.equal(await page.locator('.creative-navigation a').count(),3);
+    for(const card of await page.locator('.starting-card').all()) {
+     const key=await card.getAttribute('data-project');await card.click();
+     assert.equal(await page.locator('#project').inputValue(),key);
+     if(key!=='personal') assert.equal(await card.locator('strong').innerText(),await total.innerText());
+     assert.equal(await card.getAttribute('aria-pressed'),'true');
+    }
+    await page.locator('.starting-card').first().click();
+    assert.match(await total.innerText(),/\$/);
+    await page.locator('#budget').fill('$450');await page.locator('#brief').fill('<b>A thoughtful project</b>');
+    const mail=decodeURIComponent(await page.locator('#emailLink').getAttribute('href'));
+    assert.ok(mail.includes('Budget: $450')&&mail.includes('<b>A thoughtful project</b>'));
+    assert.equal(await page.locator('.estimate-panel b').count(),0);
+    if(i===4){
+     assert.equal(await total.innerText(),'$100–$800');
+     await page.locator('#quantity').fill('78');
+     assert.match(await page.locator('#collectionNote').innerText(),/78 distinct/);
+     assert.equal(await total.innerText(),'$100–$800');
+     await page.locator('#payment').selectOption('royalty');assert.equal(await total.innerText(),'Let’s discuss terms');
+     assert.ok(decodeURIComponent(await page.locator('#emailLink').getAttribute('href')).includes('fee + royalties'));
+     await page.locator('#project').selectOption('portrait');assert.equal(await page.locator('#payment').isVisible(),false);
+     assert.equal(await total.innerText(),'$950–$1,400');
+     assert.equal(await page.locator('#collectionNote').isVisible(),false);
+    }
+    await page.screenshot({path:'/tmp/studio-tool-'+i+'-selected-mobile.png',fullPage:true});
+   }
    assert.deepEqual(errors,[],route);console.log('PASS '+route);await page.close();
   }
  } finally {await browser.close();}
