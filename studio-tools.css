@@ -1,0 +1,77 @@
+/* Shared presentation for the seven Monochrome Canvas planning tools.
+   Keep workflow layouts and state-specific colors in each tool's own CSS. */
+@import url("https://fonts.googleapis.com/css2?family=Arapey:ital@0;1&family=Gloock&display=swap");
+body.mc-tools {
+  --paper: #f6f0e8; --paper-strong: #fffdfa; --ink: #173231;
+  --ink-soft: #48605a; --ink-muted: #52675e; --accent: #3f725c;
+  --sage: #e8f0e9; --sage-strong: #cbdccf;
+  --line: rgba(23,50,49,.13); --line-strong: rgba(23,50,49,.24);
+  --shadow: 0 18px 40px rgba(23,50,49,.07);
+  color: var(--ink); font-family: "Arapey", Georgia, serif;
+  background: radial-gradient(circle at top right,rgba(144,179,164,.16),transparent 30%),linear-gradient(180deg,#fffdf9,#f8f3eb);
+}
+.mc-tools .hero, .mc-tools .hero-card { padding-top: 18px; padding-bottom: 20px; }
+.mc-tools .hero-layout { max-width: 920px; }
+.mc-tools h1, .mc-tools h2, .mc-tools h3 { font-family: "Gloock", Georgia, serif; font-weight: 400; }
+.mc-tools h1 { font-size: clamp(2.25rem,5vw,3.8rem); line-height: 1.08; letter-spacing: -.025em; text-wrap: balance; }
+.mc-tools .hero-copy { font-size: 1.2rem; line-height: 1.55; max-width: 42rem; }
+.mc-tools .hero-invite, .mc-tools .hero-assurance { font-size: 1.08rem; line-height: 1.55; max-width: 42rem; color: var(--ink-soft); }
+.mc-tools .brand-pill { display: inline-flex; min-height: 36px; padding: 7px 14px; border-radius: 999px; border: 1px solid var(--line-strong); background: #fffdfa; color: var(--ink); font: .85rem "Arapey",Georgia,serif; letter-spacing: .12em; text-transform: uppercase; text-decoration: none; }
+.mc-tools .eyebrow { display: block; margin: 18px 0 10px; color: #52675e; font: .8rem/1.5 "Arapey",Georgia,serif; letter-spacing: .14em; text-transform: uppercase; }
+.mc-tools .workspace, .mc-tools .chooser-card, .mc-tools .workspace-card { border-radius: 24px; }
+.mc-tools input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=hidden]), .mc-tools select, .mc-tools textarea { font-size: 1rem; }
+.mc-tools input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=hidden]), .mc-tools select { min-height: 44px; }
+.mc-tools .upload-drop input[type=file] { display: block; width: 100%; max-width: 100%; min-width: 0; padding: 8px; border-radius: 10px; border: 1px solid var(--line-strong); background: #fffdfa; color: var(--ink); }
+.mc-tools input[type=file]::file-selector-button { background: #315d49; color: white; padding: 8px 12px; border: 0; border-radius: 6px; font: inherit; cursor: pointer; }
+.mc-tools .upload-drop { background: #f3f7f3; border-color: #668776; border-radius: 18px; }
+.mc-tools .upload-drop:focus-within { outline: 3px solid #315d49; outline-offset: 3px; }
+.mc-tools .download-button, .mc-tools .send-button, .mc-tools .copy-button, .mc-tools .hero-start { border-radius: 999px; min-height: 46px; padding: 12px 18px; font-size: 1rem; letter-spacing: .01em; text-transform: none; }
+.mc-tools :focus-visible { outline: 3px solid #315d49 !important; outline-offset: 4px; }
+.studio-navigation { display: flex; align-items: flex-start; flex-wrap: wrap; gap: 8px 18px; padding: 0 0 22px; color: #173231; }
+.studio-navigation > a, .studio-navigation summary { display: inline-flex; align-items: center; min-height: 44px; padding: 8px 0; font-size: 1.05rem; cursor: pointer; }
+.studio-navigation > a { text-underline-offset: 4px; }
+.studio-navigation .studio-shop-link { font-weight: bold; }
+.studio-navigation summary { display: list-item; list-style-position: inside; }
+.studio-tool-menu { min-width: 0; max-width: 100%; }
+.studio-tool-list { display: grid; gap: 4px; padding: 14px; background: #fffdfa; border: 1px solid rgba(23,50,49,.24); border-radius: 16px; }
+.studio-tool-list a { display: block; min-height: 44px; padding: 10px 12px; border-radius: 8px; font-size: 1.05rem; text-decoration: none; }
+.studio-tool-list a:hover { background: #e8f0e9; }
+.studio-tool-list a[aria-current=page] { background: #315d49; color: white; }
+.studio-tool-list p { max-width: 20rem; margin: 8px 12px; font-size: .95rem; line-height: 1.5; color: #48605a; }
+.studio-skip { position: absolute; top: -100px; left: 12px; z-index: 20; background: white; padding: 12px; color: #173231; }
+.studio-skip:focus { top: 12px; }
+@media(max-width:600px) {
+ .mc-tools .app-shell { padding: 20px 14px 34px; }
+ .mc-tools .workspace { padding: 20px 16px; }
+ .studio-navigation { gap: 4px 16px; }
+ .studio-tool-list { max-width: 100%; }
+}
+@media(prefers-reduced-motion:reduce) { .mc-tools * { scroll-behavior: auto !important; transition: none !important; } }
+/* The same cloud photograph used in the Monochrome Canvas shop header. */
+.mc-tools .hero, .mc-tools .hero-card {
+  max-width: none;
+  padding: clamp(24px,4vw,44px);
+  margin-bottom: 16px;
+  border: 1px solid rgba(63,114,92,.18);
+  border-radius: 24px;
+  background-color: #e8eee7;
+  background-image: linear-gradient(90deg,rgba(255,253,249,.96) 0%,rgba(255,253,249,.88) 48%,rgba(255,253,249,.35) 100%),url("https://cdn.shopify.com/s/files/1/0591/5433/3833/files/nav-bg.jpg?v=1697474281");
+  background-size: cover;
+  background-position: center;
+  box-shadow: 0 12px 32px rgba(23,50,49,.045);
+}
+.mc-tools .hero h1, .mc-tools .hero-card h1 { max-width: 780px; }
+.mc-tools .hero-copy, .mc-tools .hero-invite, .mc-tools .hero-assurance, .mc-tools .studio-intro { color: #354e46; }
+.mc-tools .hero-notes span { background: rgba(255,253,249,.88); border-color: rgba(23,50,49,.15); }
+@media(max-width:600px) {
+ .mc-tools .hero, .mc-tools .hero-card { padding: 24px 20px; border-radius: 20px; background-image: linear-gradient(90deg,rgba(255,253,249,.93),rgba(255,253,249,.78)),url("https://cdn.shopify.com/s/files/1/0591/5433/3833/files/nav-bg.jpg?v=1697474281"); background-position: 65% center; }
+}
+.mc-tools .studio-navigation a { color: inherit; }
+.mc-tools .studio-tool-list a[aria-current=page] { color: white; }
+@media(max-width:980px) {
+ .mc-tools .workspace-grid { grid-template-columns: minmax(0,1fr); gap: 28px; }
+ .mc-tools .preview-pane { position: static; }
+}
+@media(max-width:600px) {
+ .mc-tools .estimate-total { font-size: clamp(1.9rem,8vw,2.6rem); overflow-wrap: anywhere; }
+}
