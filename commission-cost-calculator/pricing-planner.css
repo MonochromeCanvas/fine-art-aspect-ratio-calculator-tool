@@ -33,3 +33,10 @@
 @media(max-width:800px) {.starting-grid {grid-template-columns:1fr}.starting-card {padding:20px;gap:10px}.planner-workspace .workspace-grid {grid-template-columns:1fr}.creative-navigation {gap:10px 20px}.creative-navigation strong {width:100%}.planner-workspace .estimate-panel {padding:22px}}
 
 .planner-workspace .field>span {color:#344d42}
+
+.artist-fit {padding:22px 26px;background:#eef2eb;border:1px solid #c4d0c4;border-radius:16px;margin:24px 0 32px}
+.artist-fit h2 {font-size:25px;margin:0 0 12px}
+.artist-fit p {font-size:19px;line-height:1.5;margin:0;max-width:900px}
+.artist-fit a {text-underline-offset:4px}
+.creative-navigation .studio-tool-list a {padding:10px 14px}
+@media(max-width:600px) {.artist-fit {padding:20px}.artist-fit h2 {font-size:23px}}
