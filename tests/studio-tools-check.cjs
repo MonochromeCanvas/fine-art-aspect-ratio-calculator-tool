@@ -37,6 +37,8 @@ const routes=['index.html','white-border-builder-tool/index.html','custom-size-r
     if(i===1){await page.locator('[data-mode=even-border]').click();assert.equal(await page.locator('#evenBorder').isVisible(),true);await page.locator('#evenBorder').fill('0');assert.equal(await page.locator('#downloadButton').isEnabled(),true);}
    }
    if(i>=4){
+    assert.equal(await page.locator('.service-choices a').count(),3);
+    assert.equal(await page.locator('.service-choices [aria-current=page]').count(),1);
     const total=page.locator('#planningRange');assert.equal(await total.innerText(),'Let’s talk');
     assert.deepEqual(await page.locator('.studio-tool-list a').allTextContents(),['Artwork Commissions','Graphic Design','Mural Design']);
     assert.match(await page.locator('.hero-invite').innerText(),/hiring Joëlle Diane Zellman/);
@@ -58,6 +60,18 @@ const routes=['index.html','white-border-builder-tool/index.html','custom-size-r
     assert.ok(mail.includes('Budget: $450')&&mail.includes('<b>A thoughtful project</b>'));
     assert.equal(await page.locator('.estimate-panel b').count(),0);
     if(i===4){
+     assert.equal(await total.innerText(),'$100–$800');
+     for(const type of ['line','watercolor','digital-oil','embellished','acrylic','other']) {
+      await page.locator('#artworkType').selectOption(type);
+      const label=await page.locator('#artworkType option:checked').innerText();
+      const email=decodeURIComponent(await page.locator('#emailLink').getAttribute('href'));
+      assert.ok(email.includes('Artwork type: '));
+      if(['embellished','acrylic','other'].includes(type)) {
+       assert.equal(await total.innerText(),'Custom quote');assert.ok(!email.includes('$100–$800'));
+      }
+      if(type==='acrylic') assert.match(await page.locator('#artworkTypeHelp').innerText(),/highest-priced option/);
+     }
+     await page.locator('#artworkType').selectOption('line');
      assert.equal(await total.innerText(),'$100–$800');
      await page.locator('#quantity').fill('78');
      assert.match(await page.locator('#collectionNote').innerText(),/78 distinct/);

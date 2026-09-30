@@ -41,7 +41,7 @@
     <link rel="stylesheet" href="./style.css?v=20260518-brand-align">
     <link rel="stylesheet" href="./calculator-polish.css?v=20260930-pricing">
     <link rel="stylesheet" href="../studio-tools.css?v=20260930-logo-right">
-<link rel="stylesheet" href="./pricing-planner.css?v=20260930-comments">
+<link rel="stylesheet" href="./pricing-planner.css?v=20260930-artwork-types">
 </head>
   <body class="mc-tools">
     <a class="studio-skip" href="#workspace-title">Skip to the tool</a>
@@ -62,6 +62,7 @@
  <a href="https://monochromecanvas.com/pages/commissions" target="_blank" rel="noopener">Explore Joëlle’s work ↗</a>
  <a href="mailto:joelle@monochromecanvas.com?subject=Project%20idea%20for%20Jo%C3%ABlle">Ask Joëlle about your project →</a>
 </nav>
+<nav class="service-choices" aria-label="Choose your creative service"><a href="index.html" aria-current="page"><strong>Artwork</strong><span>Illustration, portraits & original pieces</span><small>You’re here</small></a><a href="graphic-design.html" target="_blank" rel="noopener"><strong>Graphic Design</strong><span>Logos, identity & print or digital pieces</span><small>Explore this service ↗</small></a><a href="mural-design.html" target="_blank" rel="noopener"><strong>Mural Design</strong><span>Artwork for walls & painter-ready plans</span><small>Explore this service ↗</small></a></nav>
 <section class="artist-fit" aria-labelledby="artist-fit-title">
  <h2 id="artist-fit-title">Is Joëlle’s style right for your project?</h2>
  <p>Before requesting a quote, please <a href="https://monochromecanvas.com/pages/commissions" target="_blank" rel="noopener">explore Joëlle’s portfolio</a> to get a feel for her style and approach. If her work speaks to you, share your idea and the pieces you’re drawn to. You don’t need a finished brief—we can talk through the fit together.</p>
@@ -73,7 +74,7 @@
 <button type="button" class="starting-card" data-project="personal"><span>Personal artwork</span><strong>$300–$1,400</strong><span>From a loose personal piece to a developed portrait. Explore the two starting options below.</span><span class="card-action">Explore this project →</span></button>
 <button type="button" class="starting-card" data-project="custom"><span>Something more ambitious</span><strong>Let’s talk</strong><span>A detailed scene, large artwork, public commission or coordinated collection deserves its own brief.</span><span class="card-action">Explore this project →</span></button>
 </div>
- <p class="starting-footnote">Framing, printing, shipping and any expanded use rights are discussed separately. A small illustration is not the same scope as a fully developed painting.</p>
+ <p class="starting-footnote">Framing, printing, shipping and any expanded use rights are discussed separately. A small illustration is not the same scope as a fully developed painting. Hand-embellished work and physical acrylic paintings are quoted individually; physical acrylic is the highest-priced option.</p>
  <p><a href="https://monochromecanvas.com/pages/commissions" target="_blank" rel="noopener">See Joëlle’s work &amp; commission process ↗</a> · <a href="mailto:joelle@monochromecanvas.com?subject=Project%20idea%20for%20Jo%C3%ABlle">Just start a conversation →</a></p>
 </section>
 <section class="workspace planner-workspace" aria-labelledby="workspace-title">
@@ -82,6 +83,15 @@
  <div class="workspace-grid">
   <form id="plannerForm" class="controls-pane">
    <label class="field"><span>Which starting point is closest to your project?</span><select id="project"><option value="custom">Something else / help me choose</option></select><small>Choose the closest fit. You can describe a different or more specific idea below.</small></label>
+   <label class="field"><span>What type of artwork would you like to develop?</span><select id="artworkType" aria-describedby="artworkTypeHelp">
+<option value="unsure">I’m not sure yet — help me choose</option>
+<option value="line">Line drawing</option>
+<option value="watercolor">Watercolor</option>
+<option value="digital-oil">Digital oil painting</option>
+<option value="embellished">Hand-embellished digital painting</option>
+<option value="acrylic">Physical acrylic painting — highest-priced option</option>
+<option value="other">Something else — describe it below</option>
+</select><small id="artworkTypeHelp" aria-live="polite">Choose the kind of piece you’re drawn to. You can discuss the medium and finish with Joëlle.</small></label>
    <label class="field"><span>Project specifics <small>(optional)</small></span><textarea id="projectNotes" rows="2" maxlength="800" placeholder="Subject, size, medium, style, or how the images fit together…"></textarea></label>
    <label class="field" id="quantityField" hidden><span>How many illustrations? <small>(optional)</small></span><input id="quantity" type="number" min="1" max="500" step="1" value="1" inputmode="numeric"><small>Count distinct images, not printed copies. A series is discussed as a whole project.</small></label>
 <div id="paymentField" class="payment-fields" hidden><label class="field"><span>Which payment arrangement would you like to explore?</span><select id="payment"><option value="flat">Upfront fee, without royalties</option><option value="royalty">Let’s discuss a fee + royalties</option><option value="unsure">I’m not sure yet</option></select><small>Royalties mean an agreed share of sales. We can discuss whether that approach fits your project.</small></label>
@@ -111,6 +121,6 @@
 </section>
 <noscript><p>The starting examples above are still available. <a href="mailto:joelle@monochromecanvas.com">Email Joëlle with your idea</a>; the interactive planner needs JavaScript.</p></noscript>
 </main>
-<script src="./pricing-planner.js?v=20260930-comments"></script>
+<script src="./pricing-planner.js?v=20260930-artwork-types"></script>
 <script src="./script.js?v=20260930-pricing"></script>
 </body></html>
