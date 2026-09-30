@@ -420,6 +420,31 @@ document.addEventListener("DOMContentLoaded", function () {
     postHeight();
   }
 
+  function renderStandardSuggestion(width, height) {
+    // Only recommend families with actual common-frame examples in our list.
+    const ratio = Math.min(width, height) / Math.max(width, height);
+    const family = KNOWN_RATIOS.filter(item => getFamilyMatches(item.label).length)
+      .sort((a, b) => ratioDifference(ratio, a.ratio) - ratioDifference(ratio, b.ratio))[0];
+    const gap = ratioDifference(ratio, family.ratio);
+    const exact = gap < EXACT_RATIO_THRESHOLD;
+    const familySizes = getFamilyMatches(family.label).map(size => width > height
+      ? { width: size.height, height: size.width } : size);
+    const label = width > height ? family.label.split(":").reverse().join(":") : family.label;
+    const supported = familySizes.filter(size => Math.min(width / size.width, height / size.height) + 1e-8 >= TARGET_PPI);
+    document.getElementById("standardSuggestion").hidden = false;
+    document.getElementById("standardSuggestionTitle").textContent = exact
+      ? "Your picture already fits a standard shape: " + label
+      : "For a standard frame, try the " + label + " shape";
+    document.getElementById("standardSuggestionBody").textContent = exact
+      ? "You can use this shape without trimming your picture. Choose a size your file can support below."
+      : "This is the closest match among the common frame shapes we list. Printing in this shape can make it easier to find a ready-made frame. " +
+        (1 - Math.exp(-gap) > 0.15 ? "It would cut off a noticeable part of your picture, so check the preview carefully. A border or custom size may suit it better." : "It needs some trimming at the edges. Check the preview to make sure the parts you love stay in the picture.");
+    document.getElementById("standardFrameExamples").textContent = "Common frame sizes: " + familySizes.map(size => formatSize(size.width, size.height)).join(", ") + " inches (width × height).";
+    document.getElementById("standardResolution").textContent = supported.length
+      ? "For your file at 300 PPI or higher" + (exact ? ": " : ", after trimming: ") + supported.map(size => formatSize(size.width, size.height)).join(", ") + " inches. Larger examples above would be below 300 PPI."
+      : "Your file is too small to fill these frame sizes at 300 PPI" + (exact ? ". " : " after trimming. ") + "Use a higher-resolution original, keep a smaller picture inside a border, or ask the studio for help.";
+  }
+
   let uploadSequence = 0;
   function loadArtwork(file) {
     const sequence = ++uploadSequence;
@@ -431,6 +456,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const preview = document.getElementById("artworkPreview");
     const status = document.getElementById("uploadStatus");
     summary.hidden = true;
+    document.getElementById("standardSuggestion").hidden = true;
     preview.removeAttribute("src");
     document.getElementById("clearArtwork").hidden = !file;
     elements.qualityWidth.value = "";
@@ -477,6 +503,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const sizeList = document.getElementById("uploadSizes");
       if (sizes.length) renderChips(sizeList, sizes);
       else sizeList.textContent = "No exact common-size match at 300 PPI. Use the proportional print size above, add borders, or request a custom size.";
+      renderStandardSuggestion(width, height);
       preview.src = imageUrl;
       summary.hidden = false;
       status.textContent = file.name + " — ready. Your file stays in your browser.";
