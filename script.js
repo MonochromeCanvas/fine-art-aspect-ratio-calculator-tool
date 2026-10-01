@@ -619,6 +619,69 @@ document.addEventListener("DOMContentLoaded", function () {
     observer.observe(document.body);
   }
 
+  // Independent print-planning conversion; upload and frame-check state stay separate.
+  const converter = {
+    direction: document.getElementById("converterDirection"),
+    ppi: document.getElementById("converterPpi"),
+    width: document.getElementById("converterWidth"),
+    height: document.getElementById("converterHeight"),
+    result: document.getElementById("converterResult"),
+    note: document.getElementById("converterNote")
+  };
+  let converterDirection = "inches";
+  const converterNumber = value => value.toLocaleString("en-US", { maximumFractionDigits: 4 });
+  function readConverter() {
+    const ppi = Number(converter.ppi.value);
+    const width = Number(converter.width.value);
+    const hasHeight = converter.height.value !== "" || converter.height.validity.badInput;
+    const height = hasHeight ? Number(converter.height.value) : null;
+    const values = hasHeight ? [width, height] : [width];
+    const valid = ![converter.ppi, converter.width, converter.height].some(input => input.validity.badInput) &&
+      Number.isFinite(ppi) && ppi > 0 && values.every(value => Number.isFinite(value) && value > 0) &&
+      (converterDirection !== "pixels" || values.every(Number.isSafeInteger));
+    return { ppi, values, valid };
+  }
+  function convertValues(data) {
+    return data.values.map(value => converterDirection === "inches" ? Math.ceil(value * data.ppi - Number.EPSILON * Math.abs(value * data.ppi)) : value / data.ppi);
+  }
+  function renderConverter() {
+    const data = readConverter();
+    const output = data.valid ? convertValues(data) : [];
+    const valid = data.valid && output.every(value => Number.isFinite(value) && value > 0 &&
+      (converterDirection !== "inches" || Number.isSafeInteger(value)));
+    if (!valid) {
+      converter.result.textContent = "Check your measurements";
+      converter.note.textContent = "Enter a positive width and PPI. Height can be blank. Pixel dimensions must be whole numbers; use smaller values if the result is too large.";
+      return;
+    }
+    const unit = converterDirection === "inches" ? "pixels" : "inches";
+    const format = value => value < 0.0001 ? "less than 0.0001" : converterNumber(value);
+    converter.result.textContent = output.map(format).join(" × ") + " " + unit;
+    converter.note.textContent = "At " + converterNumber(data.ppi) + " PPI. " +
+      (converterDirection === "inches" ? "Use these pixel dimensions when setting up your artwork file." : "This is the print size at the chosen resolution.");
+  }
+  converter.direction.addEventListener("change", function () {
+    const data = readConverter();
+    const output = data.valid ? convertValues(data) : [];
+    if (data.valid && output.every(value => Number.isFinite(value) && value > 0 && value <= Number.MAX_SAFE_INTEGER)) {
+      converter.width.value = String(output[0]);
+      converter.height.value = output.length > 1 ? String(output[1]) : "";
+    } else {
+      converter.width.value = ""; converter.height.value = "";
+    }
+    converterDirection = converter.direction.value;
+    const inputUnit = converterDirection === "inches" ? "inches" : "pixels";
+    document.getElementById("converterWidthLabel").textContent = "Width (" + inputUnit + ")";
+    document.getElementById("converterHeightLabel").textContent = "Height (" + inputUnit + ", optional)";
+    [converter.width, converter.height].forEach(input => {
+      input.step = converterDirection === "inches" ? "any" : "1";
+      input.inputMode = converterDirection === "inches" ? "decimal" : "numeric";
+    });
+    renderConverter();
+  });
+  [converter.width, converter.height, converter.ppi].forEach(input => input.addEventListener("input", renderConverter));
+  renderConverter();
+
   hideRatioResult();
   hideResizeResult();
   hideQualityResult();
