@@ -27,7 +27,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Arapey:ital@0;1&family=Gloock&family=League+Spartan:wght@700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=20260930">
+  <link rel="stylesheet" href="style.css?v=20261001-converter">
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -70,6 +70,7 @@
  <a href="https://monochromecanvas.com/pages/contact" target="_blank" rel="noopener">Ask the studio ↗</a>
  <details class="studio-tool-menu"><summary>More studio tools</summary><div class="studio-tool-list"><a href="index.html" aria-current="page">Print size helper</a><a href="white-border-builder-tool/index.html" target="_blank" rel="noopener">White Border Builder ↗</a><a href="custom-size-request/index.html" target="_blank" rel="noopener">Custom Size Request ↗</a><a href="invoice-my-client/index.html" target="_blank" rel="noopener">Invoice My Client ↗</a><p>Other tools open in a new tab so you can keep your work here.</p></div></details>
 <a class="studio-creative-link" href="commission-cost-calculator/index.html" target="_blank" rel="noopener">Work with Joëlle ↗</a>
+<a href="#unitConverter">Inches ↔ pixels ↓</a>
 </nav>
 
       <section id="task-quality" class="task-panel workspace-card upload-card">
@@ -156,6 +157,20 @@
         </nav>
         <p class="field-help">These tools open in a new tab. Upload your artwork again in the tool you choose.</p>
       </section>
+
+    <section id="unitConverter" class="workspace-card unit-converter" aria-labelledby="converterHeading">
+      <h2 id="converterHeading">Inches ↔ pixels</h2>
+      <p>Planning a new artwork file? Enter your print size to see how many pixels you need. You can also convert pixels back to inches—no upload needed.</p>
+      <div class="converter-fields">
+        <label class="field"><span class="field-label">Convert</span><select id="converterDirection"><option value="inches">Inches to pixels</option><option value="pixels">Pixels to inches</option></select></label>
+        <label class="field"><span class="field-label">Resolution (PPI)</span><input id="converterPpi" type="number" min="0" step="any" value="300" inputmode="decimal" aria-describedby="converterHelp"></label>
+        <label class="field"><span class="field-label" id="converterWidthLabel">Width (inches)</span><input id="converterWidth" type="number" min="0" step="any" value="8" inputmode="decimal"></label>
+        <label class="field"><span class="field-label" id="converterHeightLabel">Height (inches, optional)</span><input id="converterHeight" type="number" min="0" step="any" value="10" inputmode="decimal"></label>
+      </div>
+      <p id="converterHelp" class="field-help">PPI means pixels per inch. Start with 300 for detailed print planning. Leave height blank to convert just one measurement.</p>
+      <div class="converter-result" role="status" aria-live="polite" aria-atomic="true"><strong id="converterResult"></strong><p id="converterNote"></p></div>
+      <p class="field-help">This calculates dimensions; it does not resize your file or add image detail. Pixel requirements round up to whole pixels. Inch results show up to four decimal places.</p>
+    </section>
 
     <section id="chooserCard" class="chooser-card">
       <h2>More ways to plan your print</h2>
@@ -277,6 +292,6 @@
     <p class="footer-note"><a class="footer-link" href="https://monochromecanvas.com" target="_blank" rel="noreferrer">Visit Monochrome Canvas</a> for fine art printing and artist support in Akron, Ohio. This helper is for planning only.</p>
   </main>
 
-  <script src="script.js?v=20260930"></script>
+  <script src="script.js?v=20261001-converter"></script>
 </body>
 </html>
