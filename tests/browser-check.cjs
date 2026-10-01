@@ -10,6 +10,37 @@ const { pathToFileURL } = require('node:url');
     const errors = [];
     page.on('pageerror', error => errors.push(error.message));
     await page.goto(process.env.TOOL_URL || pathToFileURL(path.join(__dirname, '..', 'index.html')).href);
+    // Standalone converter works without an upload and keeps direction/PPI explicit.
+    const result = page.locator('#converterResult');
+    assert.equal(await result.innerText(), '2,400 × 3,000 pixels');
+    await page.locator('#converterDirection').selectOption('pixels');
+    assert.equal(await page.locator('#converterWidth').inputValue(), '2400');
+    assert.equal(await result.innerText(), '8 × 10 inches');
+    await page.locator('#converterPpi').fill('150');
+    assert.equal(await result.innerText(), '16 × 20 inches');
+    await page.locator('#converterWidth').fill('2400.5');
+    assert.equal(await result.innerText(), 'Check your measurements');
+    await page.locator('#converterWidth').fill('2400');
+    await page.locator('#converterPpi').fill('0');
+    assert.equal(await result.innerText(), 'Check your measurements');
+    await page.locator('#converterPpi').fill('300');
+    await page.locator('#converterDirection').selectOption('inches');
+    await page.locator('#converterWidth').fill('8.125');
+    await page.locator('#converterHeight').fill('');
+    assert.equal(await result.innerText(), '2,438 pixels');
+    await page.locator('#converterWidth').fill('-2');
+    assert.equal(await result.innerText(), 'Check your measurements');
+    await page.locator('#converterWidth').fill('');
+    assert.equal(await result.innerText(), 'Check your measurements');
+    await page.locator('#converterWidth').fill('1e100');
+    assert.equal(await result.innerText(), 'Check your measurements');
+    await page.locator('#converterWidth').fill('8');
+    await page.locator('#converterHeight').fill('10');
+    await page.locator('#unitConverter').screenshot({path:'/tmp/inches-converter-desktop.png'});
+    await page.setViewportSize({width:320,height:844});
+    assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+    await page.locator('#unitConverter').screenshot({path:'/tmp/inches-converter-mobile.png'});
+    await page.setViewportSize({width:1280,height:900});
     const upload = page.locator('#artworkUpload');
     async function image(w, h, mime = 'image/png') {
       const data = await page.evaluate(({ w, h, mime }) => {
