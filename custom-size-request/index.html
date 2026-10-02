@@ -9,7 +9,7 @@
       content="Upload artwork, enter a custom print size, estimate pricing, and prepare a custom size request for Monochrome Canvas."
     >
     <link rel="icon" type="image/svg+xml" href="../favicon.svg">
-    <link rel="stylesheet" href="./style.css">
+    <link rel="stylesheet" href="./style.css?v=20261002-artist-live">
     <link rel="stylesheet" href="../studio-tools.css?v=20260930-logo-right">
 </head>
   <body class="mc-tools">
@@ -83,10 +83,33 @@
                   <input id="heightInput" type="number" min="1" step="0.01" value="20" inputmode="decimal">
                 </label>
                 <label class="field">
-                  <span>Quantity</span>
-                  <input id="quantityInput" type="number" min="1" step="1" value="1" inputmode="numeric">
+                  <span>Quantity (same artwork, size, and material)</span>
+                  <input id="quantityInput" type="number" max="10000" min="1" step="1" value="1" inputmode="numeric">
                 </label>
               </div>
+              <section class="bulk-pricing" aria-labelledby="bulkPricingHeading">
+                <p class="bulk-eyebrow">Your print savings</p>
+                <h4 id="bulkPricingHeading">Your project. Your savings.</h4>
+                <fieldset id="customerPricingChoice" class="customer-pricing-choice">
+                  <legend>Who is this print project for?</legend>
+                  <label><input type="radio" name="customerPricing" value="general" checked><span><strong>General customer</strong><small>Starts at 5% off</small></span></label>
+                  <label><input type="radio" name="customerPricing" value="artist"><span><strong>Artist</strong><small>Automatic 20% off—even one print</small></span></label>
+                  <label><input type="radio" name="customerPricing" value="nonprofit"><span><strong>Nonprofit</strong><small>Starts at 25% off</small></span></label>
+                </fieldset>
+                <p id="bulkEligibility" class="field-note"></p>
+                <div id="bulkRateGrid" class="bulk-rate-grid" aria-label="Discount rates by print quantity"></div>
+                <p class="bulk-explainer">All artists receive 20% off automatically when Artist is selected, even for one print. Quantity savings increase that total discount to 25% at 25 prints and 30% at 50 prints. No coupon is needed.</p>
+                <div class="bulk-result" aria-live="polite" aria-atomic="true">
+                  <strong id="bulkEffectiveRate"></strong>
+                  <p id="discountPricingNote"></p>
+                  <p id="bulkNextTier"></p>
+                </div>
+                <details class="field-note">
+                  <summary>Estimate details</summary>
+                  <p>Quantity savings apply per artwork, size, and material. Discounts do not stack. All print sizes and materials qualify, including 16 × 20 and canvas. Nonprofit pricing is subject to confirmation of eligibility. Large runs require studio review.</p>
+                  <p>Estimates assume standard, non-rush production and exclude shipping, tax, proofs, editing, and special finishing. The studio confirms final pricing and availability. This tool does not apply a checkout discount.</p>
+                </details>
+              </section>
               <label id="ratioToggleCard" class="toggle toggle--block ratio-toggle">
                 <input id="ratioLockToggle" type="checkbox" checked>
                 <span>
@@ -203,10 +226,7 @@
                     ></textarea>
                   </label>
                 </div>
-                <label class="toggle toggle--block">
-                  <input id="artistToggle" type="checkbox">
-                  <span>I am an artist, photographer, or creative ordering my own work and would like artist pricing reviewed if this request qualifies.</span>
-                </label>
+
                 <div>
                   <a class="text-link" href="../invoice-my-client/index.html">
                     Need us to invoice your client instead?
@@ -347,6 +367,8 @@
                 </p>
               </div>
 
+              <p id="quoteSavings" class="quote-savings" aria-live="polite"></p>
+
               <div id="desktopPreviewMount" class="desktop-preview-mount">
                 <div id="previewStage" class="preview-stage">
                   <div class="wall-preview">
@@ -409,6 +431,7 @@
       </div>
     </div>
 
-    <script src="./script.js"></script>
+    <script src="./discount-pricing.js?v=20261002-artist-live"></script>
+    <script src="./script.js?v=20261002-artist-live"></script>
   </body>
 </html>

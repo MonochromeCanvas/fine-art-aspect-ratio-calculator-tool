@@ -101,13 +101,6 @@
     "Other"
   ];
 
-  const quantityDiscounts = [
-    { min: 250, rate: 0.25 },
-    { min: 100, rate: 0.2 },
-    { min: 50, rate: 0.15 },
-    { min: 10, rate: 0.1 }
-  ];
-
   const state = {
     file: null,
     objectUrl: null,
@@ -157,7 +150,8 @@
     standardOrderPanel: document.getElementById("standardOrderPanel"),
     invoiceClientPanel: document.getElementById("invoiceClientPanel"),
     projectTypeSelect: document.getElementById("projectTypeSelect"),
-    artistToggle: document.getElementById("artistToggle"),
+    customerPricingChoice: document.getElementById("customerPricingChoice"),
+    discountPricingNote: document.getElementById("discountPricingNote"),
     standardNameInput: document.getElementById("standardNameInput"),
     standardEmailInput: document.getElementById("standardEmailInput"),
     standardNotesInput: document.getElementById("standardNotesInput"),
@@ -326,7 +320,7 @@
       elements.cropZoomInput,
       elements.quantityInput,
       elements.projectTypeSelect,
-      elements.artistToggle,
+      elements.customerPricingChoice,
       elements.standardNameInput,
       elements.standardEmailInput,
       elements.standardNotesInput,
@@ -804,13 +798,6 @@
     return 1.14;
   }
 
-  function getQuantityDiscount(quantity) {
-    const tier = quantityDiscounts.find(function (entry) {
-      return quantity >= entry.min;
-    });
-    return tier ? tier.rate : 0;
-  }
-
   function getFormulaUnitPrice(material, productionWidth, productionHeight) {
     const area = productionWidth * productionHeight;
     return roundQuote(Math.max(material.minPrice, area * material.baseRate * getAreaMultiplier(area)));
@@ -912,7 +899,7 @@
   function getPricingSourceMessage(estimate) {
     if (estimate.pricingSource === "website-standard") {
       if (estimate.discountRate) {
-        return "Base unit price matches the website for this standard size, with quantity pricing applied here.";
+        return "Base unit price matches the listed standard size; your customer discount and eligible quantity savings are included.";
       }
 
       return "This standard size matches the current website price for this material.";
@@ -926,14 +913,14 @@
   }
 
   function getUnitLabel(estimate) {
-    return estimate.pricingSource === "website-standard" ? "Unit price" : "Unit estimate";
+    return estimate.pricingSource === "website-standard" ? "Unit price before savings" : "Unit estimate before savings";
   }
 
   function calculateEstimate() {
     const material = getSelectedMaterial();
     const width = getNumericValue(elements.widthInput);
     const height = getNumericValue(elements.heightInput);
-    const quantity = Math.max(1, Math.round(getNumericValue(elements.quantityInput) || 1));
+    const quantity = Number(elements.quantityInput.value);
     const productionDimensions = getProductionDimensions(material, width, height);
     const formulaUnitPrice = getFormulaUnitPrice(material, productionDimensions.width, productionDimensions.height);
     const pricingGroup = getWebsitePricingGroup(material, productionDimensions.canvasOptions);
@@ -957,10 +944,13 @@
       }
     }
 
-    const subtotal = roundMoney(unit * quantity);
-    const discountRate = getQuantityDiscount(quantity);
-    const discountAmount = roundMoney(subtotal * discountRate);
-    const total = roundMoney(subtotal - discountAmount);
+    const customerType = isInvoiceMode() ? "artist" : document.querySelector('input[name="customerPricing"]:checked').value;
+    const artist = customerType === "artist";
+    const pricing = MonochromePrintDiscounts.calculate({unitPrice:unit, quantity:quantity, customerType:customerType});
+    const subtotal = pricing.valid ? pricing.subtotal : 0;
+    const discountRate = pricing.valid ? pricing.effectiveRate : 0;
+    const discountAmount = pricing.valid ? pricing.savings : 0;
+    const total = pricing.valid ? pricing.total : 0;
     return {
       material: material,
       width: width,
@@ -969,6 +959,10 @@
       productionHeight: productionDimensions.height,
       canvasOptions: productionDimensions.canvasOptions,
       quantity: quantity,
+      quantityValid: pricing.valid,
+      artist: artist,
+      customerType: customerType,
+      pricing: pricing,
       pricingSource: pricingSource,
       unitPrice: unit,
       formulaUnitPrice: formulaUnitPrice,
@@ -1290,6 +1284,42 @@
     const maxHeightAt300 = state.imageHeight ? state.imageHeight / 300 : null;
     const selectedMaterial = getSelectedMaterial();
 
+    const bands = MonochromePrintDiscounts.schedules[estimate.customerType];
+    const baseRate = bands[0].rate;
+    const customerLabel = {general:"Tool",artist:"Artist",nonprofit:"Nonprofit"}[estimate.customerType];
+    const validSavings = estimate.quantityValid && estimate.width > 0 && estimate.height > 0;
+    const percent = validSavings ? (estimate.pricing.effectiveRate * 100).toLocaleString("en-US", {maximumFractionDigits: 2}) + "%" : "";
+    const rateGrid = document.getElementById("bulkRateGrid");
+    rateGrid.replaceChildren();
+    bands.forEach(function (band) {
+      const card = document.createElement("div");
+      const active = validSavings && estimate.quantity >= band.from && estimate.quantity <= band.to;
+      card.classList.toggle("is-applied", active);
+      const range = document.createElement("span");
+      range.textContent = band.from + (band.to === 10000 ? "+" : "–" + band.to) + " prints";
+      const rate = document.createElement("strong");
+      rate.textContent = band.rate + "% off";
+      const detail = document.createElement("small");
+      detail.textContent = active ? "Your whole-order rate" : "Off the whole order";
+      card.append(range, rate, detail);
+      rateGrid.append(card);
+    });
+    document.getElementById("bulkEligibility").textContent = "All print sizes and materials qualify, including canvas. Quantity is per artwork, size, and material.";
+    document.getElementById("bulkEffectiveRate").textContent = validSavings
+      ? percent + " off your whole order" : "Enter a valid size and quantity to see your savings";
+    elements.discountPricingNote.textContent = validSavings
+      ? "You save " + formatMoney(estimate.pricing.savings) + " total: " + formatMoney(estimate.pricing.baseSavings) +
+        " in automatic " + customerLabel.toLowerCase() + " savings + " + formatMoney(estimate.pricing.volumeSavings) + " in extra quantity savings."
+      : "Enter a positive size and a whole-number quantity from 1 to 10,000.";
+    const nextBand = bands.find(function (band) { return band.from > estimate.quantity; });
+    document.getElementById("bulkNextTier").textContent = !validSavings ? "" :
+      (nextBand ? "At " + nextBand.from + " prints, your whole-order discount rises to " + nextBand.rate + "%." : "You’ve reached the highest quantity discount for your customer group.") +
+      (estimate.pricing.review ? " Large run: studio review required to confirm pricing and production time." : "") +
+      (estimate.customerType === "nonprofit" ? " Nonprofit eligibility is confirmed by the studio." : "");
+    document.getElementById("quoteSavings").textContent = validSavings
+      ? "Saving " + formatMoney(estimate.pricing.savings) + " · " + percent + " overall · " + formatMoney(estimate.total / estimate.quantity) + " per print on average"
+      : "";
+    elements.quantityInput.setAttribute("aria-invalid", String(!estimate.quantityValid));
     elements.materialDescription.textContent = selectedMaterial.description;
     elements.materialLink.href = selectedMaterial.url;
     updateSizeInputLimits(selectedMaterial);
@@ -1298,9 +1328,11 @@
     renderPreviewShape(estimate);
     renderRatioControls(estimate, sizingFeedback);
     elements.estimateTotal.textContent =
-      estimate.width > 0 && estimate.height > 0 ? formatMoney(estimate.total) : "$0.00";
+      !estimate.quantityValid ? "—" : estimate.width > 0 && estimate.height > 0 ? formatMoney(estimate.total) : "$0.00";
 
-    if (estimate.width > 0 && estimate.height > 0) {
+    if (!estimate.quantityValid) {
+      elements.estimateRange.textContent = "Enter a whole-number quantity from 1 to 10,000.";
+    } else if (estimate.width > 0 && estimate.height > 0) {
       if (maxSizeFeedback.fits) {
         elements.estimateRange.textContent =
           getPricingSourceMessage(estimate) + " Final invoice is confirmed after studio review.";
@@ -1344,7 +1376,7 @@
 
     elements.summaryContent.innerHTML = "";
     elements.guidanceContent.innerHTML = "";
-    if (!(estimate.width > 0) || !(estimate.height > 0)) {
+    if (!estimate.quantityValid || !(estimate.width > 0) || !(estimate.height > 0)) {
       elements.summaryContent.innerHTML =
         '<p class="summary-empty">The requested size, quantity, material, and file quality will appear here as you fill out the form.</p>';
       return;
@@ -1379,7 +1411,11 @@
     }
 
     if (estimate.discountRate) {
-      summaryItems.push(["Quantity pricing", Math.round(estimate.discountRate * 100) + "% applied"]);
+      summaryItems.push([customerLabel + " savings (" + baseRate + "%)", formatMoney(estimate.pricing.baseSavings)]);
+      if (estimate.pricing.volumeSavings > 0) summaryItems.push(["Additional quantity savings", formatMoney(estimate.pricing.volumeSavings)]);
+      summaryItems.push(["Overall order discount", percent]);
+      summaryItems.push(["Average per print", formatMoney(estimate.total / estimate.quantity)]);
+      if (estimate.pricing.review) summaryItems.push(["Large run", "Studio review requested"]);
     }
 
     if (estimate.canvasOptions.canAddBorder) {
@@ -1394,9 +1430,6 @@
       summaryItems.push(["Project type", projectType]);
     }
 
-    if (!isInvoiceMode() && elements.artistToggle.checked) {
-      summaryItems.push(["Artist pricing", "Please review"]);
-    }
 
     if (isInvoiceMode()) {
       if (elements.clientNameInput.value.trim()) {
@@ -1640,6 +1673,7 @@
     const estimate = calculateEstimate();
     const invoicePricing = getInvoicePricing(estimate);
     const maxSizeFeedback = getMaxSizeFeedback(estimate);
+    if (!estimate.quantityValid) return "Please enter a whole-number quantity from 1 to 10,000.";
     if (!state.file) {
       return "Please upload the artwork before preparing the quote request.";
     }
@@ -1756,16 +1790,19 @@
     }
 
     if (estimate.discountRate) {
-      bodyLines.push("Quantity pricing: " + Math.round(estimate.discountRate * 100) + "% applied");
+      bodyLines.push(({general:"Tool",artist:"Artist",nonprofit:"Nonprofit"}[estimate.customerType] + " savings (" + estimate.pricing.baseRate + "%): ") + formatMoney(estimate.pricing.baseSavings));
+      bodyLines.push("Additional quantity savings: " + formatMoney(estimate.pricing.volumeSavings));
+      bodyLines.push("Overall order discount: " + (estimate.pricing.effectiveRate * 100).toFixed(2) + "%");
+      bodyLines.push("Average per print: " + formatMoney(estimate.total / estimate.quantity));
+      bodyLines.push("The reached quantity tier applies to the whole order, for all sizes and materials. Rates include the starting discount; discounts do not stack. Nonprofit eligibility and large runs require studio review.");
+      bodyLines.push("Excludes shipping, tax, rush service, proofs, editing, and special finishing.");
+      if (estimate.pricing.review) bodyLines.push("Large run: studio review requested; no deeper discount assumed.");
     }
 
     if (!isInvoiceMode() && elements.projectTypeSelect.value) {
       bodyLines.push("Project type: " + elements.projectTypeSelect.value);
     }
 
-    if (!isInvoiceMode() && elements.artistToggle.checked) {
-      bodyLines.push("Artist pricing review requested: Yes");
-    }
 
     if (getActiveNotes()) {
       bodyLines.push("Notes: " + getActiveNotes());
