@@ -196,7 +196,8 @@ h3 {
   min-width: 0;
 }
 
-.stack-block + .stack-block {
+.stack-block + .stack-block,
+.production-timing {
   margin-top: 28px;
   padding-top: 24px;
   border-top: 1px solid var(--line);

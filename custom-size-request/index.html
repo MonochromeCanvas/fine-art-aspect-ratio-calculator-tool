@@ -9,7 +9,7 @@
       content="Upload artwork, enter a custom print size, estimate pricing, and prepare a custom size request for Monochrome Canvas."
     >
     <link rel="icon" type="image/svg+xml" href="../favicon.svg">
-    <link rel="stylesheet" href="./style.css?v=20261002-artist-live">
+    <link rel="stylesheet" href="./style.css?v=20261019-production-timing">
     <link rel="stylesheet" href="../studio-tools.css?v=20260930-logo-right">
 </head>
   <body class="mc-tools">
@@ -97,18 +97,41 @@
                   <input id="quantityInput" type="number" max="10000" min="1" step="1" value="1" inputmode="numeric">
                 </label>
               </div>
+              <div class="stack-block production-timing">
+                <h3>Production timing</h3>
+                <div class="field-grid">
+                  <label class="field field--wide">
+                    <span>Is this a rush order?</span>
+                    <select id="productionTiming" aria-describedby="rushGuidance timingNote">
+                      <option value="standard">Standard production</option>
+                      <option value="rush">Rush order — studio confirmation required</option>
+                      <option value="unsure">Not sure — please review my deadline</option>
+                    </select>
+                  </label>
+                  <label class="field field--wide">
+                    <span>Requested deadline (date and time, if known)</span>
+                    <input id="requestedDeadline" type="text" placeholder="For example: Friday, October 23 by 2 PM">
+                  </label>
+                </div>
+                <div id="rushGuidance" class="field-note">
+                  <p>Rush requests typically include a single print needed within a few hours, or a large order needed in less than 48 hours during the workweek.</p>
+                  <p>Studio hours are Monday–Friday, 9 AM–4 PM Eastern. Weekends and time outside studio hours are not production time. If you order on Friday and need it that day, over the weekend, or early the following week, please check with the studio before assuming standard timing.</p>
+                  <p>Not sure if this is a rush order? <a href="https://monochromecanvas.com/pages/contact" target="_blank" rel="noopener">Reach out to the studio</a> with your quantity and deadline. The studio confirms availability, turnaround, and any rush fees before production.</p>
+                </div>
+                <p id="timingNote" class="field-note" aria-live="polite"></p>
+              </div>
               <section class="bulk-pricing" aria-labelledby="bulkPricingHeading">
                 <p class="bulk-eyebrow">Your print savings</p>
                 <h4 id="bulkPricingHeading">Your project. Your savings.</h4>
                 <fieldset id="customerPricingChoice" class="customer-pricing-choice">
                   <legend>Who is this print project for?</legend>
-                  <label><input type="radio" name="customerPricing" value="general" checked><span><strong>General customer</strong><small>Starts at 5% off</small></span></label>
-                  <label><input type="radio" name="customerPricing" value="artist"><span><strong>Artist</strong><small>Automatic 20% off—even one print</small></span></label>
-                  <label><input type="radio" name="customerPricing" value="nonprofit"><span><strong>Nonprofit</strong><small>Starts at 25% off</small></span></label>
+                  <label><input type="radio" name="customerPricing" value="general" checked><span><strong>General customer</strong><small>Standard orders: starts at 5% off</small></span></label>
+                  <label><input type="radio" name="customerPricing" value="artist"><span><strong>Artist</strong><small>Standard orders: 20% off—even one print</small></span></label>
+                  <label><input type="radio" name="customerPricing" value="nonprofit"><span><strong>Nonprofit</strong><small>Standard orders: starts at 25% off</small></span></label>
                 </fieldset>
                 <p id="bulkEligibility" class="field-note"></p>
                 <div id="bulkRateGrid" class="bulk-rate-grid" aria-label="Discount rates by print quantity"></div>
-                <p class="bulk-explainer">All artists receive 20% off automatically when Artist is selected, even for one print. Quantity savings increase that total discount to 25% at 25 prints and 30% at 50 prints. No coupon is needed.</p>
+                <p id="standardSavingsExplainer" class="bulk-explainer">On standard, non-rush orders, all artists receive 20% off automatically when Artist is selected, even for one print. Quantity savings increase that total discount to 25% at 25 prints and 30% at 50 prints. No coupon is needed.</p>
                 <p class="bulk-explainer"><strong>Discounts do not apply to rush orders.</strong> All customer and quantity discounts require standard, non-rush production.</p>
                 <div class="bulk-result" aria-live="polite" aria-atomic="true">
                   <strong id="bulkEffectiveRate"></strong>
@@ -118,7 +141,7 @@
                 <details class="field-note">
                   <summary>Estimate details</summary>
                   <p>Quantity savings apply per artwork, size, and material. Discounts do not stack. All print sizes and materials qualify, including 16 × 20 and canvas. Nonprofit pricing is subject to confirmation of eligibility. Large runs require studio review.</p>
-                  <p>Discounts do not apply to rush orders. Estimates assume standard, non-rush production and exclude shipping, tax, proofs, editing, and special finishing. The studio confirms final pricing and availability. This tool does not apply a checkout discount.</p>
+                  <p>Discounts do not apply to rush orders. All estimates exclude shipping, tax, rush fees, proofs, editing, and special finishing. Rush requests and uncertain deadlines require studio confirmation. The studio confirms final pricing and availability. This tool does not apply a checkout discount.</p>
                 </details>
               </section>
               <div id="mobilePreviewMount" class="mobile-preview-mount"></div>
@@ -434,7 +457,7 @@
       </div>
     </div>
 
-    <script src="./discount-pricing.js?v=20261002-artist-live"></script>
-    <script src="./script.js?v=20261002-artist-live"></script>
+    <script src="./discount-pricing.js?v=20261019-production-timing"></script>
+    <script src="./script.js?v=20261019-production-timing"></script>
   </body>
 </html>

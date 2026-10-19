@@ -21,3 +21,23 @@ for(const quantity of [0,-1,NaN,Infinity,1.5,10001]) assert.equal(calculate({uni
 assert.equal(calculate({unitPrice:8,quantity:1,customerType:'unknown'}).valid,false);
 assert.equal(calculate({unitPrice:36,quantity:500,customerType:'nonprofit'}).review,true);
 console.log('PASS: all three groups, exact whole-order tiers, 16x20 examples, nonprofit boundaries and cap, invalid quantities, totals through 10,000.');
+
+for (const customerType of ['general', 'artist', 'nonprofit']) {
+ for (const productionTiming of ['rush', 'unsure']) {
+  for (const quantity of [1, 24, 25, 50, 100, 250, 500, 10000]) {
+   const p = calculate({unitPrice: 36, quantity, customerType, productionTiming});
+   assert.equal(p.valid, true);
+   assert.equal(p.total, 36 * quantity);
+   assert.equal(p.savings, 0);
+   assert.equal(p.baseSavings, 0);
+   assert.equal(p.volumeSavings, 0);
+   assert.equal(p.effectiveRate, 0);
+   assert.equal(p.baseRate, 0);
+   assert.equal(p.review, true);
+   assert.equal(p.discountsEligible, false);
+  }
+ }
+ assert.deepEqual(calculate({unitPrice:36, quantity:50, customerType, productionTiming:'standard'}), calculate({unitPrice:36, quantity:50, customerType}));
+}
+assert.equal(calculate({unitPrice:36, quantity:1, productionTiming:'invalid'}).valid, false);
+console.log('PASS: rush and uncertain timing remove all discounts for every customer group; standard pricing is preserved.');

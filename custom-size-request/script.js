@@ -136,6 +136,8 @@
     widthInput: document.getElementById("widthInput"),
     heightInput: document.getElementById("heightInput"),
     quantityInput: document.getElementById("quantityInput"),
+    productionTiming: document.getElementById("productionTiming"),
+    requestedDeadline: document.getElementById("requestedDeadline"),
     ratioToggleCard: document.getElementById("ratioToggleCard"),
     ratioLockToggle: document.getElementById("ratioLockToggle"),
     ratioModeNote: document.getElementById("ratioModeNote"),
@@ -319,6 +321,8 @@
       elements.cropYInput,
       elements.cropZoomInput,
       elements.quantityInput,
+      elements.productionTiming,
+      elements.requestedDeadline,
       elements.projectTypeSelect,
       elements.customerPricingChoice,
       elements.standardNameInput,
@@ -950,7 +954,7 @@
 
     const customerType = isInvoiceMode() ? "artist" : document.querySelector('input[name="customerPricing"]:checked').value;
     const artist = customerType === "artist";
-    const pricing = MonochromePrintDiscounts.calculate({unitPrice:unit, quantity:quantity, customerType:customerType});
+    const pricing = MonochromePrintDiscounts.calculate({unitPrice:unit, quantity:quantity, customerType:customerType, productionTiming:elements.productionTiming.value});
     const subtotal = pricing.valid ? pricing.subtotal : 0;
     const discountRate = pricing.valid ? pricing.effectiveRate : 0;
     const discountAmount = pricing.valid ? pricing.savings : 0;
@@ -966,6 +970,7 @@
       quantityValid: pricing.valid,
       artist: artist,
       customerType: customerType,
+      productionTiming: elements.productionTiming.value,
       pricing: pricing,
       pricingSource: pricingSource,
       unitPrice: unit,
@@ -1293,11 +1298,21 @@
     const customerLabel = {general:"Tool",artist:"Artist",nonprofit:"Nonprofit"}[estimate.customerType];
     const validSavings = estimate.quantityValid && estimate.width > 0 && estimate.height > 0;
     const percent = validSavings ? (estimate.pricing.effectiveRate * 100).toLocaleString("en-US", {maximumFractionDigits: 2}) + "%" : "";
+    const discountsEligible = estimate.productionTiming === "standard";
+    const timingLabel = {standard: "Standard production", rush: "Rush order requested", unsure: "Deadline review requested"}[estimate.productionTiming];
+    const timingNote = discountsEligible
+      ? "Discounts apply to standard production only. Selecting standard production does not confirm your deadline; the studio will confirm turnaround."
+      : estimate.productionTiming === "rush"
+      ? "Rush orders do not qualify for customer or quantity discounts. This estimate shows the print cost before any rush fees. Availability, timing, and final pricing require studio confirmation."
+      : "The studio will review your deadline. This estimate shows the print cost without discounts or rush fees until standard or rush timing is confirmed.";
+    document.getElementById("timingNote").textContent = timingNote;
+    document.getElementById("standardSavingsExplainer").classList.toggle("is-hidden", !discountsEligible);
     const rateGrid = document.getElementById("bulkRateGrid");
+    rateGrid.classList.toggle("is-hidden", !discountsEligible);
     rateGrid.replaceChildren();
     bands.forEach(function (band) {
       const card = document.createElement("div");
-      const active = validSavings && estimate.quantity >= band.from && estimate.quantity <= band.to;
+      const active = estimate.productionTiming === "standard" && validSavings && estimate.quantity >= band.from && estimate.quantity <= band.to;
       card.classList.toggle("is-applied", active);
       const range = document.createElement("span");
       range.textContent = band.from + (band.to === 10000 ? "+" : "–" + band.to) + " prints";
@@ -1308,19 +1323,21 @@
       card.append(range, rate, detail);
       rateGrid.append(card);
     });
-    document.getElementById("bulkEligibility").textContent = "All print sizes and materials qualify, including canvas. Quantity is per artwork, size, and material.";
-    document.getElementById("bulkEffectiveRate").textContent = validSavings
+    document.getElementById("bulkEligibility").textContent = "For standard, non-rush production, all print sizes and materials qualify, including canvas. Quantity is per artwork, size, and material.";
+    document.getElementById("bulkEffectiveRate").textContent = !discountsEligible
+      ? (estimate.productionTiming === "rush" ? "Rush order: discounts do not apply" : "Discounts pending deadline review")
+      : validSavings
       ? percent + " off your whole order" : "Enter a valid size and quantity to see your savings";
-    elements.discountPricingNote.textContent = validSavings
+    elements.discountPricingNote.textContent = !discountsEligible ? timingNote : validSavings
       ? "You save " + formatMoney(estimate.pricing.savings) + " total: " + formatMoney(estimate.pricing.baseSavings) +
         " in automatic " + customerLabel.toLowerCase() + " savings + " + formatMoney(estimate.pricing.volumeSavings) + " in extra quantity savings."
       : "Enter a positive size and a whole-number quantity from 1 to 10,000.";
     const nextBand = bands.find(function (band) { return band.from > estimate.quantity; });
-    document.getElementById("bulkNextTier").textContent = !validSavings ? "" :
+    document.getElementById("bulkNextTier").textContent = !validSavings || !discountsEligible ? "" :
       (nextBand ? "At " + nextBand.from + " prints, your whole-order discount rises to " + nextBand.rate + "%." : "You’ve reached the highest quantity discount for your customer group.") +
       (estimate.pricing.review ? " Large run: studio review required to confirm pricing and production time." : "") +
       (estimate.customerType === "nonprofit" ? " Nonprofit eligibility is confirmed by the studio." : "");
-    document.getElementById("quoteSavings").textContent = validSavings
+    document.getElementById("quoteSavings").textContent = !discountsEligible ? "Print cost before any rush fees · Studio confirmation required" : validSavings
       ? "Saving " + formatMoney(estimate.pricing.savings) + " · " + percent + " overall · " + formatMoney(estimate.total / estimate.quantity) + " per print on average"
       : "";
     elements.quantityInput.setAttribute("aria-invalid", String(!estimate.quantityValid));
@@ -1345,6 +1362,10 @@
       }
     } else {
       elements.estimateRange.textContent = "Enter the size and quantity to see a custom quote estimate.";
+    }
+
+    if (!discountsEligible && estimate.quantityValid && estimate.width > 0 && estimate.height > 0) {
+      elements.estimateRange.textContent += " " + timingNote;
     }
 
     elements.qualityBadge.textContent = feedback.label;
@@ -1406,6 +1427,10 @@
       ]
     ];
 
+    summaryItems.push(["Production timing", timingLabel]);
+    if (elements.requestedDeadline.value.trim()) summaryItems.push(["Requested deadline", elements.requestedDeadline.value.trim()]);
+    if (!discountsEligible) summaryItems.push(["Timing review", timingNote]);
+
     if (primaryContact.name) {
       summaryItems.push([isInvoiceMode() ? "Artist" : "Contact", primaryContact.name]);
     }
@@ -1460,7 +1485,11 @@
     summaryItems.forEach(function (item) {
       const wrap = document.createElement("dl");
       wrap.className = "summary-item";
-      wrap.innerHTML = "<dt>" + item[0] + "</dt><dd>" + item[1] + "</dd>";
+      const label = document.createElement("dt");
+      label.textContent = item[0];
+      const value = document.createElement("dd");
+      value.textContent = item[1];
+      wrap.append(label, value);
       elements.summaryContent.appendChild(wrap);
     });
 
@@ -1771,6 +1800,12 @@
     bodyLines.push("Print quality: " + formatQualityValue(feedback));
     bodyLines.push("Sizing mode: " + getSizingModeLabel(estimate.width, estimate.height));
     bodyLines.push("Quantity: " + estimate.quantity);
+    bodyLines.push("Production timing: " + {standard: "Standard production", rush: "Rush order requested", unsure: "Not sure — please review my deadline"}[estimate.productionTiming]);
+    bodyLines.push("Requested deadline: " + (elements.requestedDeadline.value.trim() || "Not provided"));
+    bodyLines.push("Studio hours: Monday–Friday, 9 AM–4 PM Eastern. Timing and availability require studio confirmation.");
+    if (estimate.productionTiming !== "standard") {
+      bodyLines.push("Print cost shown without discounts and before any rush fees. Studio confirmation of timing and final pricing is required.");
+    }
     bodyLines.push(getUnitLabel(estimate) + ": " + formatMoney(estimate.unitPrice));
     bodyLines.push("Pricing basis: " + getPricingSourceLabel(estimate));
     bodyLines.push((isInvoiceMode() ? "Production cost" : "Quote estimate") + ": " + formatMoney(estimate.total));
