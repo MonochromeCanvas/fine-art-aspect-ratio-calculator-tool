@@ -69,6 +69,10 @@
       body:
         "Use this when you want the full artwork to stay visible inside a ready-made frame size while keeping at least a small white margin on every side."
     },
+    "full-bleed": {
+      title: "Full Bleed, no border",
+      body: "Print your artwork edge to edge with no added white border. If the artwork and print shapes differ, adjust the crop below to choose what stays visible."
+    },
     "even-border": {
       title: "Fit a frame with an even border",
       body:
@@ -312,8 +316,13 @@
   }
 
   function syncModePanels() {
+    const fullBleed = state.mode === "full-bleed";
+    document.getElementById("evenBorderBlock").classList.toggle("is-hidden", fullBleed);
+    document.getElementById("cropSetupCopy").textContent = fullBleed
+      ? "The artwork fills the entire print with no added white border. A different print shape may crop the image; use the preview to check the edges."
+      : "This option keeps the border even on every side. If the opening ratio does not match the artwork, the image will be cropped as gently as possible.";
     elements.modePanels.forEach((panel) => {
-      panel.classList.toggle("is-hidden", panel.dataset.modePanel !== state.mode);
+      panel.classList.toggle("is-hidden", !panel.dataset.modePanel.split(" ").includes(state.mode));
     });
   }
 
@@ -495,10 +504,10 @@
       });
     }
 
-    if (state.mode === "even-border") {
+    if (state.mode === "even-border" || state.mode === "full-bleed") {
       const frameWidth = readPositiveNumber(elements.evenFrameWidth);
       const frameHeight = readPositiveNumber(elements.evenFrameHeight);
-      const border = readBorderNumber(elements.evenBorder);
+      const border = state.mode === "full-bleed" ? 0 : readBorderNumber(elements.evenBorder);
 
       if (!frameWidth || !frameHeight) {
         return { ok: false, error: "Enter the final frame width and height." };
@@ -607,14 +616,14 @@
       cropWidth = sourceHeight * targetRatio;
       axis = "width";
       baseMessage =
-        "To keep the border even, the tool trims about " +
+        (state.mode === "full-bleed" ? "To fill the print edge to edge, the tool trims about " : "To keep the border even, the tool trims about ") +
         roundTo(((sourceWidth - cropWidth) / sourceWidth) * 100, 1) +
         "% of the width in total.";
     } else if (sourceRatio < targetRatio) {
       cropHeight = sourceWidth / targetRatio;
       axis = "height";
       baseMessage =
-        "To keep the border even, the tool trims about " +
+        (state.mode === "full-bleed" ? "To fill the print edge to edge, the tool trims about " : "To keep the border even, the tool trims about ") +
         roundTo(((sourceHeight - cropHeight) / sourceHeight) * 100, 1) +
         "% of the height in total.";
     } else {
@@ -713,7 +722,7 @@
     const showControls =
       output &&
       output.ok &&
-      output.mode === "even-border";
+      (output.mode === "even-border" || output.mode === "full-bleed");
 
     elements.cropAdjustBlock.classList.toggle("is-hidden", !showControls);
     elements.cropHorizontalGroup.classList.add("is-hidden");
@@ -806,7 +815,7 @@
     }
 
     summaryHtml +=
-      createSummaryItem(output.mode === "even-border" ? "Crop note" : "Fit note", output.mode === "even-border" ? cropText : output.fitNote) +
+      createSummaryItem((output.mode === "even-border" || output.mode === "full-bleed") ? "Crop note" : "Fit note", (output.mode === "even-border" || output.mode === "full-bleed") ? cropText : output.fitNote) +
       createSummaryItem("Crop zoom", zoomText) +
       createSummaryItem("Download format", EXPORT_FORMAT_LABEL + " at 300 PPI") +
       createSummaryItem("Effective print quality", output.quality.effectivePpi + " PPI at the image area");
@@ -1066,7 +1075,7 @@
     const base = state.file && state.file.name
       ? state.file.name.replace(/\.[^.]+$/, "")
       : "monochrome-canvas-border-file";
-    return base + "-white-border.jpg";
+    return base + (state.mode === "full-bleed" ? "-full-bleed.jpg" : "-white-border.jpg");
   }
 
   function setActionBusy(button, label) {
@@ -1189,6 +1198,7 @@
   }
 
   function formatBorderSummary(borders, mode) {
+    if (mode === "full-bleed") return "Full Bleed, no border";
     if (mode === "matting" && borders.top === borders.right && borders.top === borders.bottom && borders.top === borders.left) {
       return trimNumber(borders.top) + " in on all sides";
     }
