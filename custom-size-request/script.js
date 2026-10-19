@@ -1804,6 +1804,7 @@
       bodyLines.push("Overall order discount: " + (estimate.pricing.effectiveRate * 100).toFixed(2) + "%");
       bodyLines.push("Average per print: " + formatMoney(estimate.total / estimate.quantity));
       bodyLines.push("The reached quantity tier applies to the whole order, for all sizes and materials. Rates include the starting discount; discounts do not stack. Nonprofit eligibility and large runs require studio review.");
+      bodyLines.push("Discounts do not apply to rush orders. All customer and quantity discounts require standard, non-rush production.");
       bodyLines.push("Excludes shipping, tax, rush service, proofs, editing, and special finishing.");
       if (estimate.pricing.review) bodyLines.push("Large run: studio review requested; no deeper discount assumed.");
     }
