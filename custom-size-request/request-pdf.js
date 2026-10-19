@@ -84,8 +84,8 @@
     text("Studio hours: Monday-Friday, 9 AM-4 PM Eastern. Weekends and time outside studio hours are not production time.", {size: 25, color: MUTED});
     rule();
     label("Combined print estimate", money(data.total));
-    text("Estimates are subject to studio review and exclude shipping, tax, rush fees, proofs, editing, and special finishing. Rush orders receive no discounts. Uncertain deadlines are estimated without discounts until reviewed.", {size: 25, color: MUTED});
-    text("Quantity discounts apply separately per artwork, size, and material. Quantities from different artworks are not combined.", {size: 25, color: MUTED});
+    text("Estimates are subject to studio review and exclude shipping, tax, rush fees, proofs, editing, and special finishing. Rush orders receive no discounts.", {size: 25, color: MUTED});
+    text("Quantity discounts apply to multiple copies of the same artwork, printed at the same size on the same material. Each different artwork requires its own setup, so quantities from different artworks are not added together to reach a discount tier.", {size: 25, color: MUTED});
     rule();
     text("Artwork overview", {size: 30, bold: true});
     data.entries.forEach(item => text(item.number + ". " + item.filename + " · " + item.width + " × " + item.height + " in · Qty " + item.quantity + " · " + money(item.total), {size: 25}));
