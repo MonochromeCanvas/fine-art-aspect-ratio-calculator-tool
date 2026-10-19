@@ -1086,3 +1086,6 @@ button:disabled,
 .request-artwork-remove { padding: 8px; border: 1px solid var(--line); border-radius: 8px; background: white; cursor: pointer; font-size: 13px; }
 .request-combined-total { font-weight: 700; font-size: 20px; overflow-wrap: anywhere; }
 @media (max-width: 420px) { .request-artwork-card { grid-template-columns: 40px minmax(0, 1fr); } .request-artwork-card img { width: 40px; } .request-artwork-remove { grid-column: 2; justify-self: start; } }
+
+.formatting-notice { margin: 20px 0; padding: 18px; border: 1px solid #8f5b2f; border-radius: 14px; background: #faf3e8; }
+.formatting-notice p { margin: 10px 0; }

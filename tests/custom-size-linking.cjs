@@ -15,7 +15,7 @@ const path = require('node:path');
     const height = page.locator('#heightInput');
     assert.equal(await toggle.isChecked(), false);
     assert.equal(await toggle.isDisabled(), true);
-    assert.equal(await page.locator('#cropControls').isVisible(), false);
+    assert.equal(await page.locator('#artworkFormattingNotice').isVisible(), false);
     await width.fill('24');
     assert.equal(await height.inputValue(), '20');
     await height.fill('18');
@@ -43,11 +43,11 @@ const path = require('node:path');
     await toggle.uncheck();
     await height.fill('12');
     assert.equal(await width.inputValue(), '16');
-    assert.equal(await page.locator('#cropControls').isVisible(), true);
+    assert.equal(await page.locator('#artworkFormattingNotice').isVisible(), true);
     await page.locator('#fileInput').setInputFiles([]);
     assert.equal(await toggle.isChecked(), false);
     assert.equal(await toggle.isDisabled(), true);
-    assert.equal(await page.locator('#cropControls').isVisible(), false);
+    assert.equal(await page.locator('#artworkFormattingNotice').isVisible(), false);
     await width.fill('22');
     assert.equal(await height.inputValue(), '12');
     await page.locator('#fileInput').setInputFiles({ name: 'invalid.png', mimeType: 'image/png', buffer: Buffer.from('invalid') });
@@ -65,7 +65,7 @@ const path = require('node:path');
       await page.screenshot({ path: '/tmp/custom-size-linking-' + viewportWidth + '.png' });
     }
     assert.deepEqual(errors, []);
-    console.log('PASS: independent quote dimensions, adjacent toggle, upload linking, custom crop, clear/invalid upload, 300 PPI defaults, desktop/mobile layout.');
+    console.log('PASS: independent quote dimensions, adjacent toggle, upload linking, formatting guidance, clear/invalid upload, 300 PPI defaults, desktop/mobile layout.');
   } finally {
     await browser.close();
   }

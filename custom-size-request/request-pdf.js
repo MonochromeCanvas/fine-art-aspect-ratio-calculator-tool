@@ -68,10 +68,12 @@
     function rule() { ensure(30); ctx.strokeStyle = "#d3ded6"; ctx.beginPath(); ctx.moveTo(MARGIN, y); ctx.lineTo(WIDTH - MARGIN, y); ctx.stroke(); y += 32; }
     function label(name, value) { text(name + ": " + value); }
     function imageInBox(image, crop, x, top, width, height) {
-      ctx.fillStyle = "#f1f3ee"; ctx.fillRect(x, top, width, height);
       const scale = Math.min(width / crop.width, height / crop.height);
       const w = crop.width * scale, h = crop.height * scale;
-      ctx.drawImage(image, crop.x, crop.y, crop.width, crop.height, x + (width - w) / 2, top + (height - h) / 2, w, h);
+      const left = x + (width - w) / 2, upper = top + (height - h) / 2;
+      ctx.fillStyle = "white"; ctx.fillRect(left, upper, w, h);
+      ctx.drawImage(image, crop.x, crop.y, crop.width, crop.height, left, upper, w, h);
+      ctx.strokeStyle = "#d3ded6"; ctx.strokeRect(left, upper, w, h);
     }
     newPage();
     heading("Your print request");
@@ -90,22 +92,20 @@
     if (data.projectType) { rule(); label("Project type", data.projectType); }
     if (data.notes) { rule(); text("Request notes", {size: 30, bold: true}); text(data.notes); }
     rule();
-    text("Attach this PDF AND every original print-quality artwork file to your email to joelle@monochromecanvas.com. This PDF contains reference previews only; it is not a production file or a confirmed order.", {size: 26, bold: true});
+    text("Attach this PDF AND every full-resolution, print-ready artwork file to your email to joelle@monochromecanvas.com. This PDF contains reference previews only; it is not a production file or a confirmed order.", {size: 26, bold: true});
 
     for (const item of data.entries) {
       newPage();
       heading("Artwork " + item.number);
       text(item.filename, {size: 29, bold: true});
       const image = new Image(); image.src = item.url; await image.decode();
-      ensure(420);
+      ensure(500);
       ctx.fillStyle = MUTED; ctx.font = "23px Arial";
-      ctx.fillText("Original artwork", MARGIN, y);
-      ctx.fillText("Requested print crop", 675, y);
+      ctx.fillText("Print preview", MARGIN, y);
       y += 20;
-      imageInBox(image, {x:0, y:0, width:item.pixelWidth, height:item.pixelHeight}, MARGIN, y, 520, 340);
-      imageInBox(image, item.crop || {x:0, y:0, width:item.pixelWidth, height:item.pixelHeight}, 675, y, 520, 340);
-      y += 382;
-      text("Reference previews only. Confirm the final crop with the studio before printing.", {size:23, color:MUTED});
+      imageInBox(image, {x:0, y:0, width:item.pixelWidth, height:item.pixelHeight}, MARGIN, y, WIDTH - MARGIN * 2, 420);
+      y += 462;
+      text("Uploaded print file shown as prepared. Reference preview only; use the full-resolution file for production.", {size:23, color:MUTED});
       rule();
       label("Material", item.material);
       label("Finished print size", item.width + " × " + item.height + " inches");
@@ -114,10 +114,9 @@
       label("Item discount savings", money(item.savings));
       label("Item estimate", money(item.total));
       label("Sizing mode", item.sizingMode);
-      label("Original file", item.pixelWidth + " × " + item.pixelHeight + " pixels");
+      label("Uploaded file", item.pixelWidth + " × " + item.pixelHeight + " pixels");
       label("File quality", item.quality);
       if (item.canvas) label("Canvas stretching edge", item.canvas);
-      if (item.crop) label("Preview crop (original pixels)", "x " + Math.round(item.crop.x) + ", y " + Math.round(item.crop.y) + ", width " + Math.round(item.crop.width) + ", height " + Math.round(item.crop.height));
       label("Production timing", data.timing);
       label("Requested deadline", data.deadline);
     }
