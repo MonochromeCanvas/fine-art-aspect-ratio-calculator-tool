@@ -446,7 +446,12 @@ h3 {
   margin-top: 3px;
 }
 
+.size-link-controls .field-note {
+  margin: 8px 0 0;
+}
+
 .ratio-toggle {
+  width: 100%;
   padding: 14px 16px;
   border: 1px solid var(--line);
   border-radius: 16px;

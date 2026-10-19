@@ -409,6 +409,8 @@
     state.objectUrl = null;
     state.imageWidth = null;
     state.imageHeight = null;
+    state.lockedRatio = null;
+    elements.ratioLockToggle.checked = false;
     elements.previewImage.hidden = true;
     elements.previewImage.removeAttribute("src");
     elements.previewPlaceholder.classList.remove("is-hidden");
@@ -430,6 +432,7 @@
         state.imageWidth = image.naturalWidth;
         state.imageHeight = image.naturalHeight;
         state.lockedRatio = getPreferredArtworkRatio();
+        elements.ratioLockToggle.checked = true;
         elements.cropXInput.value = "50";
         elements.cropYInput.value = "50";
         elements.cropZoomInput.value = "1";
@@ -437,6 +440,7 @@
         elements.previewImage.hidden = false;
         elements.previewPlaceholder.classList.add("is-hidden");
         autoFillDimensionsAt300Ppi();
+        syncLinkedDimension(elements.widthInput);
         resolve();
       };
       image.onerror = function () {
@@ -467,7 +471,7 @@
   }
 
   function isRatioLocked() {
-    return elements.ratioLockToggle.checked;
+    return Boolean(state.imageWidth && state.imageHeight && elements.ratioLockToggle.checked);
   }
 
   function getCurrentSizeRatio() {
@@ -1552,11 +1556,16 @@
     const cropMetrics = cropPreviewActive ? getPreviewCropMetrics(estimate.width, estimate.height) : null;
     const canMoveX = Boolean(cropMetrics && cropMetrics.canMoveX);
     const canMoveY = Boolean(cropMetrics && cropMetrics.canMoveY);
-    const cropControlsVisible = !locked;
+    const hasArtwork = Boolean(state.imageWidth && state.imageHeight);
+    const cropControlsVisible = hasArtwork && !locked;
+
+    elements.ratioLockToggle.disabled = !hasArtwork;
 
     elements.ratioToggleCard.classList.toggle("is-linked", locked);
-    elements.ratioToggleCard.classList.toggle("is-unlinked", !locked);
-    elements.ratioModeNote.textContent = locked
+    elements.ratioToggleCard.classList.toggle("is-unlinked", hasArtwork && !locked);
+    elements.ratioModeNote.textContent = !hasArtwork
+      ? "Enter width and height independently. Linking becomes available when you upload artwork."
+      : locked
       ? "Linked: changing width or height keeps the uploaded artwork proportions."
       : "Unlinked: width and height can differ. If the shape changes, the preview will crop to fill the requested size.";
     elements.cropControls.classList.toggle("is-hidden", !cropControlsVisible);

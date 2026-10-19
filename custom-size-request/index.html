@@ -82,6 +82,16 @@
                   <span>Height (inches)</span>
                   <input id="heightInput" type="number" min="1" step="0.01" value="20" inputmode="decimal">
                 </label>
+                <div class="size-link-controls field--wide">
+                  <label id="ratioToggleCard" class="toggle ratio-toggle">
+                    <input id="ratioLockToggle" type="checkbox" disabled aria-describedby="ratioModeNote">
+                    <span>
+                      <strong>Link width + height</strong>
+                      Keep uploaded artwork proportions when resizing. Unlink to choose a custom crop size.
+                    </span>
+                  </label>
+                  <p id="ratioModeNote" class="field-note">Enter width and height independently. Linking becomes available when you upload artwork.</p>
+                </div>
                 <label class="field">
                   <span>Quantity (same artwork, size, and material)</span>
                   <input id="quantityInput" type="number" max="10000" min="1" step="1" value="1" inputmode="numeric">
@@ -110,14 +120,6 @@
                   <p>Estimates assume standard, non-rush production and exclude shipping, tax, proofs, editing, and special finishing. The studio confirms final pricing and availability. This tool does not apply a checkout discount.</p>
                 </details>
               </section>
-              <label id="ratioToggleCard" class="toggle toggle--block ratio-toggle">
-                <input id="ratioLockToggle" type="checkbox" checked>
-                <span>
-                  <strong>Link width + height</strong>
-                  Keep the uploaded artwork proportions when resizing. Unlink to enter a custom crop size.
-                </span>
-              </label>
-              <p id="ratioModeNote" class="field-note"></p>
               <div id="mobilePreviewMount" class="mobile-preview-mount"></div>
               <div id="cropControls" class="crop-controls is-hidden">
                 <p id="cropControlsNote" class="field-note">
