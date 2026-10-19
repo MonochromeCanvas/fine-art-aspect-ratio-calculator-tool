@@ -780,7 +780,8 @@ h3 {
 
 .summary-item {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 0.38fr) minmax(0, 0.62fr);
+  align-items: start;
   gap: 14px;
   padding-bottom: 10px;
   border-bottom: 1px solid var(--line);
@@ -790,6 +791,9 @@ h3 {
 .summary-item dt,
 .summary-item dd {
   margin: 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  line-height: 1.5;
 }
 
 .summary-item dt {
@@ -1087,5 +1091,23 @@ button:disabled,
 .request-combined-total { font-weight: 700; font-size: 20px; overflow-wrap: anywhere; }
 @media (max-width: 420px) { .request-artwork-card { grid-template-columns: 40px minmax(0, 1fr); } .request-artwork-card img { width: 40px; } .request-artwork-remove { grid-column: 2; justify-self: start; } }
 
-.formatting-notice { margin: 20px 0; padding: 18px; border: 1px solid #8f5b2f; border-radius: 14px; background: #faf3e8; }
+.formatting-notice { margin: 20px 0; padding: 20px; border: 2px solid #b42318; border-left-width: 7px; border-radius: 14px; background: #fff0ee; color: #7a1b14; }
+.formatting-notice strong { display: block; color: #9c2016; font-size: 19px; }
+.formatting-notice a { color: #9c2016; font-weight: 700; text-decoration: underline; }
 .formatting-notice p { margin: 10px 0; }
+
+.summary-item--long { grid-template-columns: minmax(0, 1fr); gap: 6px; }
+.summary-item--long dd { text-align: left; }
+.pdf-review-card { width: min(980px, 100%); }
+.pdf-delivery-instructions { line-height: 1.6; overflow-wrap: anywhere; }
+.pdf-preview-pages { display: grid; gap: 20px; padding: 16px; background: #e4e8e3; border-radius: 12px; }
+.pdf-preview-pages:empty { display: none; }
+.pdf-preview-pages img { display: block; width: 100%; height: auto; background: white; box-shadow: 0 3px 12px #21333720; }
+.pdf-review-actions { position: sticky; bottom: -24px; display: flex; justify-content: space-between; gap: 12px; padding: 18px 0; background: #fffdf9; border-top: 1px solid var(--line); margin-top: 20px; }
+@media (max-width: 600px) {
+  .dialog-backdrop { padding: 10px; }
+  .pdf-review-card { padding: 16px; max-height: calc(100dvh - 20px); border-radius: 18px; }
+  .pdf-preview-pages { padding: 5px; gap: 12px; }
+  .pdf-review-actions { bottom: -16px; flex-direction: column; }
+  .pdf-review-actions button { width: 100%; }
+}

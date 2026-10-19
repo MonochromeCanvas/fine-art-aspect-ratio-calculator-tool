@@ -44,6 +44,13 @@ const path = require('node:path');
     await height.fill('12');
     assert.equal(await width.inputValue(), '16');
     assert.equal(await page.locator('#artworkFormattingNotice').isVisible(), true);
+    for (const viewportWidth of [1280,390]) {
+      await page.setViewportSize({width:viewportWidth,height:900});
+      await page.locator('#artworkFormattingNotice').scrollIntoViewIfNeeded();
+      assert.equal(await page.locator('#artworkFormattingNotice').evaluate(e=>getComputedStyle(e).borderLeftColor),'rgb(180, 35, 24)');
+      await page.screenshot({path:'/tmp/formatting-warning-'+viewportWidth+'.png'});
+    }
+
     await page.locator('#fileInput').setInputFiles([]);
     assert.equal(await toggle.isChecked(), false);
     assert.equal(await toggle.isDisabled(), true);

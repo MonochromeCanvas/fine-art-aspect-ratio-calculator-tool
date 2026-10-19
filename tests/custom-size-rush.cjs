@@ -8,6 +8,7 @@ const path = require('node:path');
   const page = await browser.newPage({viewport:{width:1280,height:1000}});
   const errors=[]; page.on('pageerror',e=>errors.push(e.message));
   await page.goto(process.env.QUOTE_URL || pathToFileURL(path.join(__dirname,'../custom-size-request/index.html')).href);
+  await page.evaluate(()=>{const create=MonochromeRequestPdf.create; MonochromeRequestPdf.create=async(data,options)=>{window.reviewedData=data;return create(data,options)};});
   const timing=page.locator('#productionTiming');
   const total=async()=>Number((await page.locator('#estimateTotal').innerText()).replace(/[^\d.]/g,''));
   assert.equal(await timing.inputValue(),'standard');
@@ -49,24 +50,27 @@ const path = require('node:path');
   assert.equal(await page.locator('#summaryContent b').count(),0);
   for (const mode of ['rush','unsure','standard']) {
    await timing.selectOption(mode);
-   await page.locator('#prepareButton').click();
-   const body=await page.locator('#emailBody').innerText();
-   assert.ok(body.includes('Requested deadline: '+deadline));
-   assert.ok(body.includes('Studio hours: Monday–Friday, 9 AM–4 PM Eastern.'));
-   if(mode!=='standard') {
-    assert.ok(body.includes('Print cost shown without discounts and before any rush fees.'));
-    assert.doesNotMatch(body,/Overall order discount:/);
-   } else assert.match(body,/Overall order discount:/);
-   await page.locator('#closeDialogButton').click();
+   await page.locator('#previewRequestPdfButton').click();
+   await page.waitForFunction(()=>!document.querySelector('#downloadReviewedPdfButton').disabled);
+   assert.equal(await page.evaluate(()=>window.reviewedData.deadline),deadline);
+   assert.equal(await page.locator('#pdfPreviewPages img').count(),2);
+   if(mode!=='standard') assert.equal(await page.evaluate(()=>window.reviewedData.entries[0].savings),0);
+   else assert.ok(await page.evaluate(()=>window.reviewedData.entries[0].savings)>0);
+   await page.locator('#editRequestButton').click();
   }
   await timing.selectOption('rush');
-  for (const width of [1280,390,320]) {
+  for (const width of [1440,1280,900,760,390,320]) {
    await page.setViewportSize({width,height:1000});
-   await timing.scrollIntoViewIfNeeded();
+   const review=page.locator('.summary-item').filter({has:page.locator('dt', {hasText:'Timing review'})});
+   await review.scrollIntoViewIfNeeded();
+   assert.equal(await review.evaluate(e=>{
+    const label=e.querySelector('dt').getBoundingClientRect(), value=e.querySelector('dd').getBoundingClientRect();
+    return value.top>=label.bottom-1 && e.scrollWidth<=e.clientWidth+1;
+   }),true);
    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
    await page.screenshot({path:'/tmp/custom-size-rush-'+width+'.png'});
   }
   assert.deepEqual(errors,[]);
-  console.log('PASS: all groups and tiers lose discounts for rush/uncertain timing, standard restoration, invalid quantity, safe deadline summary, email timing/deadline, desktop/mobile.');
+  console.log('PASS: all groups and tiers lose discounts for rush/uncertain timing, standard restoration, invalid quantity, safe deadline summary, PDF timing/deadline, desktop/mobile.');
  } finally {await browser.close();}
 })().catch(e=>{console.error(e);process.exit(1)});

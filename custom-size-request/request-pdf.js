@@ -8,7 +8,7 @@
   const INK = "#213337", GREEN = "#325547", MUTED = "#526460";
   const money = value => new Intl.NumberFormat("en-US", {style: "currency", currency: "USD"}).format(value);
 
-  async function create(data) {
+  async function create(data, options = {}) {
     const images = [];
     let canvas, ctx, y;
     function finishPage() {
@@ -121,7 +121,8 @@
       label("Requested deadline", data.deadline);
     }
     finishPage();
-    return encodePdf(images);
+    const blob = encodePdf(images);
+    return options.preview ? {blob: blob, pages: images.map(function (bytes) { return new Blob([bytes], {type: "image/jpeg"}); })} : blob;
   }
 
   // A small PDF 1.4 container for the reference pages. Stream lengths and xref

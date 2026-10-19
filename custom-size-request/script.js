@@ -172,17 +172,7 @@
     prepFlowNote: document.getElementById("prepFlowNote"),
     prepareSupportCopy: document.getElementById("prepareSupportCopy"),
     prepareFieldNote: document.getElementById("prepareFieldNote"),
-    prepareButton: document.getElementById("prepareButton"),
-    formMessage: document.getElementById("formMessage"),
-    emailDialog: document.getElementById("emailDialog"),
-    dialogLabel: document.getElementById("dialogLabel"),
-    dialogTitle: document.getElementById("dialogTitle"),
-    dialogSupportCopy: document.getElementById("dialogSupportCopy"),
-    emailSubject: document.getElementById("emailSubject"),
-    emailBody: document.getElementById("emailBody"),
-    emailLink: document.getElementById("emailLink"),
-    copyButton: document.getElementById("copyButton"),
-    closeDialogButton: document.getElementById("closeDialogButton")
+    formMessage: document.getElementById("formMessage")
   };
 
   // Artwork-specific values are saved per entry. Contact, customer group, and timing are shared.
@@ -332,26 +322,82 @@
     };
   }
 
-  async function downloadRequestPdf() {
+  const pdfReview = {blob: null, urls: [], trigger: null, token: 0};
+
+  function clearPdfReview() {
+    pdfReview.urls.forEach(function (url) { URL.revokeObjectURL(url); });
+    pdfReview.urls = []; pdfReview.blob = null;
+    document.getElementById("pdfPreviewPages").replaceChildren();
+  }
+
+  function closePdfPreview() {
+    pdfReview.token++;
+    document.getElementById("pdfPreviewDialog").classList.add("is-hidden");
+    document.querySelector(".app-shell").inert = false;
+    document.body.style.overflow = "";
+    clearPdfReview();
+    if (pdfReview.trigger) pdfReview.trigger.focus({preventScroll: true});
+  }
+
+  async function openPdfPreview() {
     const error = validateRequest();
     if (error) { showMessage(error, true); return; }
     const entries = getRequestEntries();
     const mismatched = entries.findIndex(function (entry) { return entry.snapshot.fit.needsPrep; });
     if (mismatched >= 0) {
       selectArtwork(entries[mismatched].id);
-      showMessage("Artwork " + (mismatched + 1) + ": Format the file in White Border Builder for the requested size, then replace it here before downloading the request PDF. Your quote estimate is still available.", true);
+      showMessage("Artwork " + (mismatched + 1) + ": Format the file in White Border Builder for the requested size, then replace it here before previewing the request PDF. Your quote estimate is still available.", true);
       document.getElementById("artworkFormattingNotice").scrollIntoView({block: "center", behavior: "smooth"});
       return;
     }
-    const button = document.getElementById("downloadRequestPdfButton");
-    button.disabled = true;
-    document.getElementById("dialogDownloadPdfButton").disabled = true;
+    clearPdfReview();
+    const token = ++pdfReview.token;
+    pdfReview.trigger = document.activeElement;
+    const dialog = document.getElementById("pdfPreviewDialog");
+    const status = document.getElementById("pdfPreviewStatus");
+    const download = document.getElementById("downloadReviewedPdfButton");
+    download.disabled = true;
+    status.textContent = "Preparing your PDF preview…";
+    dialog.classList.remove("is-hidden");
+    document.querySelector(".app-shell").inert = true;
+    document.body.style.overflow = "hidden";
+    document.getElementById("editRequestButton").focus();
+    showMessage("", false);
     try {
-      const blob = await MonochromeRequestPdf.create(requestDocumentData());
-      triggerBlobDownload(blob, "monochrome-canvas-print-request.pdf");
-      showMessage("Request PDF downloaded. Attach it and the print-ready artwork files to your email. PDF previews are for reference, not production files.", false);
-    } catch (error) { showMessage("The request PDF could not be created. Please try again, or use Copy Summary and attach the original files.", true); }
-    finally { button.disabled = false; document.getElementById("dialogDownloadPdfButton").disabled = false; }
+      const data = requestDocumentData();
+      const result = await MonochromeRequestPdf.create(data, {preview: true});
+      if (token !== pdfReview.token) return;
+      pdfReview.blob = result.blob;
+      const pages = document.getElementById("pdfPreviewPages");
+      result.pages.forEach(function (page, index) {
+        const url = URL.createObjectURL(page); pdfReview.urls.push(url);
+        const image = document.createElement("img"); image.src = url;
+        image.alt = "Request PDF preview, page " + (index + 1) + " of " + result.pages.length;
+        image.width = 1275; image.height = 1650;
+        pages.append(image);
+      });
+      status.textContent = result.pages.length + " pages · " + data.entries.length + (data.entries.length === 1 ? " artwork" : " artworks") + " · Combined estimate: " + formatMoney(data.total);
+      download.disabled = false;
+    } catch (error) {
+      if (token !== pdfReview.token) return;
+      status.textContent = "The PDF preview could not be created. Choose Edit request, check your artwork files, and try again.";
+    }
+  }
+
+  function downloadReviewedPdf() {
+    if (!pdfReview.blob) return;
+    triggerBlobDownload(pdfReview.blob, "monochrome-canvas-print-request.pdf");
+    document.getElementById("pdfPreviewStatus").textContent = "PDF downloaded. Email it and your full-resolution, print-ready artwork files to joelle@monochromecanvas.com. Your request has not been sent automatically.";
+  }
+
+  function handlePdfPreviewKeydown(event) {
+    if (document.getElementById("pdfPreviewDialog").classList.contains("is-hidden")) return;
+    if (event.key === "Escape") { event.preventDefault(); closePdfPreview(); return; }
+    if (event.key !== "Tab") return;
+    const controls = Array.from(document.getElementById("pdfPreviewDialog").querySelectorAll("button:not(:disabled), a[href]"));
+    const first = controls[0], last = controls[controls.length - 1];
+    if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+    else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
   }
 
   init();
@@ -455,8 +501,13 @@
   function bindEvents() {
     document.getElementById("formatArtworkLink").addEventListener("click", handOffToWhiteBorderBuilder);
     document.getElementById("addArtworkButton").addEventListener("click", addArtwork);
-    document.getElementById("downloadRequestPdfButton").addEventListener("click", downloadRequestPdf);
-    document.getElementById("dialogDownloadPdfButton").addEventListener("click", downloadRequestPdf);
+    document.getElementById("previewRequestPdfButton").addEventListener("click", openPdfPreview);
+    document.getElementById("editRequestButton").addEventListener("click", closePdfPreview);
+    document.getElementById("downloadReviewedPdfButton").addEventListener("click", downloadReviewedPdf);
+    document.getElementById("pdfPreviewDialog").addEventListener("click", function (event) {
+      if (event.target === event.currentTarget) closePdfPreview();
+    });
+    document.addEventListener("keydown", handlePdfPreviewKeydown);
     elements.fileInput.addEventListener("change", handleFileChange);
     elements.standardOrderModeButton.addEventListener("click", function () {
       setOrderMode("standard");
@@ -504,15 +555,7 @@
       render();
     });
 
-    elements.prepareButton.addEventListener("click", handlePrepare);
-    elements.closeDialogButton.addEventListener("click", closeDialog);
-    elements.emailDialog.addEventListener("click", function (event) {
-      if (event.target === elements.emailDialog) {
-        closeDialog();
-      }
-    });
-    elements.emailLink.addEventListener("click", handleEmailLinkClick);
-    elements.copyButton.addEventListener("click", copySummary);
+
   }
 
   function markSizeFieldsEdited() {
@@ -1252,18 +1295,8 @@
     elements.invoiceClientPanel.classList.toggle("is-hidden", !invoiceMode);
 
     elements.estimateLabel.textContent = invoiceMode ? "Production cost" : "This artwork estimate";
-    elements.prepareButton.textContent = invoiceMode ? "Create Invoice Request" : "Create Email Request";
-    elements.prepareSupportCopy.textContent = invoiceMode
-      ? "We will open an email draft addressed to joelle@monochromecanvas.com with your artist, client, and invoice details filled in."
-      : "We will open an email draft addressed to joelle@monochromecanvas.com with your quote details filled in.";
-    elements.prepareFieldNote.textContent = invoiceMode
-      ? "Attach the artwork file before sending so the studio can review it. If approved, Monochrome Canvas can invoice your client using the details below."
-      : "Download the request PDF, then attach it and every print-ready artwork file to your email. Attachments must be added in your email app. If it does not open, copy the summary and use the contact page as a backup.";
-    elements.dialogLabel.textContent = invoiceMode ? "Invoice Request Ready" : "Quote Request Ready";
-    elements.dialogTitle.textContent = invoiceMode ? "Your invoice request email is ready." : "Your studio email is ready.";
-    elements.dialogSupportCopy.textContent = invoiceMode
-      ? "Review the request below, then open your email draft and attach the artwork file before sending. This draft is addressed to joelle@monochromecanvas.com so the studio can invoice your client after review."
-      : "Review the request below, download the request PDF, then open your email draft and attach the PDF and print-ready artwork files before sending to joelle@monochromecanvas.com.";
+    elements.prepareSupportCopy.textContent = "Review your request PDF before downloading it. You can return to edit any details, then create an updated preview.";
+    elements.prepareFieldNote.textContent = "After downloading, email the PDF request and your full-resolution, print-ready artwork files to joelle@monochromecanvas.com. Downloading does not send your request to the studio.";
 
     elements.productionCostValue.textContent = formatMoney(invoicePricing.productionCost);
     elements.recommendedRetailValue.textContent = formatMoney(invoicePricing.recommendedRetail);
@@ -1315,7 +1348,7 @@
       card.append(range, rate, detail);
       rateGrid.append(card);
     });
-    document.getElementById("bulkEligibility").textContent = "For standard, non-rush production, all print sizes and materials qualify, including canvas. Quantity is per artwork, size, and material.";
+    document.getElementById("bulkEligibility").textContent = "Discounts are available on all print sizes and materials for standard, non-rush orders. Quantity is per artwork, size, and material.";
     document.getElementById("bulkEffectiveRate").textContent = !discountsEligible
       ? (estimate.productionTiming === "rush" ? "Rush order: discounts do not apply" : "Discounts pending deadline review")
       : validSavings
@@ -1470,6 +1503,7 @@
     summaryItems.forEach(function (item) {
       const wrap = document.createElement("dl");
       wrap.className = "summary-item";
+      if (String(item[1]).length > 100) wrap.classList.add("summary-item--long");
       const label = document.createElement("dt");
       label.textContent = item[0];
       const value = document.createElement("dd");
@@ -1655,194 +1689,6 @@
       return "Please enter your name and email so the studio knows where to reply.";
     }
     return "";
-  }
-
-  function buildMultipleArtworkEmail() {
-    const data = requestDocumentData();
-    const subject = "Custom size quote request | " + data.entries.length + " artworks | " + formatMoney(data.total);
-    const lines = ["Hi Joëlle,", "", "I would like a quote for the artworks listed below.",
-      "Customer name: " + data.contact.name, "Customer email: " + data.contact.email,
-      "Customer pricing: " + data.customerType, "Production timing: " + data.timing,
-      "Requested deadline: " + data.deadline, "Studio hours: Monday-Friday, 9 AM-4 PM Eastern.",
-      "Combined print estimate: " + formatMoney(data.total),
-      "Estimates exclude shipping, tax, rush fees, proofs, editing, and special finishing. Studio confirmation is required.",
-      "Discounts are calculated separately per artwork, size, and material. Rush orders do not qualify; uncertain deadlines are estimated without discounts until reviewed.", ""];
-    data.entries.forEach(function (item) {
-      lines.push("ARTWORK " + item.number + ": " + item.filename,
-        "Material: " + item.material, "Requested size: " + formatDimensions(item.width, item.height),
-        "Quantity: " + item.quantity, "Base unit price: " + formatMoney(item.unitPrice),
-        "Item savings: " + formatMoney(item.savings), "Item estimate: " + formatMoney(item.total),
-        "Sizing mode: " + item.sizingMode, "File quality: " + item.quality,
-        "Original pixels: " + item.pixelWidth + " x " + item.pixelHeight);
-      if (item.needsPrep) lines.push("Formatting needed: prepare this file for the requested size in White Border Builder. Quote estimate only until formatting is confirmed.");
-      if (item.canvas) lines.push("Canvas edge: " + item.canvas);
-      lines.push("");
-    });
-    if (data.projectType) lines.push("Project type: " + data.projectType);
-    if (data.notes) lines.push("Notes: " + data.notes);
-    lines.push("", "I will attach the print-quality artwork files and the request PDF once every file matches its requested size.",
-      "PDF previews show the uploaded print files. Please confirm formatting, pricing, and the production schedule before printing.", "", "Thank you,", data.contact.name);
-    return {subject: subject, body: lines.join("\n"), href: "mailto:" + encodeURIComponent(STUDIO_EMAIL) + "?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(lines.join("\n"))};
-  }
-
-  function buildEmailDraft() {
-    saveCurrentArtwork();
-    if (requestArtworks.entries.length > 1) return buildMultipleArtworkEmail();
-    const estimate = calculateEstimate();
-    const invoicePricing = getInvoicePricing(estimate);
-    const feedback = getResolutionFeedback(estimate.width, estimate.height);
-    const sizingFeedback = getSizingFeedback(estimate.width, estimate.height);
-    const primaryContact = getPrimaryContact();
-    const subjectPrefix = isInvoiceMode() ? "Invoice my client" : "Custom size quote request";
-    const subject =
-      subjectPrefix +
-      " | " +
-      estimate.material.label +
-      " | " +
-      formatDimensions(estimate.width, estimate.height) +
-      " | Qty " +
-      estimate.quantity;
-    const bodyLines = [
-      "Hi Joëlle,",
-      "",
-      "I will attach the print-quality artwork file and the request PDF once the file matches the requested print size.",
-      "PDF previews are for reference only; please use the original file for production.",
-      ""
-    ];
-
-    if (isInvoiceMode()) {
-      bodyLines.push("I would like Monochrome Canvas to invoice my client for the request below.");
-      bodyLines.push("");
-      bodyLines.push("Artist name: " + primaryContact.name);
-      bodyLines.push("Artist email: " + primaryContact.email);
-      bodyLines.push("Client name: " + elements.clientNameInput.value.trim());
-      bodyLines.push("Client email: " + elements.clientEmailInput.value.trim());
-      bodyLines.push(
-        "Payout method: " + elements.payoutMethodSelect.value + " (" + elements.payoutHandleInput.value.trim() + ")"
-      );
-    } else {
-      bodyLines.push("I would like a custom size quote from Monochrome Canvas for the request below.");
-      bodyLines.push("");
-      bodyLines.push("Customer name: " + primaryContact.name);
-      bodyLines.push("Customer email: " + primaryContact.email);
-    }
-
-    bodyLines.push("Artwork file: " + (state.file ? state.file.name + " (attach original before sending)" : "Will attach before sending"));
-    bodyLines.push("Material: " + estimate.material.label);
-    bodyLines.push("Requested size: " + formatDimensions(estimate.width, estimate.height));
-    bodyLines.push("Print quality: " + formatQualityValue(feedback));
-    bodyLines.push("Sizing mode: " + getSizingModeLabel(estimate.width, estimate.height));
-    bodyLines.push("Quantity: " + estimate.quantity);
-    bodyLines.push("Production timing: " + {standard: "Standard production", rush: "Rush order requested", unsure: "Not sure — please review my deadline"}[estimate.productionTiming]);
-    bodyLines.push("Requested deadline: " + (elements.requestedDeadline.value.trim() || "Not provided"));
-    bodyLines.push("Studio hours: Monday–Friday, 9 AM–4 PM Eastern. Timing and availability require studio confirmation.");
-    if (estimate.productionTiming !== "standard") {
-      bodyLines.push("Print cost shown without discounts and before any rush fees. Studio confirmation of timing and final pricing is required.");
-    }
-    bodyLines.push(getUnitLabel(estimate) + ": " + formatMoney(estimate.unitPrice));
-    bodyLines.push("Pricing basis: " + getPricingSourceLabel(estimate));
-    bodyLines.push((isInvoiceMode() ? "Production cost" : "Quote estimate") + ": " + formatMoney(estimate.total));
-
-    if (isInvoiceMode()) {
-      bodyLines.push("Recommended starting retail: " + formatMoney(invoicePricing.recommendedRetail));
-      bodyLines.push("Client invoice amount: " + formatMoney(invoicePricing.clientInvoiceAmount));
-      bodyLines.push("Estimated artist payout: " + formatMoney(invoicePricing.artistPayout));
-    }
-
-    bodyLines.push(
-      "Artwork fit: " +
-        (sizingFeedback.cropPreview
-          ? "Crop preview active."
-          : sizingFeedback.needsPrep
-          ? "Sizing prep recommended in the White Border Builder before printing."
-          : sizingFeedback.message || "Not checked")
-    );
-
-
-    if (estimate.canvasOptions.canAddBorder) {
-      bodyLines.push("Canvas stretching border: " + formatEdgeStyle(estimate.canvasOptions));
-    }
-
-    if (estimate.discountRate) {
-      bodyLines.push(({general:"Tool",artist:"Artist",nonprofit:"Nonprofit"}[estimate.customerType] + " savings (" + estimate.pricing.baseRate + "%): ") + formatMoney(estimate.pricing.baseSavings));
-      bodyLines.push("Additional quantity savings: " + formatMoney(estimate.pricing.volumeSavings));
-      bodyLines.push("Overall order discount: " + (estimate.pricing.effectiveRate * 100).toFixed(2) + "%");
-      bodyLines.push("Average per print: " + formatMoney(estimate.total / estimate.quantity));
-      bodyLines.push("The reached quantity tier applies to the whole order, for all sizes and materials. Rates include the starting discount; discounts do not stack. Nonprofit eligibility and large runs require studio review.");
-      bodyLines.push("Discounts do not apply to rush orders. All customer and quantity discounts require standard, non-rush production.");
-      bodyLines.push("Excludes shipping, tax, rush service, proofs, editing, and special finishing.");
-      if (estimate.pricing.review) bodyLines.push("Large run: studio review requested; no deeper discount assumed.");
-    }
-
-    if (!isInvoiceMode() && elements.projectTypeSelect.value) {
-      bodyLines.push("Project type: " + elements.projectTypeSelect.value);
-    }
-
-
-    if (getActiveNotes()) {
-      bodyLines.push("Notes: " + getActiveNotes());
-    }
-
-    bodyLines.push("");
-    if (isInvoiceMode()) {
-      bodyLines.push("If the file is approved for printing, please send the invoice to the client email listed above.");
-      bodyLines.push(
-        "Please send the artist payout through " +
-          elements.payoutMethodSelect.value +
-          " using " +
-          elements.payoutHandleInput.value.trim() +
-          " after payment is received."
-      );
-    } else {
-      bodyLines.push("Please reply to the customer email listed above if the file is approved for printing.");
-    }
-    bodyLines.push("");
-    bodyLines.push("Thank you,");
-    bodyLines.push(primaryContact.name);
-
-    return {
-      subject: subject,
-      body: bodyLines.join("\n"),
-      href:
-        "mailto:" +
-        encodeURIComponent(STUDIO_EMAIL) +
-        "?subject=" +
-        encodeURIComponent(subject) +
-        "&body=" +
-        encodeURIComponent(bodyLines.join("\n"))
-    };
-  }
-
-  function handlePrepare() {
-    const error = validateRequest();
-    if (error) {
-      showMessage(error, true);
-      return;
-    }
-
-    const draft = buildEmailDraft();
-    showMessage("", false);
-    elements.emailSubject.textContent = draft.subject;
-    elements.emailBody.textContent = draft.body;
-    elements.emailLink.href = draft.href;
-    elements.emailDialog.classList.remove("is-hidden");
-  }
-
-  function copySummary() {
-    const draft = buildEmailDraft();
-    if (!navigator.clipboard || !navigator.clipboard.writeText) {
-      showMessage("Copy is not available in this browser. You can still use the email draft button.", true);
-      return;
-    }
-
-    navigator.clipboard.writeText("Subject: " + draft.subject + "\n\n" + draft.body).then(
-      function () {
-        showMessage("Quote request summary copied.", false);
-      },
-      function () {
-        showMessage("Copy did not go through. You can still use the email draft button.", true);
-      }
-    );
   }
 
   function showMessage(message, isError) {
@@ -2132,10 +1978,6 @@
     if (typeof builderWindow.focus === "function") builderWindow.focus();
   }
 
-  function closeDialog() {
-    elements.emailDialog.classList.add("is-hidden");
-  }
-
   function triggerBlobDownload(blob, filename) {
     const downloadUrl = URL.createObjectURL(blob);
     const link = document.createElement("a");
@@ -2147,15 +1989,6 @@
     window.setTimeout(function () {
       URL.revokeObjectURL(downloadUrl);
     }, 1000);
-  }
-
-  function handleEmailLinkClick() {
-    window.setTimeout(function () {
-      showMessage(
-        "If your desktop email app does not open, copy the summary and paste it into your preferred email app.",
-        false
-      );
-    }, 250);
   }
 
   function setupResponsivePreview() {
