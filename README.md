@@ -19,6 +19,14 @@ The helper does not upload, edit or resample artwork. The 100 MB file limit prot
 
 Coverage includes file formats, portrait/landscape/square/uncommon/tiny dimensions, 300 PPI boundaries, crop versus border math, invalid files, replacement/reset, exact frame matches, proportional resizing, order links, mobile overflow and JavaScript errors.
 
+## Custom Size Request
+
+Clients can add up to 30 artwork entries to one request. Each entry keeps its own file, material, dimensions, quantity, crop, and canvas options. Contact details, customer pricing, production timing, and deadline apply to the entire request. Quantity discounts are calculated separately per entry; rush and uncertain-timing requests are estimated without discounts.
+
+The request PDF includes contact and timing details, a combined estimate, itemized specifications, and original/cropped reference previews for each artwork. PDF generation happens locally in the browser. Clients attach the PDF and their original print-quality files manually in their email app. Work is held in this tab only and is cleared on reload.
+
+Additional browser checks: `node tests/custom-size-multiple.cjs`, `node tests/custom-size-rush.cjs`, and `node tests/custom-size-linking.cjs`. These use the same `CHROME_PATH` setting as the other browser checks. `QUOTE_URL` can target the published tool for the multiple-artwork and rush checks. `node tests/custom-size-discounts.test.cjs` verifies the discount calculations.
+
 ## Publishing
 
 The existing GitHub Pages deployment serves the root of `main`. Keep the HTML, script and stylesheet in the same release. The parent-page `getHeight` / `monochrome-canvas-calculator-height` message contract is preserved for Shopify embeds.

@@ -9,7 +9,7 @@
       content="Upload artwork, enter a custom print size, estimate pricing, and prepare a custom size request for Monochrome Canvas."
     >
     <link rel="icon" type="image/svg+xml" href="../favicon.svg">
-    <link rel="stylesheet" href="./style.css?v=20261019-production-timing">
+    <link rel="stylesheet" href="./style.css?v=20261019-multiple-artworks">
     <link rel="stylesheet" href="../studio-tools.css?v=20260930-logo-right">
 </head>
   <body class="mc-tools">
@@ -53,6 +53,14 @@
 
         <div class="workspace-grid">
           <section class="controls-pane" aria-label="Custom quote request form">
+            <section class="request-artworks stack-block" aria-labelledby="requestArtworksHeading">
+              <h3 id="requestArtworksHeading">Artworks in your request</h3>
+              <p class="field-note">Add each artwork separately, with its own size, material, and quantity. Select an entry below to edit it. Quantity discounts are calculated per entry; quantities from different artworks are not combined.</p>
+              <div id="requestArtworkList" class="request-artwork-list"></div>
+              <button id="addArtworkButton" class="swap-button" type="button">+ Add another artwork</button>
+              <p id="requestCombinedTotal" class="request-combined-total" aria-live="polite"></p>
+              <p class="field-note">Your artworks stay in this tab. Download the request PDF before closing or refreshing the page.</p>
+            </section>
             <div class="stack-block">
               <h3>1. Upload artwork</h3>
               <label class="upload-drop" for="fileInput">
@@ -353,12 +361,15 @@
                 We will open an email draft addressed to joelle@monochromecanvas.com with your quote details filled in.
               </p>
               <p id="prepareFieldNote" class="field-note">
-                Attach the artwork file before sending so the studio can review it. If your email app does not open, copy the summary and use the contact page as a backup.
+                Download the request PDF and attach it along with the original artwork files before sending so the studio can review them. If your email app does not open, copy the summary and use the contact page as a backup.
               </p>
+              <p id="requestBottomTotal" class="request-combined-total"></p>
+              <p class="field-note">The PDF includes reference previews of all artworks, their print specifications, and your request details. Attach your original print-quality files separately.</p>
               <div class="action-row">
                 <button id="downloadButton" class="swap-button swap-button--strong" type="button">
-                  Download Print JPEG
+                  Download This Artwork JPEG
                 </button>
+                <button id="downloadRequestPdfButton" class="swap-button swap-button--strong" type="button">Download Request PDF</button>
                 <button id="prepareButton" class="download-button" type="button">
                   Create Email Request
                 </button>
@@ -431,7 +442,7 @@
         <p id="dialogLabel" class="section-label">Quote Request Ready</p>
         <h2 id="dialogTitle">Your studio email is ready.</h2>
         <p id="dialogSupportCopy" class="support-copy">
-          Review the request below, then open your email draft and attach the artwork file before sending. This draft is addressed to joelle@monochromecanvas.com.
+          Review the request below, download the request PDF, then open your email draft and attach the PDF and original artwork files before sending. This draft is addressed to joelle@monochromecanvas.com.
         </p>
         <p class="field-note">
           If your email app does not open, copy the summary and send it through the Monochrome Canvas contact page.
@@ -448,6 +459,7 @@
 
         <div class="dialog-actions">
           <button id="copyButton" class="swap-button" type="button">Copy summary</button>
+          <button id="dialogDownloadPdfButton" class="swap-button" type="button">Download Request PDF</button>
           <a id="emailLink" class="download-button dialog-email-link" href="#">Open email app</a>
           <a class="swap-button" href="https://monochromecanvas.com/pages/contact" target="_blank" rel="noreferrer">
             Contact page backup
@@ -457,7 +469,8 @@
       </div>
     </div>
 
-    <script src="./discount-pricing.js?v=20261019-production-timing"></script>
-    <script src="./script.js?v=20261019-production-timing"></script>
+    <script src="./discount-pricing.js?v=20261019-multiple-artworks"></script>
+    <script src="./request-pdf.js?v=20261019-multiple-artworks"></script>
+    <script src="./script.js?v=20261019-multiple-artworks"></script>
   </body>
 </html>

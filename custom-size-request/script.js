@@ -198,6 +198,169 @@
     closeDialogButton: document.getElementById("closeDialogButton")
   };
 
+  // Artwork-specific values are saved per entry. Contact, customer group, and timing are shared.
+  const artworkFieldIds = ["materialSelect", "widthInput", "heightInput", "quantityInput", "ratioLockToggle", "cropXInput", "cropYInput", "cropZoomInput", "canvasBorderSelect", "borderDepthInput", "edgeStyleSelect", "edgeColorInput"];
+  const artworkStateKeys = ["file", "objectUrl", "imageWidth", "imageHeight", "dimensionsAutoFilled", "lockedRatio", "sizeFieldsEdited"];
+  const requestArtworks = { entries: [{id: 1, snapshot: null}], activeId: 1, nextId: 2, busy: false };
+
+  function saveCurrentArtwork(estimate) {
+    estimate = estimate || calculateEstimate();
+    const fields = {};
+    artworkFieldIds.forEach(function (id) { fields[id] = elements[id].type === "checkbox" ? elements[id].checked : elements[id].value; });
+    const savedState = {};
+    artworkStateKeys.forEach(function (key) { savedState[key] = state[key]; });
+    const maxSize = getMaxSizeFeedback(estimate);
+    let error = !estimate.quantityValid ? "Enter a whole-number quantity from 1 to 10,000." :
+      !(estimate.width > 0 && estimate.height > 0) ? "Enter a positive width and height." :
+      !state.file || !state.imageWidth ? "Upload the artwork file." : !maxSize.fits ? maxSize.message : "";
+    if (!error && estimate.canvasOptions.hasStretchingBorder && !(estimate.canvasOptions.borderDepth > 0)) error = "Enter a valid canvas stretching border depth.";
+    if (!error && estimate.canvasOptions.hasStretchingBorder && estimate.canvasOptions.edgeStyle === "color" && !estimate.canvasOptions.edgeColor) error = "Describe the requested canvas edge color.";
+    const entry = requestArtworks.entries.find(function (item) { return item.id === requestArtworks.activeId; });
+    entry.snapshot = {
+      fields: fields, state: savedState, estimate: estimate, error: error,
+      cropBounds: getCropBounds(estimate.width, estimate.height),
+      quality: formatQualityValue(getResolutionFeedback(estimate.width, estimate.height)),
+      fit: getSizingFeedback(estimate.width, estimate.height),
+      sizingMode: getSizingModeLabel(estimate.width, estimate.height)
+    };
+  }
+
+  function getRequestEntries() {
+    const customerType = isInvoiceMode() ? "artist" : document.querySelector('input[name="customerPricing"]:checked').value;
+    return requestArtworks.entries.map(function (entry) {
+      const snapshot = entry.snapshot;
+      if (!snapshot) return entry;
+      const e = snapshot.estimate;
+      const pricing = MonochromePrintDiscounts.calculate({unitPrice: e.unitPrice, quantity: e.quantity, customerType: customerType, productionTiming: elements.productionTiming.value});
+      const estimate = Object.assign({}, e, {customerType: customerType, productionTiming: elements.productionTiming.value, pricing: pricing,
+        total: pricing.valid ? pricing.total : 0, subtotal: pricing.valid ? pricing.subtotal : 0,
+        discountRate: pricing.valid ? pricing.effectiveRate : 0, discountAmount: pricing.valid ? pricing.savings : 0});
+      return {id: entry.id, snapshot: Object.assign({}, snapshot, {estimate: estimate})};
+    });
+  }
+
+  function restoreArtwork(entry) {
+    const snapshot = entry.snapshot;
+    artworkStateKeys.forEach(function (key) { state[key] = snapshot.state[key]; });
+    artworkFieldIds.forEach(function (id) {
+      if (elements[id].type === "checkbox") elements[id].checked = snapshot.fields[id];
+      else elements[id].value = snapshot.fields[id];
+    });
+    elements.fileInput.value = "";
+    if (state.file && typeof DataTransfer !== "undefined") {
+      const transfer = new DataTransfer(); transfer.items.add(state.file); elements.fileInput.files = transfer.files;
+    }
+    elements.previewImage.hidden = !state.file;
+    if (state.objectUrl) elements.previewImage.src = state.objectUrl;
+    else elements.previewImage.removeAttribute("src");
+    elements.previewPlaceholder.classList.toggle("is-hidden", Boolean(state.file));
+    state.activePointers.clear(); state.pinchStartDistance = null;
+    render();
+  }
+
+  function selectArtwork(id) {
+    if (requestArtworks.busy || id === requestArtworks.activeId) return;
+    saveCurrentArtwork();
+    requestArtworks.activeId = id;
+    restoreArtwork(requestArtworks.entries.find(function (entry) { return entry.id === id; }));
+  }
+
+  function addArtwork() {
+    if (requestArtworks.busy) return;
+    saveCurrentArtwork();
+    if (requestArtworks.entries.length >= 30) { showMessage("For more than 30 artwork entries, please contact the studio to plan the request.", true); return; }
+    const entry = {id: requestArtworks.nextId++, snapshot: null};
+    requestArtworks.entries.push(entry); requestArtworks.activeId = entry.id;
+    state.file = null; state.objectUrl = null; state.imageWidth = null; state.imageHeight = null;
+    state.lockedRatio = null; state.sizeFieldsEdited = false; state.dimensionsAutoFilled = false;
+    elements.fileInput.value = ""; elements.previewImage.hidden = true; elements.previewImage.removeAttribute("src"); elements.previewPlaceholder.classList.remove("is-hidden");
+    elements.widthInput.value = "16"; elements.heightInput.value = "20"; elements.quantityInput.value = "1";
+    elements.ratioLockToggle.checked = false; elements.cropXInput.value = "50"; elements.cropYInput.value = "50"; elements.cropZoomInput.value = "1";
+    elements.canvasBorderSelect.value = "none"; elements.borderDepthInput.value = "2"; elements.edgeStyleSelect.value = "white"; elements.edgeColorInput.value = "";
+    render(); elements.fileInput.focus();
+  }
+
+  function removeArtwork(id) {
+    if (requestArtworks.busy || requestArtworks.entries.length === 1) return;
+    saveCurrentArtwork();
+    const entry = requestArtworks.entries.find(function (item) { return item.id === id; });
+    requestArtworks.entries = requestArtworks.entries.filter(function (item) { return item.id !== id; });
+    if (entry.snapshot.state.objectUrl) URL.revokeObjectURL(entry.snapshot.state.objectUrl);
+    if (requestArtworks.activeId === id) {
+      requestArtworks.activeId = requestArtworks.entries[0].id; restoreArtwork(requestArtworks.entries[0]);
+    } else render();
+  }
+
+  function renderArtworkRequest(estimate) {
+    saveCurrentArtwork(estimate);
+    const entries = getRequestEntries();
+    const list = document.getElementById("requestArtworkList");
+    // Keep the focused control stable while editing a number or removing an entry.
+    const focusedId = document.activeElement && document.activeElement.dataset.requestFocus;
+    list.replaceChildren();
+    entries.forEach(function (entry, index) {
+      const s = entry.snapshot, e = s.estimate;
+      const card = document.createElement("div"); card.className = "request-artwork-card";
+      card.classList.toggle("is-active", entry.id === requestArtworks.activeId);
+      if (s.state.objectUrl) { const img = document.createElement("img"); img.src = s.state.objectUrl; img.alt = ""; card.append(img); }
+      else { const placeholder = document.createElement("span"); placeholder.textContent = String(index + 1); card.append(placeholder); }
+      const select = document.createElement("button"); select.type = "button"; select.className = "request-artwork-select"; select.dataset.requestFocus = "select-" + entry.id;
+      select.setAttribute("aria-pressed", String(entry.id === requestArtworks.activeId));
+      const title = document.createElement("strong"); title.textContent = "Artwork " + (index + 1) + ": " + (s.state.file ? s.state.file.name : "Choose a file");
+      const detail = document.createElement("span"); detail.textContent = formatDimensions(e.width, e.height) + " · " + e.material.label + " · Qty " + e.quantity + " · " + (s.error ? "Needs details" : formatMoney(e.total));
+      select.append(title, detail); select.addEventListener("click", function () { selectArtwork(entry.id); }); card.append(select);
+      if (entries.length > 1) { const remove = document.createElement("button"); remove.type = "button"; remove.className = "request-artwork-remove"; remove.textContent = "Remove"; remove.setAttribute("aria-label", "Remove artwork " + (index + 1)); remove.dataset.requestFocus = "remove-" + entry.id; remove.addEventListener("click", function () { removeArtwork(entry.id); }); card.append(remove); }
+      list.append(card);
+    });
+    if (focusedId) { const focused = Array.from(list.querySelectorAll("button")).find(function (button) { return button.dataset.requestFocus === focusedId; }); if (focused) focused.focus({preventScroll: true}); }
+    const total = entries.reduce(function (sum, entry) { return sum + entry.snapshot.estimate.total; }, 0);
+    const incomplete = entries.some(function (entry) { return Boolean(entry.snapshot.error); });
+    document.getElementById("addArtworkButton").disabled = isInvoiceMode();
+    const combinedLabel = "Combined estimate: " + formatMoney(total) + " · " + entries.length + (entries.length === 1 ? " artwork" : " artworks") + (incomplete ? " · Complete the missing artwork details before sending" : "") + (elements.productionTiming.value !== "standard" ? " · Before any rush fees" : "");
+    document.getElementById("requestCombinedTotal").textContent = combinedLabel;
+    document.getElementById("requestBottomTotal").textContent = combinedLabel;
+  }
+
+  function requestArtworkError() {
+    saveCurrentArtwork();
+    const entries = getRequestEntries();
+    const index = entries.findIndex(function (entry) { return Boolean(entry.snapshot.error); });
+    return index < 0 ? "" : "Artwork " + (index + 1) + ": " + entries[index].snapshot.error;
+  }
+
+  function requestDocumentData() {
+    saveCurrentArtwork();
+    const entries = getRequestEntries();
+    return {
+      contact: getPrimaryContact(), customerType: entries[0].snapshot.estimate.customerType,
+      timing: {standard: "Standard production", rush: "Rush order requested", unsure: "Not sure - deadline review requested"}[elements.productionTiming.value],
+      deadline: elements.requestedDeadline.value.trim() || "Not provided",
+      notes: getActiveNotes(), projectType: elements.projectTypeSelect.value,
+      total: entries.reduce(function (sum, entry) { return sum + entry.snapshot.estimate.total; }, 0),
+      entries: entries.map(function (entry, index) {
+        const s = entry.snapshot, e = s.estimate;
+        return {number: index + 1, filename: s.state.file.name, url: s.state.objectUrl, pixelWidth: s.state.imageWidth, pixelHeight: s.state.imageHeight,
+          width: e.width, height: e.height, material: e.material.label, quantity: e.quantity, unitPrice: e.unitPrice,
+          total: e.total, savings: e.discountAmount, quality: s.quality, sizingMode: s.sizingMode, crop: s.cropBounds,
+          canvas: e.canvasOptions.canAddBorder ? formatEdgeStyle(e.canvasOptions) : "", fit: s.fit.message || "Check the preview before printing."};
+      })
+    };
+  }
+
+  async function downloadRequestPdf() {
+    const error = validateRequest();
+    if (error) { showMessage(error, true); return; }
+    const button = document.getElementById("downloadRequestPdfButton");
+    button.disabled = true;
+    document.getElementById("dialogDownloadPdfButton").disabled = true;
+    try {
+      const blob = await MonochromeRequestPdf.create(requestDocumentData());
+      triggerBlobDownload(blob, "monochrome-canvas-print-request.pdf");
+      showMessage("Request PDF downloaded. Attach it and the original artwork files to your email. PDF previews are for reference, not production files.", false);
+    } catch (error) { showMessage("The request PDF could not be created. Please try again, or use Copy Summary and attach the original files.", true); }
+    finally { button.disabled = false; document.getElementById("dialogDownloadPdfButton").disabled = false; }
+  }
+
   init();
 
   function init() {
@@ -299,6 +462,9 @@
   }
 
   function bindEvents() {
+    document.getElementById("addArtworkButton").addEventListener("click", addArtwork);
+    document.getElementById("downloadRequestPdfButton").addEventListener("click", downloadRequestPdf);
+    document.getElementById("dialogDownloadPdfButton").addEventListener("click", downloadRequestPdf);
     elements.fileInput.addEventListener("change", handleFileChange);
     elements.standardOrderModeButton.addEventListener("click", function () {
       setOrderMode("standard");
@@ -395,6 +561,7 @@
       return;
     }
 
+    requestArtworks.busy = true;
     try {
       await loadFileIntoState(file);
       render();
@@ -402,7 +569,7 @@
       clearFile();
       showMessage("That file could not be read for a live quality preview.", true);
       render();
-    }
+    } finally { requestArtworks.busy = false; }
   }
 
   function clearFile() {
@@ -425,6 +592,7 @@
   }
 
   function loadFileIntoState(file) {
+    requestArtworks.busy = true;
     clearFile();
 
     return new Promise(function (resolve, reject) {
@@ -445,9 +613,11 @@
         elements.previewPlaceholder.classList.add("is-hidden");
         autoFillDimensionsAt300Ppi();
         syncLinkedDimension(elements.widthInput);
+        requestArtworks.busy = false;
         resolve();
       };
       image.onerror = function () {
+        requestArtworks.busy = false;
         clearFile();
         reject(new Error("Could not load image"));
       };
@@ -1259,19 +1429,19 @@
     elements.standardOrderPanel.classList.toggle("is-hidden", invoiceMode);
     elements.invoiceClientPanel.classList.toggle("is-hidden", !invoiceMode);
 
-    elements.estimateLabel.textContent = invoiceMode ? "Production cost" : "Estimated quote";
+    elements.estimateLabel.textContent = invoiceMode ? "Production cost" : "This artwork estimate";
     elements.prepareButton.textContent = invoiceMode ? "Create Invoice Request" : "Create Email Request";
     elements.prepareSupportCopy.textContent = invoiceMode
       ? "We will open an email draft addressed to joelle@monochromecanvas.com with your artist, client, and invoice details filled in."
       : "We will open an email draft addressed to joelle@monochromecanvas.com with your quote details filled in.";
     elements.prepareFieldNote.textContent = invoiceMode
       ? "Attach the artwork file before sending so the studio can review it. If approved, Monochrome Canvas can invoice your client using the details below."
-      : "Attach the artwork file before sending so the studio can review it. If your email app does not open, copy the summary and use the contact page as a backup.";
+      : "Download the request PDF, then attach it and every original artwork file to your email. Attachments must be added in your email app. If it does not open, copy the summary and use the contact page as a backup.";
     elements.dialogLabel.textContent = invoiceMode ? "Invoice Request Ready" : "Quote Request Ready";
     elements.dialogTitle.textContent = invoiceMode ? "Your invoice request email is ready." : "Your studio email is ready.";
     elements.dialogSupportCopy.textContent = invoiceMode
       ? "Review the request below, then open your email draft and attach the artwork file before sending. This draft is addressed to joelle@monochromecanvas.com so the studio can invoice your client after review."
-      : "Review the request below, then open your email draft and attach the artwork file before sending. This draft is addressed to joelle@monochromecanvas.com.";
+      : "Review the request below, download the request PDF, then open your email draft and attach the PDF and original artwork files before sending to joelle@monochromecanvas.com.";
 
     elements.productionCostValue.textContent = formatMoney(invoicePricing.productionCost);
     elements.recommendedRetailValue.textContent = formatMoney(invoicePricing.recommendedRetail);
@@ -1287,6 +1457,7 @@
     const feedback = getResolutionFeedback(estimate.width, estimate.height);
     const sizingFeedback = getSizingFeedback(estimate.width, estimate.height);
     const maxSizeFeedback = getMaxSizeFeedback(estimate);
+    renderArtworkRequest(estimate);
     const exportInfo = getExportInfo(estimate);
     const invoicePricing = getInvoicePricing(estimate);
     const maxWidthAt300 = state.imageWidth ? state.imageWidth / 300 : null;
@@ -1708,6 +1879,9 @@
   }
 
   function validateRequest() {
+    if (requestArtworks.busy) return "Please wait for the artwork file to finish loading.";
+    const artworkError = requestArtworkError();
+    if (artworkError) return artworkError;
     const estimate = calculateEstimate();
     const invoicePricing = getInvoicePricing(estimate);
     const maxSizeFeedback = getMaxSizeFeedback(estimate);
@@ -1757,7 +1931,37 @@
     return "";
   }
 
+  function buildMultipleArtworkEmail() {
+    const data = requestDocumentData();
+    const subject = "Custom size quote request | " + data.entries.length + " artworks | " + formatMoney(data.total);
+    const lines = ["Hi Joëlle,", "", "I would like a quote for the artworks listed below.",
+      "Customer name: " + data.contact.name, "Customer email: " + data.contact.email,
+      "Customer pricing: " + data.customerType, "Production timing: " + data.timing,
+      "Requested deadline: " + data.deadline, "Studio hours: Monday-Friday, 9 AM-4 PM Eastern.",
+      "Combined print estimate: " + formatMoney(data.total),
+      "Estimates exclude shipping, tax, rush fees, proofs, editing, and special finishing. Studio confirmation is required.",
+      "Discounts are calculated separately per artwork, size, and material. Rush orders do not qualify; uncertain deadlines are estimated without discounts until reviewed.", ""];
+    data.entries.forEach(function (item) {
+      lines.push("ARTWORK " + item.number + ": " + item.filename,
+        "Material: " + item.material, "Requested size: " + formatDimensions(item.width, item.height),
+        "Quantity: " + item.quantity, "Base unit price: " + formatMoney(item.unitPrice),
+        "Item savings: " + formatMoney(item.savings), "Item estimate: " + formatMoney(item.total),
+        "Sizing mode: " + item.sizingMode, "File quality: " + item.quality,
+        "Original pixels: " + item.pixelWidth + " x " + item.pixelHeight);
+      if (item.crop) lines.push("Preview crop (original pixels): x=" + Math.round(item.crop.x) + ", y=" + Math.round(item.crop.y) + ", width=" + Math.round(item.crop.width) + ", height=" + Math.round(item.crop.height));
+      if (item.canvas) lines.push("Canvas edge: " + item.canvas);
+      lines.push("");
+    });
+    if (data.projectType) lines.push("Project type: " + data.projectType);
+    if (data.notes) lines.push("Notes: " + data.notes);
+    lines.push("", "I will attach the request PDF with artwork previews, plus every original print-quality artwork file.",
+      "PDF previews are for reference only. Please confirm the final crop, pricing, and production schedule before printing.", "", "Thank you,", data.contact.name);
+    return {subject: subject, body: lines.join("\n"), href: "mailto:" + encodeURIComponent(STUDIO_EMAIL) + "?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(lines.join("\n"))};
+  }
+
   function buildEmailDraft() {
+    saveCurrentArtwork();
+    if (requestArtworks.entries.length > 1) return buildMultipleArtworkEmail();
     const estimate = calculateEstimate();
     const invoicePricing = getInvoicePricing(estimate);
     const feedback = getResolutionFeedback(estimate.width, estimate.height);
@@ -1774,6 +1978,9 @@
       estimate.quantity;
     const bodyLines = [
       "Hi Joëlle,",
+      "",
+      "I will attach the request PDF with the artwork preview, plus the original print-quality artwork file.",
+      "PDF previews are for reference only; please use the original file for production.",
       ""
     ];
 
@@ -1794,7 +2001,7 @@
       bodyLines.push("Customer email: " + primaryContact.email);
     }
 
-    bodyLines.push("Artwork file: " + (state.file ? state.file.name + " (attach before sending)" : "Will attach before sending"));
+    bodyLines.push("Artwork file: " + (state.file ? state.file.name + " (attach original before sending)" : "Will attach before sending"));
     bodyLines.push("Material: " + estimate.material.label);
     bodyLines.push("Requested size: " + formatDimensions(estimate.width, estimate.height));
     bodyLines.push("Print quality: " + formatQualityValue(feedback));

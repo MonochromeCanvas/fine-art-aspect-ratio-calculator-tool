@@ -1075,3 +1075,14 @@ button:disabled,
 .customer-pricing-choice strong,.customer-pricing-choice small { display: block; }
 .customer-pricing-choice small { margin-top: 4px; }
 .bulk-rate-grid { grid-template-columns: repeat(auto-fit,minmax(110px,1fr)); }
+
+.request-artwork-list { display: grid; gap: 10px; margin: 16px 0; }
+.request-artwork-card { display: grid; grid-template-columns: 52px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 12px; border: 1px solid var(--line); border-radius: 12px; background: white; }
+.request-artwork-card.is-active { border-color: var(--accent); background: #f0f4ed; }
+.request-artwork-card img { width: 52px; height: 60px; object-fit: contain; background: #f5f3ee; }
+.request-artwork-select { min-width: 0; padding: 4px; text-align: left; border: 0; background: transparent; color: var(--ink); cursor: pointer; }
+.request-artwork-select strong, .request-artwork-select span { display: block; overflow-wrap: anywhere; }
+.request-artwork-select span { margin-top: 4px; font-size: 14px; }
+.request-artwork-remove { padding: 8px; border: 1px solid var(--line); border-radius: 8px; background: white; cursor: pointer; font-size: 13px; }
+.request-combined-total { font-weight: 700; font-size: 20px; overflow-wrap: anywhere; }
+@media (max-width: 420px) { .request-artwork-card { grid-template-columns: 40px minmax(0, 1fr); } .request-artwork-card img { width: 40px; } .request-artwork-remove { grid-column: 2; justify-self: start; } }
