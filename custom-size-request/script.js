@@ -282,8 +282,21 @@
       const select = document.createElement("button"); select.type = "button"; select.className = "request-artwork-select"; select.dataset.requestFocus = "select-" + entry.id;
       select.setAttribute("aria-pressed", String(entry.id === requestArtworks.activeId));
       const title = document.createElement("strong"); title.textContent = "Artwork " + (index + 1) + ": " + (s.state.file ? s.state.file.name : "Choose a file");
-      const detail = document.createElement("span"); detail.textContent = formatDimensions(e.width, e.height) + " · " + e.material.label + " · Qty " + e.quantity + " · " + (s.error ? "Needs details" : formatMoney(e.total)) + (s.fit.needsPrep ? " · Formatting needed for PDF" : "");
-      select.append(title, detail); select.addEventListener("click", function () { selectArtwork(entry.id); }); card.append(select);
+      select.append(title);
+      if (s.state.file) {
+        const detail = document.createElement("span"); detail.textContent = formatDimensions(e.width, e.height) + " · " + e.material.label + " · Qty " + e.quantity + " · " + (s.error ? "Needs details" : formatMoney(e.total)) + (s.fit.needsPrep ? " · Formatting needed for PDF" : "");
+        select.append(detail);
+        select.addEventListener("click", function () { selectArtwork(entry.id); });
+      } else {
+        card.classList.add("is-upload");
+        select.setAttribute("aria-label", "Upload artwork " + (index + 1));
+        card.addEventListener("click", function (event) {
+          if (requestArtworks.busy || event.target.closest(".request-artwork-remove")) return;
+          selectArtwork(entry.id);
+          elements.fileInput.click();
+        });
+      }
+      card.append(select);
       if (entries.length > 1) { const remove = document.createElement("button"); remove.type = "button"; remove.className = "request-artwork-remove"; remove.textContent = "Remove"; remove.setAttribute("aria-label", "Remove artwork " + (index + 1)); remove.dataset.requestFocus = "remove-" + entry.id; remove.addEventListener("click", function () { removeArtwork(entry.id); }); card.append(remove); }
       list.append(card);
     });

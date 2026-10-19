@@ -1111,3 +1111,6 @@ button:disabled,
   .pdf-review-actions { bottom: -16px; flex-direction: column; }
   .pdf-review-actions button { width: 100%; }
 }
+
+.request-artwork-card.is-upload { cursor: pointer; border-style: dashed; min-height: 82px; }
+.request-artwork-card.is-upload:hover, .request-artwork-card.is-upload:focus-within { border-color: var(--accent); background: #e7eee3; }
