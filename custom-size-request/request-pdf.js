@@ -5,7 +5,7 @@
 (function (global) {
   "use strict";
   const WIDTH = 1275, HEIGHT = 1650, MARGIN = 80, BOTTOM = 1520;
-  const INK = "#213337", GREEN = "#325547", MUTED = "#526460";
+  const INK = "#213337", GREEN = "#325547", MUTED = "#526460", RED = "#b42318";
   const money = value => new Intl.NumberFormat("en-US", {style: "currency", currency: "USD"}).format(value);
 
   async function create(data, options = {}) {
@@ -30,7 +30,7 @@
       ctx.fillStyle = GREEN; ctx.font = "bold 23px Arial";
       ctx.fillText("MONOCHROME CANVAS", MARGIN, 65);
       ctx.fillStyle = MUTED; ctx.font = "21px Arial";
-      ctx.fillText("Custom print request · Studio review required", MARGIN, 100);
+      ctx.fillText("Print planning · Not a submitted order", MARGIN, 100);
       ctx.strokeStyle = "#d3ded6"; ctx.beginPath(); ctx.moveTo(MARGIN, 123); ctx.lineTo(WIDTH - MARGIN, 123); ctx.stroke();
       y = 178;
     }
@@ -76,7 +76,24 @@
       ctx.strokeStyle = "#d3ded6"; ctx.strokeRect(left, upper, w, h);
     }
     newPage();
-    heading("Your print request");
+    text("YOUR ORDER HAS NOT", {size: 49, bold: true, color: RED});
+    text("BEEN SUBMITTED", {size: 49, bold: true, color: RED});
+    text("Creating or downloading this PDF does not send anything to Monochrome Canvas or add your project to our order queue.", {size: 30, bold: true, color: RED});
+    rule();
+    heading("Ordering website sizes and quantities?");
+    text("Please place your order through website checkout so it reaches our order queue.", {size: 29, bold: true});
+    text("monochromecanvas.com/collections/order-giclee-prints", {size: 26, color: GREEN});
+    text("You’re welcome to use this tool and keep this PDF for planning, even when you order through the website.");
+    rule();
+    heading("Need a custom quote?");
+    text("For a size or quantity the website doesn’t offer, email BOTH:", {size: 29, bold: true, color: RED});
+    text("1. This PDF\n2. Every full-resolution, print-ready artwork file", {size: 30, bold: true, color: RED});
+    text("Send to joelle@monochromecanvas.com", {size: 30, bold: true, color: RED});
+    text("This PDF contains reference previews only. It does not replace your print-ready artwork files. The studio must review your request and confirm pricing and next steps before it becomes an order.");
+    rule();
+    text("Your planned print details follow on the next pages.", {size: 25, color: MUTED});
+    newPage();
+    heading("Your print plan / quote request");
     text("Prepared " + new Date().toLocaleString("en-US", {timeZone: "America/New_York", dateStyle: "medium", timeStyle: "short"}) + " Eastern", {size: 23, color: MUTED});
     label("Customer", data.contact.name); label("Email", data.contact.email);
     label("Customer pricing", data.customerType.charAt(0).toUpperCase() + data.customerType.slice(1));

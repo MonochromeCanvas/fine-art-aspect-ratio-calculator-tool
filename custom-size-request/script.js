@@ -400,7 +400,7 @@
   function downloadReviewedPdf() {
     if (!pdfReview.blob) return;
     triggerBlobDownload(pdfReview.blob, "monochrome-canvas-print-request.pdf");
-    document.getElementById("pdfPreviewStatus").textContent = "PDF downloaded. Email it and your full-resolution, print-ready artwork files to joelle@monochromecanvas.com. Your request has not been sent automatically.";
+    document.getElementById("pdfPreviewStatus").textContent = "PDF downloaded. Your request has not been sent automatically and no order has been placed. For website sizes and quantities, order through website checkout. For a custom quote, email the PDF AND every full-resolution, print-ready artwork file to joelle@monochromecanvas.com for studio review.";
   }
 
   function handlePdfPreviewKeydown(event) {
@@ -1309,7 +1309,7 @@
 
     elements.estimateLabel.textContent = invoiceMode ? "Production cost" : "This artwork estimate";
     elements.prepareSupportCopy.textContent = "Review your request PDF before downloading it. You can return to edit any details, then create an updated preview.";
-    elements.prepareFieldNote.textContent = "After downloading, email the PDF request and your full-resolution, print-ready artwork files to joelle@monochromecanvas.com. Downloading does not send your request to the studio.";
+    elements.prepareFieldNote.textContent = "Downloading does not submit an order. For sizes and quantities available on our website, order through website checkout. For a custom quote, email the PDF AND every full-resolution, print-ready artwork file to joelle@monochromecanvas.com for studio review.";
 
     elements.productionCostValue.textContent = formatMoney(invoicePricing.productionCost);
     elements.recommendedRetailValue.textContent = formatMoney(invoicePricing.recommendedRetail);

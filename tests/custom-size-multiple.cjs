@@ -80,7 +80,7 @@ const path = require('node:path');
   assert.equal(await page.locator('#prepareButton, #emailLink').count(),0);
   await page.locator('#previewRequestPdfButton').click();
   await page.waitForFunction(()=>!document.querySelector('#downloadReviewedPdfButton').disabled);
-  assert.equal(await page.locator('#pdfPreviewPages img').count(),3);
+  assert.equal(await page.locator('#pdfPreviewPages img').count(),4);
   assert.equal(await page.evaluate(()=>window.reviewedData.total),combined);
   assert.deepEqual(await page.evaluate(()=>window.reviewedData.entries.map(e=>e.filename)),['Red artwork.png','Blue prepared.png']);
   assert.match(await page.locator('#pdfDeliveryInstructions').innerText(),/joelle@monochromecanvas.com/);
