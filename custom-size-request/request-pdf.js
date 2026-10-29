@@ -1,5 +1,5 @@
-/* Browser-only request reference sheets. Pages are rendered at 150 PPI so text,
- * Unicode filenames, and artwork previews remain consistent across devices.
+/* Browser-only print plans with embedded, selectable text and clickable links.
+ * Canvas pages are used only for the in-tool preview.
  * No artwork or request data leaves the browser when creating the PDF.
  */
 (function (global) {
@@ -9,12 +9,27 @@
   const money = value => new Intl.NumberFormat("en-US", {style: "currency", currency: "USD"}).format(value);
 
   async function create(data, options = {}) {
-    const images = [];
-    let canvas, ctx, y;
+    const images = [], pageOperations = [];
+    const pdf = await PDFLib.PDFDocument.create();
+    pdf.registerFontkit(fontkit);
+    const fonts = {
+      regular: await pdf.embedFont(MonochromeRequestFonts.regular, {subset: true}),
+      bold: await pdf.embedFont(MonochromeRequestFonts.bold, {subset: true})
+    };
+    let canvas, ctx, y, operations;
+    function drawText(value, x, top, size, bold, color, links = []) {
+      ctx.fillStyle = color; ctx.font = (bold ? "bold " : "") + size + "px Arial";
+      ctx.fillText(value, x, top);
+      operations.push({type: "text", value, x, top, size, bold, color, links});
+    }
+    function drawRule(top) {
+      ctx.strokeStyle = "#d3ded6"; ctx.beginPath(); ctx.moveTo(MARGIN, top); ctx.lineTo(WIDTH - MARGIN, top); ctx.stroke();
+      operations.push({type: "rule", top});
+    }
     function finishPage() {
       if (!canvas) return;
-      ctx.fillStyle = MUTED; ctx.font = "21px Arial";
-      ctx.fillText("Monochrome Canvas · Reference only · Page " + (images.length + 1), MARGIN, HEIGHT - 56);
+      drawText("Monochrome Canvas · Reference only · Page " + (images.length + 1), MARGIN, HEIGHT - 56, 21, false, MUTED);
+      pageOperations.push(operations);
       const encoded = atob(canvas.toDataURL("image/jpeg", 0.93).split(",")[1]);
       const bytes = new Uint8Array(encoded.length);
       for (let i = 0; i < encoded.length; i++) bytes[i] = encoded.charCodeAt(i);
@@ -27,25 +42,25 @@
       ctx = canvas.getContext("2d");
       if (!ctx) throw new Error("Canvas is unavailable");
       ctx.fillStyle = "white"; ctx.fillRect(0, 0, WIDTH, HEIGHT);
-      ctx.fillStyle = GREEN; ctx.font = "bold 23px Arial";
-      ctx.fillText("MONOCHROME CANVAS", MARGIN, 65);
-      ctx.fillStyle = MUTED; ctx.font = "21px Arial";
-      ctx.fillText("Print planning · Not a submitted order", MARGIN, 100);
-      ctx.strokeStyle = "#d3ded6"; ctx.beginPath(); ctx.moveTo(MARGIN, 123); ctx.lineTo(WIDTH - MARGIN, 123); ctx.stroke();
+      operations = [];
+      drawText("MONOCHROME CANVAS", MARGIN, 65, 23, true, GREEN);
+      drawText("Print planning · Not a submitted order", MARGIN, 100, 21, false, MUTED);
+      drawRule(123);
       y = 178;
     }
     function ensure(height) { if (y + height > BOTTOM) newPage(); }
     function wrapped(text, size, bold) {
-      ctx.font = (bold ? "bold " : "") + size + "px Arial";
+      const font = bold ? fonts.bold : fonts.regular;
+      const measure = value => font.widthOfTextAtSize(value, size);
       const maxWidth = WIDTH - MARGIN * 2;
       const lines = [];
       String(text).split(/\r?\n/).forEach(function (paragraph) {
         let line = "";
         paragraph.split(/\s+/).forEach(function (word) {
-          if (line && ctx.measureText(line + " " + word).width > maxWidth) { lines.push(line); line = ""; }
-          while (ctx.measureText(word).width > maxWidth) {
+          if (line && measure(line + " " + word) > maxWidth) { lines.push(line); line = ""; }
+          while (measure(word) > maxWidth) {
             let split = 1;
-            while (split < word.length && ctx.measureText(word.slice(0, split + 1)).width <= maxWidth) split++;
+            while (split < word.length && measure(word.slice(0, split + 1)) <= maxWidth) split++;
             lines.push(word.slice(0, split)); word = word.slice(split);
           }
           line += (line ? " " : "") + word;
@@ -56,16 +71,28 @@
     }
     function text(value, options) {
       const {size = 27, bold = false, color = INK} = options || {};
+      const normalized = String(value).replace(/\s+/g, " ").trim();
+      const matches = Array.from(normalized.matchAll(/https?:\/\/[^\s<>]+|(?:www\.|monochromecanvas\.com\/)[^\s<>]+|[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi)).map(match => {
+        const label = match[0].replace(/[.,;!?)]+$/, "");
+        const uri = label.includes("@") && !/^https?:/i.test(label) ? "mailto:" + label : /^https?:/i.test(label) ? label : "https://" + label;
+        return {start: match.index, end: match.index + label.length, uri};
+      });
       const lines = wrapped(value, size, bold);
+      let cursor = 0;
       for (const line of lines) {
         ensure(size * 1.5);
-        ctx.fillStyle = color; ctx.font = (bold ? "bold " : "") + size + "px Arial";
-        ctx.fillText(line, MARGIN, y); y += size * 1.45;
+        const start = line ? normalized.indexOf(line, cursor) : cursor;
+        const links = matches.filter(link => link.start < start + line.length && link.end > start).map(link => ({
+          start: Math.max(0, link.start - start), end: Math.min(line.length, link.end - start), uri: link.uri
+        }));
+        drawText(line, MARGIN, y, size, bold, color, links);
+        cursor = Math.max(cursor, start + line.length);
+        y += size * 1.45;
       }
       y += 8;
     }
     function heading(value) { text(value, {size: 43, bold: true, color: GREEN}); y += 8; }
-    function rule() { ensure(30); ctx.strokeStyle = "#d3ded6"; ctx.beginPath(); ctx.moveTo(MARGIN, y); ctx.lineTo(WIDTH - MARGIN, y); ctx.stroke(); y += 32; }
+    function rule() { ensure(30); drawRule(y); y += 32; }
     function label(name, value) { text(name + ": " + value); }
     function imageInBox(image, crop, x, top, width, height) {
       const scale = Math.min(width / crop.width, height / crop.height);
@@ -74,6 +101,13 @@
       ctx.fillStyle = "white"; ctx.fillRect(left, upper, w, h);
       ctx.drawImage(image, crop.x, crop.y, crop.width, crop.height, left, upper, w, h);
       ctx.strokeStyle = "#d3ded6"; ctx.strokeRect(left, upper, w, h);
+      // Embed only the artwork bitmap; all document words remain real PDF text.
+      const artwork = document.createElement("canvas");
+      artwork.width = Math.max(1, Math.round(w)); artwork.height = Math.max(1, Math.round(h));
+      const artworkContext = artwork.getContext("2d");
+      artworkContext.fillStyle = "white"; artworkContext.fillRect(0, 0, artwork.width, artwork.height);
+      artworkContext.drawImage(image, crop.x, crop.y, crop.width, crop.height, 0, 0, artwork.width, artwork.height);
+      operations.push({type: "image", data: artwork.toDataURL("image/jpeg", 0.93), x: left, top: upper, width: w, height: h});
     }
     newPage();
     text("YOUR ORDER HAS NOT", {size: 49, bold: true, color: RED});
@@ -117,8 +151,7 @@
       text(item.filename, {size: 29, bold: true});
       const image = new Image(); image.src = item.url; await image.decode();
       ensure(500);
-      ctx.fillStyle = MUTED; ctx.font = "23px Arial";
-      ctx.fillText("Print preview", MARGIN, y);
+      drawText("Print preview", MARGIN, y, 23, false, MUTED);
       y += 20;
       imageInBox(image, {x:0, y:0, width:item.pixelWidth, height:item.pixelHeight}, MARGIN, y, WIDTH - MARGIN * 2, 420);
       y += 462;
@@ -138,34 +171,41 @@
       label("Requested deadline", data.deadline);
     }
     finishPage();
-    const blob = encodePdf(images);
+    const blob = await encodePdf(pdf, fonts, pageOperations);
     return options.preview ? {blob: blob, pages: images.map(function (bytes) { return new Blob([bytes], {type: "image/jpeg"}); })} : blob;
   }
 
-  // A small PDF 1.4 container for the reference pages. Stream lengths and xref
-  // offsets use encoded byte counts, including the binary JPEG streams.
-  function encodePdf(images) {
-    const encoder = new TextEncoder(), chunks = [], offsets = [0];
-    let length = 0;
-    function append(value) { const bytes = typeof value === "string" ? encoder.encode(value) : value; chunks.push(bytes); length += bytes.length; }
-    function object(id, value) { offsets[id] = length; append(id + " 0 obj\n" + value + "\nendobj\n"); }
-    append("%PDF-1.4\n"); append(new Uint8Array([37,226,227,207,211,10]));
-    object(1, "<< /Type /Catalog /Pages 2 0 R >>");
-    object(2, "<< /Type /Pages /Count " + images.length + " /Kids [" + images.map((_, i) => (3 + i * 3) + " 0 R").join(" ") + "] >>");
-    images.forEach(function (bytes, index) {
-      const id = 3 + index * 3;
-      object(id, "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /XObject << /Im " + (id + 1) + " 0 R >> >> /Contents " + (id + 2) + " 0 R >>");
-      offsets[id + 1] = length;
-      append((id + 1) + " 0 obj\n<< /Type /XObject /Subtype /Image /Width " + WIDTH + " /Height " + HEIGHT + " /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length " + bytes.length + " >>\nstream\n");
-      append(bytes); append("\nendstream\nendobj\n");
-      const content = "q\n612 0 0 792 0 0 cm\n/Im Do\nQ\n";
-      object(id + 2, "<< /Length " + encoder.encode(content).length + " >>\nstream\n" + content + "endstream");
-    });
-    const start = length, count = images.length * 3 + 3;
-    append("xref\n0 " + count + "\n0000000000 65535 f \n");
-    for (let id = 1; id < count; id++) append(String(offsets[id]).padStart(10, "0") + " 00000 n \n");
-    append("trailer\n<< /Size " + count + " /Root 1 0 R >>\nstartxref\n" + start + "\n%%EOF\n");
-    return new Blob(chunks, {type: "application/pdf"});
+  async function encodePdf(pdf, fonts, pages) {
+    const {rgb, PDFName, PDFString} = PDFLib;
+    const scale = 612 / WIDTH;
+    const color = hex => rgb(parseInt(hex.slice(1, 3), 16) / 255, parseInt(hex.slice(3, 5), 16) / 255, parseInt(hex.slice(5, 7), 16) / 255);
+    for (const operations of pages) {
+      const page = pdf.addPage([612, 792]);
+      const annotations = [];
+      for (const op of operations) {
+        if (op.type === "text") {
+          const font = op.bold ? fonts.bold : fonts.regular;
+          page.drawText(op.value, {x: op.x * scale, y: (HEIGHT - op.top) * scale, size: op.size * scale, font, color: color(op.color)});
+          for (const link of op.links) {
+            const x = op.x + font.widthOfTextAtSize(op.value.slice(0, link.start), op.size);
+            const width = font.widthOfTextAtSize(op.value.slice(link.start, link.end), op.size);
+            annotations.push(pdf.context.register(pdf.context.obj({
+              Type: "Annot", Subtype: "Link", Border: [0, 0, 0],
+              Rect: [x * scale, (HEIGHT - op.top - op.size * 0.25) * scale, (x + width) * scale, (HEIGHT - op.top + op.size) * scale],
+              A: {Type: "Action", S: "URI", URI: PDFString.of(link.uri)}
+            })));
+          }
+        } else if (op.type === "rule") {
+          page.drawLine({start: {x: MARGIN * scale, y: (HEIGHT - op.top) * scale}, end: {x: (WIDTH - MARGIN) * scale, y: (HEIGHT - op.top) * scale}, thickness: scale, color: color("#d3ded6")});
+        } else if (op.type === "image") {
+          const image = await pdf.embedJpg(op.data);
+          page.drawImage(image, {x: op.x * scale, y: (HEIGHT - op.top - op.height) * scale, width: op.width * scale, height: op.height * scale});
+          page.drawRectangle({x: op.x * scale, y: (HEIGHT - op.top - op.height) * scale, width: op.width * scale, height: op.height * scale, borderWidth: scale, borderColor: color("#d3ded6")});
+        }
+      }
+      if (annotations.length) page.node.set(PDFName.of("Annots"), pdf.context.obj(annotations));
+    }
+    return new Blob([await pdf.save()], {type: "application/pdf"});
   }
   global.MonochromeRequestPdf = {create: create};
 })(window);

@@ -342,11 +342,11 @@
     };
   }
 
-  const pdfReview = {blob: null, urls: [], trigger: null, token: 0};
+  const pdfReview = {blob: null, filename: "", urls: [], trigger: null, token: 0};
 
   function clearPdfReview() {
     pdfReview.urls.forEach(function (url) { URL.revokeObjectURL(url); });
-    pdfReview.urls = []; pdfReview.blob = null;
+    pdfReview.urls = []; pdfReview.blob = null; pdfReview.filename = "";
     document.getElementById("pdfPreviewPages").replaceChildren();
   }
 
@@ -388,6 +388,10 @@
       const result = await MonochromeRequestPdf.create(data, {preview: true});
       if (token !== pdfReview.token) return;
       pdfReview.blob = result.blob;
+      const customerName = data.contact.name.normalize("NFC")
+        .replace(/[<>:"/\\|?*\u0000-\u001f\u007f\u202a-\u202e\u2066-\u2069]/g, "")
+        .trim().replace(/\s+/g, "-").replace(/^[. -]+|[. -]+$/g, "").slice(0, 100) || "customer";
+      pdfReview.filename = "monochrome-canvas-print-request-" + customerName + ".pdf";
       const pages = document.getElementById("pdfPreviewPages");
       result.pages.forEach(function (page, index) {
         const url = URL.createObjectURL(page); pdfReview.urls.push(url);
@@ -406,7 +410,7 @@
 
   function downloadReviewedPdf() {
     if (!pdfReview.blob) return;
-    triggerBlobDownload(pdfReview.blob, "monochrome-canvas-print-request.pdf");
+    triggerBlobDownload(pdfReview.blob, pdfReview.filename);
     document.getElementById("pdfPreviewStatus").textContent = "PDF downloaded. Your request has not been sent automatically and no order has been placed. For website sizes and quantities, order through website checkout. For a custom quote, email the PDF AND every full-resolution, print-ready artwork file to joelle@monochromecanvas.com for studio review.";
   }
 
