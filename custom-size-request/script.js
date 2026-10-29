@@ -132,6 +132,7 @@
     quantityInput: document.getElementById("quantityInput"),
     productionTiming: document.getElementById("productionTiming"),
     requestedDeadline: document.getElementById("requestedDeadline"),
+    rushDeadlineDate: document.getElementById("rushDeadlineDate"),
     ratioToggleCard: document.getElementById("ratioToggleCard"),
     ratioLockToggle: document.getElementById("ratioLockToggle"),
     ratioModeNote: document.getElementById("ratioModeNote"),
@@ -316,13 +317,19 @@
     return index < 0 ? "" : "Artwork " + (index + 1) + ": " + entries[index].snapshot.error;
   }
 
+  function requestedDeadlineText() {
+    const details = elements.requestedDeadline.value.trim();
+    if (elements.productionTiming.value !== "rush" || !elements.rushDeadlineDate.value) return details;
+    return elements.rushDeadlineDate.value + (details ? " · " + details : "");
+  }
+
   function requestDocumentData() {
     saveCurrentArtwork();
     const entries = getRequestEntries();
     return {
       contact: getPrimaryContact(), customerType: entries[0].snapshot.estimate.customerType,
       timing: {standard: "Standard production", rush: "Rush order requested", unsure: "Not sure - deadline review requested"}[elements.productionTiming.value],
-      deadline: elements.requestedDeadline.value.trim() || "Not provided",
+      deadline: requestedDeadlineText() || "Not provided",
       notes: getActiveNotes(), projectType: elements.projectTypeSelect.value,
       total: entries.reduce(function (sum, entry) { return sum + entry.snapshot.estimate.total; }, 0),
       entries: entries.map(function (entry, index) {
@@ -542,6 +549,7 @@
       elements.quantityInput,
       elements.productionTiming,
       elements.requestedDeadline,
+      elements.rushDeadlineDate,
       elements.projectTypeSelect,
       elements.customerPricingChoice,
       elements.standardNameInput,
@@ -1321,6 +1329,12 @@
   }
 
   function render() {
+    const rush = elements.productionTiming.value === "rush";
+    document.getElementById("rushDeadlineField").classList.toggle("is-hidden", !rush);
+    elements.rushDeadlineDate.disabled = !rush;
+    elements.rushDeadlineDate.required = rush;
+    document.getElementById("requestedDeadlineLabel").textContent = rush ? "Deadline time and details (optional)" : "Requested deadline (date and time, if known)";
+    elements.requestedDeadline.placeholder = rush ? "For example: needed by 2 PM Eastern for an event" : "For example: Friday, October 23 by 2 PM";
     const estimate = calculateEstimate();
     const feedback = getResolutionFeedback(estimate.width, estimate.height);
     const sizingFeedback = getSizingFeedback(estimate.width, estimate.height);
@@ -1462,7 +1476,7 @@
     ];
 
     summaryItems.push(["Production timing", timingLabel]);
-    if (elements.requestedDeadline.value.trim()) summaryItems.push(["Requested deadline", elements.requestedDeadline.value.trim()]);
+    if (requestedDeadlineText()) summaryItems.push(["Requested deadline", requestedDeadlineText()]);
     if (!discountsEligible) summaryItems.push(["Timing review", timingNote]);
 
     if (primaryContact.name) {
@@ -1653,6 +1667,10 @@
 
   function validateRequest() {
     if (requestArtworks.busy) return "Please wait for the artwork file to finish loading.";
+    if (elements.productionTiming.value === "rush" && (!elements.rushDeadlineDate.value || !elements.rushDeadlineDate.validity.valid)) {
+      elements.rushDeadlineDate.focus();
+      return "Please choose a deadline date for your rush order before preparing the request PDF.";
+    }
     const artworkError = requestArtworkError();
     if (artworkError) return artworkError;
     const estimate = calculateEstimate();
