@@ -21,7 +21,7 @@ Coverage includes file formats, portrait/landscape/square/uncommon/tiny dimensio
 
 ## Custom Size Request
 
-Clients can add up to 30 artwork entries to one request. Each entry keeps its own file, material, dimensions, quantity, and canvas options. Contact details, customer pricing, production timing, and deadline apply to the entire request. Quantity discounts are calculated separately per entry; rush and uncertain-timing requests are estimated without discounts.
+Clients can add up to 30 artwork entries to one request. Each entry keeps its own file, material, dimensions, quantity, and canvas options. Contact details, customer pricing, production timing, and deadline apply to the entire request. Rush requests require a deadline date before PDF generation; optional deadline time and details accompany the date in the summary and PDF. Standard and uncertain timing keep deadline information optional. Quantity discounts are calculated separately per entry; rush and uncertain-timing requests are estimated without discounts.
 
 The tool and a dedicated PDF cover page highlight in red that downloading does not submit an order. Website sizes and quantities should be ordered through website checkout; the PDF remains available for planning. Custom quotes require emailing both the PDF and every full-resolution, print-ready artwork file for studio review.
 
