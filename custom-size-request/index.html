@@ -131,8 +131,13 @@
                       <option value="unsure">Not sure — please review my deadline</option>
                     </select>
                   </label>
+                  <label id="rushDeadlineField" class="field field--wide is-hidden">
+                    <span>Rush deadline date (required)</span>
+                    <input id="rushDeadlineDate" type="date" aria-describedby="rushDeadlineHelp" disabled>
+                    <span id="rushDeadlineHelp" class="field-note">Choose the date you need your prints. A rush request cannot be prepared without a date. The studio must confirm availability.</span>
+                  </label>
                   <label class="field field--wide">
-                    <span>Requested deadline (date and time, if known)</span>
+                    <span id="requestedDeadlineLabel">Requested deadline (date and time, if known)</span>
                     <input id="requestedDeadline" type="text" placeholder="For example: Friday, October 23 by 2 PM">
                   </label>
                 </div>
@@ -435,6 +440,6 @@
 
     <script src="./discount-pricing.js?v=20261019-pdf-review"></script>
     <script src="./request-pdf.js?v=20261029-planning-notice"></script>
-    <script src="./script.js?v=20261029-planning-notice"></script>
+    <script src="./script.js?v=20261029-rush-date"></script>
   </body>
 </html>
