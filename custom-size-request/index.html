@@ -9,7 +9,7 @@
       content="Upload artwork, enter a custom print size, estimate pricing, and prepare a custom size request for Monochrome Canvas."
     >
     <link rel="icon" type="image/svg+xml" href="../favicon.svg">
-    <link rel="stylesheet" href="./style.css?v=20261019-upload-card">
+    <link rel="stylesheet" href="./style.css?v=20261029-planning-notice">
     <link rel="stylesheet" href="../studio-tools.css?v=20260930-logo-right">
 </head>
   <body class="mc-tools">
@@ -24,11 +24,11 @@
             <p class="eyebrow">A free tool from our Akron, Ohio print studio</p>
             <h1>Custom Size Request</h1>
             <p class="hero-copy">
-              Upload your artwork, enter the finished size and quantity, and create a clear quote request for Monochrome Canvas.
+              Plan your prints, estimate pricing, and download a PDF for your records or a custom quote request.
             </p>
             <div class="hero-notes">
               <span>Estimate first, invoice after studio review</span>
-              <span>Request addressed to joelle@monochromecanvas.com</span>
+              <span>Downloading a PDF does not submit an order</span>
             </div>
           </div>
         </div>
@@ -39,6 +39,14 @@
  <details class="studio-tool-menu"><summary>More studio tools</summary><div class="studio-tool-list"><a href="../index.html" target="_blank" rel="noopener">Print size helper ↗</a><a href="../white-border-builder-tool/index.html" target="_blank" rel="noopener">White Border Builder ↗</a><a href="index.html" aria-current="page">Custom Size Request</a><a href="../invoice-my-client/index.html" target="_blank" rel="noopener">Invoice My Client ↗</a><p>Other tools open in a new tab so you can keep your work here.</p></div></details>
 <a class="studio-creative-link" href="../commission-cost-calculator/index.html" target="_blank" rel="noopener">Work with Joëlle ↗</a>
 </nav>
+
+      <section class="submission-notice" aria-labelledby="submissionNoticeTitle">
+        <h2 id="submissionNoticeTitle">Planning only — your order has not been submitted</h2>
+        <p>Creating or downloading a PDF does not send anything to Monochrome Canvas or add your project to our order queue.</p>
+        <p><strong>Ordering sizes and quantities available on our website?</strong> Please place your order through website checkout so it reaches our order queue. You’re welcome to use this tool and keep the PDF for planning.</p>
+        <a class="text-link" href="https://monochromecanvas.com/collections/order-giclee-prints?utm_source=custom_size_request&amp;utm_medium=tool&amp;utm_campaign=print_planning" target="_blank" rel="noopener">Order prints on our website ↗</a>
+        <p><strong>Need a size or quantity the website doesn’t offer?</strong> Email your PDF <strong>AND every full-resolution, print-ready artwork file</strong> to <strong>joelle@monochromecanvas.com</strong>. The PDF contains reference previews only. The studio must review your request and confirm pricing and next steps before it becomes an order.</p>
+      </section>
 
       <section class="workspace" aria-labelledby="workspace-title">
         <div class="workspace-header">
@@ -346,7 +354,7 @@
             <div class="stack-block">
               <h3>4. Prepare the request</h3>
               <p id="prepareSupportCopy" class="support-copy">Review your request PDF before downloading it. You can return to edit any details, then create an updated preview.</p>
-              <p id="prepareFieldNote" class="field-note">After downloading, email the PDF request and your full-resolution, print-ready artwork files to <strong>joelle@monochromecanvas.com</strong>. Downloading does not send your request to the studio.</p>
+              <p id="prepareFieldNote" class="submission-reminder">Downloading does not submit an order. For sizes and quantities available on our website, order through website checkout. For a custom quote, email the PDF AND every full-resolution, print-ready artwork file to joelle@monochromecanvas.com for studio review.</p>
               <p id="requestBottomTotal" class="request-combined-total"></p>
               <div class="action-row">
                 <button id="previewRequestPdfButton" class="download-button" type="button">Preview Request PDF</button>
@@ -415,7 +423,7 @@
       <section class="dialog-card pdf-review-card" role="dialog" aria-modal="true" aria-labelledby="pdfPreviewTitle" aria-describedby="pdfDeliveryInstructions">
         <p class="section-label">Review your request</p>
         <h2 id="pdfPreviewTitle">Preview your request PDF</h2>
-        <p id="pdfDeliveryInstructions" class="pdf-delivery-instructions">When everything looks correct, download this PDF and email it with your full-resolution, print-ready artwork files to <strong>joelle@monochromecanvas.com</strong>. Your request is sent when you email it to the studio.</p>
+        <p id="pdfDeliveryInstructions" class="pdf-delivery-instructions submission-reminder"><strong>Downloading does not submit an order or send anything to the studio.</strong> Keep this PDF for planning. For sizes and quantities available on our website, place your order through website checkout. For a custom quote, email this PDF <strong>AND every full-resolution, print-ready artwork file</strong> to <strong>joelle@monochromecanvas.com</strong>. Studio review and confirmation are required.</p>
         <p id="pdfPreviewStatus" class="field-note" role="status" aria-live="polite"></p>
         <div id="pdfPreviewPages" class="pdf-preview-pages" aria-label="Request PDF pages"></div>
         <div class="pdf-review-actions">
@@ -426,7 +434,7 @@
     </div>
 
     <script src="./discount-pricing.js?v=20261019-pdf-review"></script>
-    <script src="./request-pdf.js?v=20261019-pdf-review"></script>
-    <script src="./script.js?v=20261019-upload-card"></script>
+    <script src="./request-pdf.js?v=20261029-planning-notice"></script>
+    <script src="./script.js?v=20261029-planning-notice"></script>
   </body>
 </html>
