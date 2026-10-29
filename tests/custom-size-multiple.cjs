@@ -101,6 +101,7 @@ const path = require('node:path');
   assert.equal(await page.locator('#pdfPreviewDialog').isVisible(),false);
   await page.locator('#quantityInput').fill('1');
   await page.locator('#productionTiming').selectOption('rush');
+  await page.locator('#rushDeadlineDate').fill('2026-11-06');
   assert.doesNotMatch(await total(),new RegExp('\\$'+combined));
   assert.match(await total(),/Before any rush fees/);
   await cards.nth(0).locator('.request-artwork-select').click();
