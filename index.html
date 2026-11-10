@@ -172,6 +172,20 @@
       <p class="field-help">This calculates dimensions; it does not resize your file or add image detail. Pixel requirements round up to whole pixels. Inch results show up to four decimal places.</p>
     </section>
 
+    <section class="workspace-card" aria-label="ISO paper size planning">
+      <details id="isoPaperDetails" class="size-check">
+        <summary>ISO A-series paper sizes (A6–A0)</summary>
+        <p class="field-help">Choose a paper size to see its dimensions and pixels at 300 PPI. These are planning sizes; print availability depends on the material.</p>
+        <div class="field-grid">
+          <label class="field"><span class="field-label">ISO paper size</span><select id="isoPaperSize"></select></label>
+          <label class="field"><span class="field-label">Orientation</span><select id="isoPaperOrientation"><option value="portrait">Portrait</option><option value="landscape">Landscape</option></select></label>
+        </div>
+        <div class="result-panel" role="status" aria-live="polite" aria-atomic="true"><strong id="isoPaperDimensions"></strong><p id="isoPaperPixels"></p><p id="isoPaperFit"></p></div>
+        <button id="isoUseSize" type="button" class="button button--secondary" hidden>Check my image at this size</button>
+        <p class="field-help">ISO sheets are rounded to whole millimetres. Pixel dimensions round up to whole pixels; tiny ratio differences can require a slight crop or borders. Existing image borders count as part of the file.</p>
+      </details>
+    </section>
+
     <section id="chooserCard" class="chooser-card">
       <h2>More ways to plan your print</h2>
       <p class="chooser-copy">No file handy? Enter dimensions manually to check frame sizes or resize proportionally.</p>
@@ -292,6 +306,6 @@
     <p class="footer-note"><a class="footer-link" href="https://monochromecanvas.com" target="_blank" rel="noreferrer">Visit Monochrome Canvas</a> for fine art printing and artist support in Akron, Ohio. This helper is for planning only.</p>
   </main>
 
-  <script src="script.js?v=20261001-converter"></script>
+  <script src="script.js?v=20261110-iso-a"></script>
 </body>
 </html>
