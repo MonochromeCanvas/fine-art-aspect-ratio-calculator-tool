@@ -58,6 +58,13 @@
     [30, 40]
   ];
 
+  // ISO 216 sheet dimensions in millimetres; convert before display rounding.
+  const ISO_A_SIZES = [
+    ["A6", 105, 148], ["A5", 148, 210], ["A4", 210, 297],
+    ["A3", 297, 420], ["A2", 420, 594], ["A1", 594, 841],
+    ["A0", 841, 1189]
+  ];
+
   const MODE_COPY = {
     matting: {
       title: "Add white border for matting",
@@ -1096,6 +1103,9 @@
   function populatePresetSelect(select, defaultPair) {
     select.innerHTML = "";
 
+    const inchGroup = document.createElement("optgroup");
+    inchGroup.label = "Common sizes · inches";
+    select.appendChild(inchGroup);
     FRAME_PRESETS.forEach((pair) => {
       const option = document.createElement("option");
       option.value = pair[0] + "x" + pair[1];
@@ -1103,8 +1113,18 @@
       if (pair[0] === defaultPair[0] && pair[1] === defaultPair[1]) {
         option.selected = true;
       }
-      select.appendChild(option);
+      inchGroup.appendChild(option);
     });
+
+    const isoGroup = document.createElement("optgroup");
+    isoGroup.label = "ISO A-series · millimetres";
+    ISO_A_SIZES.forEach(([name, width, height]) => {
+      const option = document.createElement("option");
+      option.value = (width / 25.4) + "x" + (height / 25.4);
+      option.textContent = name + " · " + width + " × " + height + " mm";
+      isoGroup.appendChild(option);
+    });
+    select.appendChild(isoGroup);
 
     const custom = document.createElement("option");
     custom.value = "custom";
@@ -1132,8 +1152,8 @@
       return;
     }
 
-    widthField.value = trimNumber(pair[0]);
-    heightField.value = trimNumber(pair[1]);
+    widthField.value = String(roundTo(pair[0], 3));
+    heightField.value = String(roundTo(pair[1], 3));
   }
 
   function autoOrientFrameFields(widthField, heightField, presetSelect) {
@@ -1150,8 +1170,8 @@
     const pairIsLandscape = pair[0] >= pair[1];
     const oriented = imageIsLandscape === pairIsLandscape ? pair : [pair[1], pair[0]];
 
-    widthField.value = trimNumber(oriented[0]);
-    heightField.value = trimNumber(oriented[1]);
+    widthField.value = String(roundTo(oriented[0], 3));
+    heightField.value = String(roundTo(oriented[1], 3));
   }
 
   function parsePresetValue(value) {
