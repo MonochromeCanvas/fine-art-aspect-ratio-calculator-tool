@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Inches to Pixels Converter | Monochrome Canvas</title>
+  <meta name="description" content="Convert inches to pixels or pixels to inches. Plan artwork dimensions with custom PPI, common print sizes, and instant results. A free Monochrome Canvas studio tool.">
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="style.css?v=20261110-guidance">
+  <link rel="stylesheet" href="../studio-tools.css?v=20260930-logo-right">
+  <style>
+body.mc-tools { background: transparent; }
+.mc-tools .app-shell { max-width: none; padding: 4px; }
+.mc-tools .workspace { box-shadow: none; }
+@media(max-width:600px) { .mc-tools .workspace { padding: 20px 16px; } }
+  </style>
+  <script src="script.js" defer></script>
+</head>
+<body class="mc-tools">
+<a class="studio-skip" href="#converter-title">Skip to the converter</a>
+<main class="app-shell">
+  <noscript><p class="notice">Enable JavaScript to use the converter. To calculate manually, multiply inches by PPI to get pixels, or divide pixels by PPI to get inches.</p></noscript>
+  <section class="workspace" aria-labelledby="converter-title">
+    <div class="section-heading"><div><p class="section-label">Your artwork, in numbers</p><h2 id="converter-title" tabindex="-1">Let’s find your dimensions.</h2></div><button class="text-button" id="reset" type="button">Reset</button></div>
+    <div class="converter-grid">
+      <div class="controls">
+        <label for="direction">Convert</label>
+        <select id="direction"><option value="inches">Inches → pixels</option><option value="pixels">Pixels → inches</option></select>
+        <div class="measurements">
+          <div><label for="width" id="width-label">Width (inches)</label><input id="width" type="text" inputmode="decimal" value="8" autocomplete="off" aria-describedby="measurement-help error"></div>
+          <div><label for="height" id="height-label">Height (inches, optional)</label><input id="height" type="text" inputmode="decimal" value="10" autocomplete="off" aria-describedby="measurement-help error"></div>
+        </div>
+        <p class="help" id="measurement-help">Use decimals or fractions, like 8.5 or 8 1/2. Leave height blank for one measurement.</p>
+        <div class="resolution-heading"><label for="ppi">Resolution (PPI)</label><span>Pixels per inch</span></div>
+        <input id="ppi" type="number" min="0" step="any" inputmode="decimal" value="300" aria-describedby="ppi-help error">
+        <div class="resolution-options" aria-label="Resolution shortcuts"><button type="button" data-ppi="96" aria-pressed="false">96 · Web</button><button type="button" data-ppi="150" aria-pressed="false">150 PPI</button><button type="button" data-ppi="300" aria-pressed="true">300 · Print</button></div>
+        <p class="help" id="ppi-help">Start with 300 PPI for detailed print planning. Use 96 for CSS web dimensions; on-screen physical size varies by device and zoom.</p>
+        <p id="error" class="error" role="status" hidden></p>
+        <div class="presets"><label for="preset">Start with a common print size</label><select id="preset"><option value="">Custom size</option><option value="4,6">4 × 6 in</option><option value="5,7">5 × 7 in</option><option value="8,10" selected>8 × 10 in</option><option value="8.5,11">8.5 × 11 in · US Letter</option><option value="11,14">11 × 14 in</option><option value="11,17">11 × 17 in</option><option value="12,12">12 × 12 in</option><option value="16,20">16 × 20 in</option><option value="18,24">18 × 24 in</option><option value="24,36">24 × 36 in</option></select><button id="swap" class="text-button" type="button">Swap width &amp; height ↔</button></div>
+      </div>
+      <div class="result-panel">
+        <div role="status" aria-live="polite" aria-atomic="true"><p class="section-label" id="result-label">Your file dimensions</p><h3 id="result">2,400 × 3,000 <span>pixels</span></h3><p id="result-context">8 × 10 inches at 300 PPI</p><p class="rounding" id="rounding">Pixel requirements round up to whole pixels.</p></div>
+        <button type="button" class="copy-button" id="copy">Copy dimensions</button><p id="copy-status" class="help" role="status"></p>
+        <div class="preview" aria-hidden="true"><div id="paper"><span id="paper-caption">8 × 10 in</span></div></div>
+        <p class="preview-note" id="preview-note">Proportions preview · not actual size</p>
+      </div>
+    </div>
+  </section>
+</main>
+</body>
+</html>
