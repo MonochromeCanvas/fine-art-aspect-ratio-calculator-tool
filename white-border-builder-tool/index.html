@@ -162,19 +162,20 @@
                 </p>
                 <div class="field-grid">
                   <label class="field field--wide">
-                    <span>Common frame size</span>
-                    <select id="fitFramePreset"></select>
+                    <span>Print / frame size</span>
+                    <select id="fitFramePreset" aria-describedby="fitIsoHelp"></select>
+                    <span id="fitIsoHelp" class="field-help">Includes A6–A0. ISO sizes use millimetres; inch fields are approximate. Large sizes may take longer to export.</span>
                   </label>
                   <button id="fitSwap" class="swap-button" type="button">Swap orientation</button>
                 </div>
                 <div class="field-grid">
                   <label class="field">
                     <span>Final width (inches)</span>
-                    <input id="fitFrameWidth" type="number" min="1" step="0.01" inputmode="decimal">
+                    <input id="fitFrameWidth" type="number" min="1" step="0.001" inputmode="decimal">
                   </label>
                   <label class="field">
                     <span>Final height (inches)</span>
-                    <input id="fitFrameHeight" type="number" min="1" step="0.01" inputmode="decimal">
+                    <input id="fitFrameHeight" type="number" min="1" step="0.001" inputmode="decimal">
                   </label>
                   <label class="field">
                     <span>Minimum white border on all sides (0-10 inches)</span>
@@ -192,19 +193,20 @@
                 </p>
                 <div class="field-grid">
                   <label class="field field--wide">
-                    <span>Common frame size</span>
-                    <select id="evenFramePreset"></select>
+                    <span>Print / frame size</span>
+                    <select id="evenFramePreset" aria-describedby="evenIsoHelp"></select>
+                    <span id="evenIsoHelp" class="field-help">Includes A6–A0. ISO sizes use millimetres; inch fields are approximate. Large sizes may take longer to export.</span>
                   </label>
                   <button id="evenSwap" class="swap-button" type="button">Swap orientation</button>
                 </div>
                 <div class="field-grid">
                   <label class="field">
                     <span>Final width (inches)</span>
-                    <input id="evenFrameWidth" type="number" min="1" step="0.01" inputmode="decimal">
+                    <input id="evenFrameWidth" type="number" min="1" step="0.001" inputmode="decimal">
                   </label>
                   <label class="field">
                     <span>Final height (inches)</span>
-                    <input id="evenFrameHeight" type="number" min="1" step="0.01" inputmode="decimal">
+                    <input id="evenFrameHeight" type="number" min="1" step="0.001" inputmode="decimal">
                   </label>
                 </div>
               </div>
@@ -322,7 +324,7 @@
       </div>
     </main>
 
-    <script src="./script.js"></script>
+    <script src="./script.js?v=20261110-iso-a"></script>
     <script src="./download-name-patch.js?v=20260922-final-size-filenames"></script>
   </body>
 </html>
