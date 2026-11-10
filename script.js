@@ -23,6 +23,34 @@ document.addEventListener("DOMContentLoaded", function () {
     { width: 24, height: 36, label: "24 x 36", family: "2:3" }
   ];
 
+  const ISO_A_SIZES = [
+    { name: "A6", width: 105, height: 148 },
+    { name: "A5", width: 148, height: 210 },
+    { name: "A4", width: 210, height: 297 },
+    { name: "A3", width: 297, height: 420 },
+    { name: "A2", width: 420, height: 594 },
+    { name: "A1", width: 594, height: 841 },
+    { name: "A0", width: 841, height: 1189 }
+  ];
+
+  function selectedIsoSize() {
+    const size = ISO_A_SIZES.find(item => item.name === document.getElementById("isoPaperSize").value) || ISO_A_SIZES[2];
+    return document.getElementById("isoPaperOrientation").value === "landscape"
+      ? { name: size.name, width: size.height, height: size.width } : size;
+  }
+
+  function renderIsoSize() {
+    const size = selectedIsoSize();
+    const width = size.width / 25.4;
+    const height = size.height / 25.4;
+    document.getElementById("isoPaperDimensions").textContent = size.name + " · " + size.width + " × " + size.height + " mm · approximately " + formatSize(width, height) + " in";
+    document.getElementById("isoPaperPixels").textContent = Math.ceil(width * 300).toLocaleString("en-US") + " × " + Math.ceil(height * 300).toLocaleString("en-US") + " pixels at 300 PPI (rounded up).";
+    document.getElementById("isoUseSize").hidden = !state.image;
+    document.getElementById("isoPaperFit").textContent = state.image
+      ? "Your uploaded image: about " + Math.floor(Math.min(state.image.width / width, state.image.height / height)) + " PPI when cropped to fill. Check the image for crop and border guidance."
+      : "Upload an image above to check its resolution and fit at this paper size.";
+  }
+
   const KNOWN_RATIOS = [
     { label: "1:1", ratio: 1, note: "a square artwork shape" },
     { label: "4:5", ratio: 4 / 5, note: "a common wall art ratio" },
@@ -417,6 +445,7 @@ document.addEventListener("DOMContentLoaded", function () {
     renderRatioTask();
     renderResizeTask();
     renderQualityTask();
+    renderIsoSize();
     postHeight();
   }
 
@@ -681,6 +710,27 @@ document.addEventListener("DOMContentLoaded", function () {
   });
   [converter.width, converter.height, converter.ppi].forEach(input => input.addEventListener("input", renderConverter));
   renderConverter();
+
+  const isoSelect = document.getElementById("isoPaperSize");
+  ISO_A_SIZES.forEach(size => {
+    const option = document.createElement("option");
+    option.value = size.name;
+    option.textContent = size.name + " · " + size.width + " × " + size.height + " mm";
+    option.selected = size.name === "A4";
+    isoSelect.appendChild(option);
+  });
+  [isoSelect, document.getElementById("isoPaperOrientation")].forEach(input => input.addEventListener("change", () => { renderIsoSize(); postHeight(); }));
+  document.getElementById("isoPaperDetails").addEventListener("toggle", postHeight);
+  document.getElementById("isoUseSize").addEventListener("click", () => {
+    if (!state.image) return;
+    const size = selectedIsoSize();
+    elements.qualityWidth.value = String(size.width / 25.4);
+    elements.qualityHeight.value = String(size.height / 25.4);
+    elements.qualityExtras.open = true;
+    renderAll();
+    elements.qualityExtras.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+  renderIsoSize();
 
   hideRatioResult();
   hideResizeResult();
