@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Inches to Pixels Converter | Monochrome Canvas</title>
+  <meta name="description" content="Convert inches to pixels or pixels to inches. Plan artwork dimensions with custom PPI, common print sizes, and instant results. A free Monochrome Canvas studio tool.">
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="../studio-tools.css?v=20260930-logo-right">
+  <script src="script.js" defer></script>
+</head>
+<body class="mc-tools">
+<a class="studio-skip" href="#converter-title">Skip to the converter</a>
+<main class="app-shell">
+  <header class="hero">
+    <a class="studio-logo-link" href="https://monochromecanvas.com" target="_blank" rel="noopener" aria-label="Monochrome Canvas — visit our shop"><img class="studio-logo" src="https://monochromecanvas.com/cdn/shop/files/logo-bw.png?v=1697491251&amp;width=600" alt="Monochrome Canvas" width="457" height="261" decoding="async"></a>
+    <p class="eyebrow">A free print-planning tool from Monochrome Canvas, the fine art studio of artist Joëlle Diane Zellman.</p>
+    <h1>Inches to Pixels Converter</h1>
+    <p class="hero-copy">From the size you imagine to the pixels you need. Convert artwork dimensions for print, or work backward from pixels to inches.</p>
+    <p class="hero-note">Instant results · Custom resolution · No upload needed</p>
+  </header>
+  <nav class="studio-navigation" aria-label="Monochrome Canvas tools and shop">
+    <a class="studio-shop-link" href="https://monochromecanvas.com/collections/order-giclee-prints?utm_source=inches_to_pixels&amp;utm_medium=tool&amp;utm_campaign=print_planning" target="_blank" rel="noopener">Print shop ↗</a>
+    <a href="https://monochromecanvas.com/pages/contact" target="_blank" rel="noopener">Ask the studio ↗</a>
+    <details class="studio-tool-menu"><summary>More studio tools</summary><div class="studio-tool-list"><a href="../index.html" target="_blank" rel="noopener">Print size helper ↗</a><a href="index.html" aria-current="page">Inches to Pixels Converter</a><a href="../white-border-builder-tool/index.html" target="_blank" rel="noopener">White Border Builder ↗</a><a href="../custom-size-request/index.html" target="_blank" rel="noopener">Custom Size Request ↗</a><a href="../invoice-my-client/index.html" target="_blank" rel="noopener">Invoice My Client ↗</a><p>Other tools open in a new tab so you can keep your work here.</p></div></details>
+    <a class="studio-creative-link" href="../commission-cost-calculator/index.html" target="_blank" rel="noopener">Work with Joëlle ↗</a>
+  </nav>
+  <noscript><p class="notice">Enable JavaScript to use the converter. To calculate manually, multiply inches by PPI to get pixels, or divide pixels by PPI to get inches.</p></noscript>
+  <section class="workspace" aria-labelledby="converter-title">
+    <div class="section-heading"><div><p class="section-label">Your artwork, in numbers</p><h2 id="converter-title" tabindex="-1">Let’s find your dimensions.</h2></div><button class="text-button" id="reset" type="button">Reset</button></div>
+    <div class="converter-grid">
+      <div class="controls">
+        <label for="direction">Convert</label>
+        <select id="direction"><option value="inches">Inches → pixels</option><option value="pixels">Pixels → inches</option></select>
+        <div class="measurements">
+          <div><label for="width" id="width-label">Width (inches)</label><input id="width" type="text" inputmode="decimal" value="8" autocomplete="off" aria-describedby="measurement-help error"></div>
+          <div><label for="height" id="height-label">Height (inches, optional)</label><input id="height" type="text" inputmode="decimal" value="10" autocomplete="off" aria-describedby="measurement-help error"></div>
+        </div>
+        <p class="help" id="measurement-help">Use decimals or fractions, like 8.5 or 8 1/2. Leave height blank for one measurement.</p>
+        <div class="resolution-heading"><label for="ppi">Resolution (PPI)</label><span>Pixels per inch</span></div>
+        <input id="ppi" type="number" min="0" step="any" inputmode="decimal" value="300" aria-describedby="ppi-help error">
+        <div class="resolution-options" aria-label="Resolution shortcuts"><button type="button" data-ppi="96" aria-pressed="false">96 · Web</button><button type="button" data-ppi="150" aria-pressed="false">150 PPI</button><button type="button" data-ppi="300" aria-pressed="true">300 · Print</button></div>
+        <p class="help" id="ppi-help">Start with 300 PPI for detailed print planning. Use 96 for CSS web dimensions; on-screen physical size varies by device and zoom.</p>
+        <p id="error" class="error" role="status" hidden></p>
+        <div class="presets"><label for="preset">Start with a common print size</label><select id="preset"><option value="">Custom size</option><option value="4,6">4 × 6 in</option><option value="5,7">5 × 7 in</option><option value="8,10" selected>8 × 10 in</option><option value="8.5,11">8.5 × 11 in · US Letter</option><option value="11,14">11 × 14 in</option><option value="11,17">11 × 17 in</option><option value="12,12">12 × 12 in</option><option value="16,20">16 × 20 in</option><option value="18,24">18 × 24 in</option><option value="24,36">24 × 36 in</option></select><button id="swap" class="text-button" type="button">Swap width &amp; height ↔</button></div>
+      </div>
+      <div class="result-panel">
+        <div role="status" aria-live="polite" aria-atomic="true"><p class="section-label" id="result-label">Your file dimensions</p><h3 id="result">2,400 × 3,000 <span>pixels</span></h3><p id="result-context">8 × 10 inches at 300 PPI</p><p class="rounding" id="rounding">Pixel requirements round up to whole pixels.</p></div>
+        <button type="button" class="copy-button" id="copy">Copy dimensions</button><p id="copy-status" class="help" role="status"></p>
+        <div class="preview" aria-hidden="true"><div id="paper"><span id="paper-caption">8 × 10 in</span></div></div>
+        <p class="preview-note" id="preview-note">Proportions preview · not actual size</p>
+      </div>
+    </div>
+  </section>
+  <section class="notes" aria-label="A little print-planning guidance">
+    <div><p class="section-label">The simple math</p><h2>Inches × PPI = pixels.</h2><p>An 8 × 10 inch print at 300 PPI needs 2,400 × 3,000 pixels. To go the other way, divide pixels by PPI.</p></div>
+    <div><p class="section-label">Before you print</p><h2>Size is one part of the picture.</h2><p>This tool calculates dimensions; it doesn’t resize a file or add detail. Setting a higher PPI here won’t make a small image sharper. PPI describes image resolution; printer DPI describes ink dots.</p><a href="../index.html" target="_blank" rel="noopener">Check your actual artwork in the Print Size Helper ↗</a></div>
+  </section>
+  <footer>Made for artists, photographers, and the images you love.<br><a href="https://monochromecanvas.com" target="_blank" rel="noopener">Monochrome Canvas ↗</a></footer>
+</main>
+</body>
+</html>

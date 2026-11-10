@@ -34,3 +34,8 @@ Additional browser checks: `node tests/custom-size-multiple.cjs`, `node tests/cu
 The existing GitHub Pages deployment serves the root of `main`. Keep the HTML, script and stylesheet in the same release. The parent-page `getHeight` / `monochrome-canvas-calculator-height` message contract is preserved for Shopify embeds.
 
 Print-shop and contact links use `utm_source=aspect_ratio_helper`, `utm_medium=tool`, and `utm_campaign=print_planning` so downstream analytics can attribute referrals. No artwork data or filename is included in these URLs, and no analytics script runs in this helper.
+
+
+## Standalone Inches to Pixels Converter
+
+`inches-to-pixels/index.html` provides instant inches ↔ pixels conversions without an artwork upload. It defaults to 8 × 10 inches at 300 PPI, accepts decimal or fractional inches, supports an optional height, custom PPI and 96/150/300 PPI shortcuts, common print-size presets, orientation swapping, a proportions preview, and copying dimensions. Pixel requirements round up; inch results display up to four decimal places. Copying preserves additional precision. This calculates dimensions without changing an image. It uses the shared studio branding and embed height contract and is linked from the four print-planning tool menus and the existing inline converter.

@@ -14,9 +14,9 @@ const routes=['index.html','white-border-builder-tool/index.html','custom-size-r
    assert.match(await page.locator('h1').evaluate(e=>getComputedStyle(e).fontFamily),/Gloock/);
    assert.match(await page.locator('.hero,.hero-card').first().evaluate(e=>getComputedStyle(e).backgroundImage),/nav-bg.jpg/);
    await page.locator('.studio-tool-menu summary').click();
-   assert.equal(await page.locator('.studio-tool-list a').count(),i<4?4:3);
+   assert.equal(await page.locator('.studio-tool-list a').count(),i<4?5:3);
    assert.equal(await page.locator('.studio-tool-list [aria-current=page]').count(),1);
-   assert.equal(await page.locator('.studio-tool-list a[target=_blank]').count(),i<4?3:2);
+   assert.equal(await page.locator('.studio-tool-list a[target=_blank]').count(),i<4?4:2);
    await page.locator('.studio-tool-menu summary').click();
    await page.screenshot({path:'/tmp/studio-tool-'+i+'-desktop.png'});
    for(const width of [390,320]) {
